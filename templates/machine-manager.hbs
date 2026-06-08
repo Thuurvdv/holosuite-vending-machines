@@ -1,0 +1,31 @@
+<section class="holosuite-vending-manager">
+  <header class="holosuite-vending-toolbar">
+    <div>
+      <p class="holosuite-vending-kicker">Machine Network</p>
+      <h2>Vending Machines</h2>
+      <span>Currency item: {{currencyName}}</span>
+    </div>
+    <button type="button" data-action="create-machine"><i class="fas fa-plus"></i> Create Machine</button>
+  </header>
+
+  <div class="holosuite-vending-machine-list">
+    {{#each machines}}
+      <article class="holosuite-vending-machine-row">
+        <img src="{{image}}" alt="" />
+        <div>
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          <span>{{inventory.length}} inventory entries</span>
+        </div>
+        <menu>
+          <button type="button" data-action="place-machine" data-machine-id="{{id}}"><i class="fas fa-location-crosshairs"></i> Place</button>
+          <button type="button" data-action="place-machine-selected" data-machine-id="{{id}}"><i class="fas fa-user"></i> At Token</button>
+          <button type="button" data-action="edit-machine" data-machine-id="{{id}}"><i class="fas fa-pen"></i> Edit</button>
+          <button type="button" data-action="delete-machine" data-machine-id="{{id}}"><i class="fas fa-trash"></i> Delete</button>
+        </menu>
+      </article>
+    {{else}}
+      <p class="holosuite-vending-empty">No vending machines configured.</p>
+    {{/each}}
+  </div>
+</section>

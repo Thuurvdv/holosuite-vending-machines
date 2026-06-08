@@ -1,0 +1,359 @@
+:root {
+  --holosuite-vending-bg: #05070d;
+  --holosuite-vending-panel: rgba(8, 18, 28, 0.94);
+  --holosuite-vending-panel-strong: rgba(12, 30, 42, 0.98);
+  --holosuite-vending-field: rgba(2, 12, 20, 0.88);
+  --holosuite-vending-line: rgba(105, 232, 255, 0.3);
+  --holosuite-vending-line-strong: rgba(125, 249, 255, 0.62);
+  --holosuite-vending-text: #e7faff;
+  --holosuite-vending-muted: #8fb5bf;
+  --holosuite-vending-cyan: #69e8ff;
+  --holosuite-vending-green: #62ffb6;
+  --holosuite-vending-magenta: #ff4d7d;
+  --holosuite-vending-amber: #ffd166;
+}
+
+.holosuite-vending-window {
+  color: var(--holosuite-vending-text);
+  color-scheme: dark;
+  font-family: "Rajdhani", "Orbitron", "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0;
+}
+
+.holosuite-vending-window * {
+  box-sizing: border-box;
+}
+
+.holosuite-vending-window .window-content {
+  padding: 0;
+  background:
+    linear-gradient(rgba(231, 250, 255, 0.026) 50%, rgba(0, 0, 0, 0.035) 50%) 0 0 / 100% 4px,
+    radial-gradient(circle at 20% 10%, rgba(105, 232, 255, 0.16), transparent 28rem),
+    radial-gradient(circle at 90% 12%, rgba(255, 77, 125, 0.1), transparent 24rem),
+    var(--holosuite-vending-bg);
+  color: var(--holosuite-vending-text);
+}
+
+.holosuite-vending-window button {
+  min-height: 32px;
+  border: 1px solid var(--holosuite-vending-line);
+  border-radius: 6px;
+  background: linear-gradient(180deg, rgba(20, 46, 58, 0.86), rgba(5, 17, 26, 0.94));
+  color: var(--holosuite-vending-text);
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.holosuite-vending-window button:hover,
+.holosuite-vending-window button:focus-visible {
+  border-color: var(--holosuite-vending-line-strong);
+  box-shadow: 0 0 16px rgba(105, 232, 255, 0.24);
+  outline: none;
+}
+
+.holosuite-vending-window button:disabled {
+  cursor: not-allowed;
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.holosuite-vending-window input,
+.holosuite-vending-window textarea,
+.holosuite-vending-window select {
+  border: 1px solid rgba(105, 232, 255, 0.24);
+  border-radius: 6px;
+  background: var(--holosuite-vending-field);
+  color: var(--holosuite-vending-text);
+}
+
+.holosuite-vending-shell,
+.holosuite-vending-manager,
+.holosuite-vending-editor {
+  min-height: 100%;
+  padding: 14px;
+}
+
+.holosuite-vending-header {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 14px;
+  align-items: center;
+  min-height: 124px;
+  padding: 14px;
+  border-bottom: 1px solid var(--holosuite-vending-line);
+  background: rgba(2, 13, 24, 0.72);
+}
+
+.holosuite-vending-header img,
+.holosuite-vending-machine-row img,
+.holosuite-vending-entry-editor > img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--holosuite-vending-line);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.holosuite-vending-header h2,
+.holosuite-vending-toolbar h2,
+.holosuite-vending-details h3,
+.holosuite-vending-machine-row h3 {
+  margin: 0;
+  color: var(--holosuite-vending-text);
+  letter-spacing: 0;
+}
+
+.holosuite-vending-header p,
+.holosuite-vending-machine-row p {
+  margin: 4px 0;
+  color: var(--holosuite-vending-muted);
+}
+
+.holosuite-vending-kicker {
+  margin: 0;
+  color: var(--holosuite-vending-cyan);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.holosuite-vending-actor,
+.holosuite-vending-toolbar span,
+.holosuite-vending-machine-row span {
+  color: var(--holosuite-vending-green);
+  font-size: 13px;
+}
+
+.holosuite-vending-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 14px;
+  padding: 14px 0 0;
+}
+
+.holosuite-vending-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  align-content: start;
+  gap: 10px;
+}
+
+.holosuite-vending-product {
+  position: relative;
+  display: grid;
+  aspect-ratio: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.holosuite-vending-product img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.holosuite-vending-product.is-selected {
+  border-color: var(--holosuite-vending-green);
+  box-shadow: 0 0 18px rgba(98, 255, 182, 0.26);
+}
+
+.holosuite-vending-product.is-sold-out img {
+  filter: grayscale(1) brightness(0.42);
+}
+
+.holosuite-vending-stock,
+.holosuite-vending-sold-out {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(2, 13, 24, 0.9);
+  color: var(--holosuite-vending-text);
+  font-size: 12px;
+}
+
+.holosuite-vending-sold-out {
+  inset: auto 6px 30px 6px;
+  color: var(--holosuite-vending-magenta);
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.holosuite-vending-details,
+.holosuite-vending-editor-main,
+.holosuite-vending-inventory-panel,
+.holosuite-vending-machine-row,
+.holosuite-vending-entry-editor {
+  border: 1px solid var(--holosuite-vending-line);
+  border-radius: 6px;
+  background: linear-gradient(180deg, var(--holosuite-vending-panel-strong), var(--holosuite-vending-panel));
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.38), inset 0 0 28px rgba(105, 232, 255, 0.08);
+}
+
+.holosuite-vending-details {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 12px;
+}
+
+.holosuite-vending-detail-image {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid var(--holosuite-vending-line);
+  border-radius: 6px;
+}
+
+.holosuite-vending-description {
+  max-height: 180px;
+  overflow: auto;
+  color: var(--holosuite-vending-muted);
+}
+
+.holosuite-vending-details dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.holosuite-vending-details dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.holosuite-vending-details dt {
+  color: var(--holosuite-vending-muted);
+}
+
+.holosuite-vending-details dd {
+  margin: 0;
+  color: var(--holosuite-vending-amber);
+}
+
+.holosuite-vending-toolbar,
+.holosuite-vending-form-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.holosuite-vending-machine-list,
+.holosuite-vending-drop-zone {
+  display: grid;
+  gap: 10px;
+}
+
+.holosuite-vending-machine-row {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px;
+}
+
+.holosuite-vending-machine-row menu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(86px, 1fr));
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+}
+
+.holosuite-vending-machine-row menu button {
+  white-space: nowrap;
+}
+
+.holosuite-vending-editor {
+  display: grid;
+  gap: 12px;
+}
+
+.holosuite-vending-editor-main {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+}
+
+.holosuite-vending-editor-main .stacked {
+  grid-column: 1 / -1;
+}
+
+.holosuite-vending-editor .form-group {
+  display: grid;
+  gap: 4px;
+}
+
+.holosuite-vending-path-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 38px;
+  gap: 6px;
+}
+
+.holosuite-vending-path-row button {
+  min-width: 38px;
+  padding: 0;
+}
+
+.holosuite-vending-inventory-panel {
+  padding: 12px;
+}
+
+.holosuite-vending-drop-zone {
+  min-height: 180px;
+  padding: 8px;
+  border: 1px dashed rgba(105, 232, 255, 0.24);
+  border-radius: 6px;
+}
+
+.holosuite-vending-entry-editor {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) 148px;
+  gap: 10px;
+  padding: 10px;
+}
+
+.holosuite-vending-entry-fields,
+.holosuite-vending-entry-numbers {
+  display: grid;
+  gap: 8px;
+}
+
+.holosuite-vending-entry-numbers label {
+  display: grid;
+  gap: 3px;
+  color: var(--holosuite-vending-muted);
+}
+
+.holosuite-vending-empty {
+  margin: 0;
+  padding: 18px;
+  border: 1px dashed var(--holosuite-vending-line);
+  border-radius: 6px;
+  color: var(--holosuite-vending-muted);
+  text-align: center;
+}
+
+body.holosuite-vending-placement-active {
+  cursor: crosshair;
+}
+
+@media (max-width: 760px) {
+  .holosuite-vending-layout,
+  .holosuite-vending-machine-row,
+  .holosuite-vending-entry-editor,
+  .holosuite-vending-editor-main {
+    grid-template-columns: 1fr;
+  }
+
+  .holosuite-vending-header {
+    grid-template-columns: 72px 1fr;
+  }
+}

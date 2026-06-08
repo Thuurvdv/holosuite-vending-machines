@@ -1,0 +1,55 @@
+<form class="holosuite-vending-editor">
+  <section class="holosuite-vending-editor-main">
+    <div class="form-group">
+      <label>Name</label>
+      <input type="text" name="machine.name" value="{{machine.name}}" />
+    </div>
+    <div class="form-group">
+      <label>Image/Icon</label>
+      <div class="holosuite-vending-path-row">
+        <input type="text" name="machine.image" value="{{machine.image}}" data-dtype="String" />
+        <button type="button" data-action="browse-machine-image" title="Browse"><i class="fas fa-folder-open"></i></button>
+      </div>
+    </div>
+    <div class="form-group stacked">
+      <label>Description</label>
+      <textarea name="machine.description" rows="3">{{machine.description}}</textarea>
+    </div>
+  </section>
+
+  <section class="holosuite-vending-inventory-panel">
+    <header class="holosuite-vending-toolbar">
+      <div>
+        <p class="holosuite-vending-kicker">Inventory</p>
+        <span>Drag Items here from the sidebar or actor sheets.</span>
+      </div>
+      <button type="button" data-action="add-entry"><i class="fas fa-plus"></i> Add Entry</button>
+    </header>
+
+    <div class="holosuite-vending-drop-zone">
+      {{#each machine.inventory}}
+        <article class="holosuite-vending-entry-editor">
+          <img src="{{image}}" alt="" />
+          <div class="holosuite-vending-entry-fields">
+            <input type="text" name="entries.{{id}}.displayName" value="{{displayName}}" placeholder="Display name" />
+            <input type="text" name="entries.{{id}}.image" value="{{image}}" placeholder="Image" />
+            <input type="text" name="entries.{{id}}.itemUuid" value="{{itemUuid}}" placeholder="Item UUID" />
+            <textarea name="entries.{{id}}.description" rows="2" placeholder="Description">{{description}}</textarea>
+          </div>
+          <div class="holosuite-vending-entry-numbers">
+            <label>Price <input type="number" name="entries.{{id}}.price" value="{{price}}" min="0" step="1" /></label>
+            <label>Stock <input type="number" name="entries.{{id}}.stock" value="{{stock}}" min="0" step="1" /></label>
+            <label>Max <input type="number" name="entries.{{id}}.maxStock" value="{{maxStock}}" min="0" step="1" /></label>
+            <button type="button" data-action="remove-entry" data-entry-id="{{id}}"><i class="fas fa-trash"></i> Remove</button>
+          </div>
+        </article>
+      {{else}}
+        <p class="holosuite-vending-empty">Drop an Item here or add an empty entry.</p>
+      {{/each}}
+    </div>
+  </section>
+
+  <footer class="holosuite-vending-form-footer">
+    <button type="button" data-action="save-machine"><i class="fas fa-save"></i> Save Machine</button>
+  </footer>
+</form>

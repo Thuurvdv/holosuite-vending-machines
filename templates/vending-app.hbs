@@ -1,0 +1,52 @@
+<section class="holosuite-vending-shell">
+  <header class="holosuite-vending-header">
+    <img src="{{machine.image}}" alt="" />
+    <div>
+      <p class="holosuite-vending-kicker">HoloSuite Vendor</p>
+      <h2>{{machine.name}}</h2>
+      <p>{{machine.description}}</p>
+      {{#if actorName}}<span class="holosuite-vending-actor">Buyer: {{actorName}}</span>{{/if}}
+    </div>
+  </header>
+
+  <div class="holosuite-vending-layout">
+    <div class="holosuite-vending-product-grid">
+      {{#each entries}}
+        <button
+          type="button"
+          class="holosuite-vending-product {{#if selected}}is-selected{{/if}} {{#if soldOut}}is-sold-out{{/if}}"
+          data-action="select-entry"
+          data-entry-id="{{id}}"
+        >
+          <img src="{{image}}" alt="" />
+          <span class="holosuite-vending-stock">{{stock}}/{{maxStock}}</span>
+          {{#if soldOut}}<span class="holosuite-vending-sold-out">Sold Out</span>{{/if}}
+        </button>
+      {{else}}
+        <p class="holosuite-vending-empty">This vending machine has no inventory.</p>
+      {{/each}}
+    </div>
+
+    <aside class="holosuite-vending-details">
+      {{#if selected}}
+        <img class="holosuite-vending-detail-image" src="{{selected.image}}" alt="" />
+        <h3>{{selected.displayName}}</h3>
+        <div class="holosuite-vending-description">{{{selected.description}}}</div>
+        <dl>
+          <div>
+            <dt>Price</dt>
+            <dd>{{selected.price}} {{currencyName}}</dd>
+          </div>
+          <div>
+            <dt>Stock</dt>
+            <dd>{{selected.stock}} / {{selected.maxStock}}</dd>
+          </div>
+        </dl>
+        <button type="button" data-action="buy" {{#if selectedSoldOut}}disabled{{/if}}>Buy</button>
+      {{else}}
+        <p class="holosuite-vending-empty">Select a product slot.</p>
+      {{/if}}
+    </aside>
+  </div>
+</section>
+

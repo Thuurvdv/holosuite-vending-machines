@@ -1,0 +1,28 @@
+<section class="holosuite-vending-browser">
+  <header class="holosuite-vending-toolbar">
+    <div>
+      <p class="holosuite-vending-kicker">Scene Access</p>
+      <h2>{{sceneName}}</h2>
+      {{#if actorName}}<span>Buyer: {{actorName}}</span>{{else}}<span>No actor selected or assigned</span>{{/if}}
+    </div>
+  </header>
+
+  <div class="holosuite-vending-machine-list">
+    {{#each machines}}
+      <article class="holosuite-vending-machine-row">
+        <img src="{{image}}" alt="" />
+        <div>
+          <h3>{{name}}</h3>
+          <p>{{description}}</p>
+          <span>{{inventoryCount}} inventory entries</span>
+        </div>
+        <menu>
+          <button type="button" data-action="open-machine" data-machine-id="{{machineId}}"><i class="fas fa-store"></i> Open</button>
+        </menu>
+      </article>
+    {{else}}
+      <p class="holosuite-vending-empty">No vending machines are placed on this scene.</p>
+    {{/each}}
+  </div>
+</section>
+

@@ -1,0 +1,48 @@
+{
+  "id": "holosuite-vending-machines",
+  "title": "HoloSuite Vending Machines",
+  "description": "Configurable sci-fi vending machines for Scene Tiles, limited stock, and item-currency purchases.",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Mage Tower Studios",
+      "email": "Magetowerfoundry@gmail.com"
+    }
+  ],
+  "esmodules": [
+    "dist/main.js"
+  ],
+  "styles": [
+    "styles/holosuite-tokens.css",
+    "styles/vending.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
+  "packs": [],
+  "socket": true,
+  "url": "https://github.com/Thuurvdv/MageTowerFoundryModules/tree/main/holosuite-vending-machines",
+  "manifest": "",
+  "download": "",
+  "license": "GPL-3.0-or-later",
+  "readme": "README.md",
+  "relationships": {
+    "requires": [
+      {
+        "id": "holosuite-core",
+        "type": "module",
+        "compatibility": {
+          "minimum": "1.0.0"
+        }
+      }
+    ]
+  }
+}

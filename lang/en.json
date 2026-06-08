@@ -1,0 +1,15 @@
+{
+  "HOLOSUITEVENDING.Settings.CurrencyName.Name": "Currency Item Name",
+  "HOLOSUITEVENDING.Settings.CurrencyName.Hint": "Actor inventory item name used as currency for vending machine purchases.",
+  "HOLOSUITEVENDING.Settings.Manager.Name": "Vending Machines",
+  "HOLOSUITEVENDING.Settings.Manager.Label": "Open Manager",
+  "HOLOSUITEVENDING.Notifications.GMOnly": "Only GMs can manage HoloSuite vending machines.",
+  "HOLOSUITEVENDING.Notifications.NoMachine": "Vending machine not found.",
+  "HOLOSUITEVENDING.Notifications.NoActor": "Select or assign an actor you own before buying.",
+  "HOLOSUITEVENDING.Notifications.NoStock": "That item is sold out.",
+  "HOLOSUITEVENDING.Notifications.NoCurrency": "Actor does not have enough {currency}.",
+  "HOLOSUITEVENDING.Notifications.Purchased": "{actor} purchased {item} for {price} {currency}.",
+  "HOLOSUITEVENDING.Notifications.NoGM": "A GM must be connected to process vending purchases.",
+  "HOLOSUITEVENDING.Tile.Attach": "Attach Vending Machine",
+  "HOLOSUITEVENDING.Tile.Configure": "Configure Vending Machine"
+}
