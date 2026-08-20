@@ -1,55 +1,174 @@
 <form class="holosuite-vending-editor">
   <section class="holosuite-vending-editor-main">
-    <div class="form-group">
-      <label>Name</label>
-      <input type="text" name="machine.name" value="{{machine.name}}" />
-    </div>
-    <div class="form-group">
-      <label>Image/Icon</label>
-      <div class="holosuite-vending-path-row">
-        <input type="text" name="machine.image" value="{{machine.image}}" data-dtype="String" />
-        <button type="button" data-action="browse-machine-image" title="Browse"><i class="fas fa-folder-open"></i></button>
+    <fieldset class="hsv-editor-group">
+      <legend>Identity &amp; Style</legend>
+      <div class="hsv-editor-group-grid">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" name="machine.name" value="{{machine.name}}" />
+        </div>
+        <div class="form-group">
+          <label>Manufacturer</label>
+          <input type="text" name="machine.manufacturerName" value="{{machine.manufacturerName}}" maxlength="48" placeholder="HoloSuite" />
+          <small>Printed verbatim on the machine.</small>
+        </div>
+        <div class="form-group stacked">
+          <label>Machine Style</label>
+          <select name="machine.styleId">
+            {{#each styleOptions}}
+              <option value="{{id}}" data-description="{{description}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+            {{/each}}
+          </select>
+          {{#each styleOptions}}{{#if selected}}<small data-style-description>{{description}}</small>{{/if}}{{/each}}
+        </div>
+        <div class="hsv-style-preview" data-style-preview data-machine-style="{{machine.styleId}}" aria-label="Selected machine style preview">
+          <div class="hsv-style-preview-header"><span data-preview-manufacturer>{{machine.manufacturerName}}</span><strong data-preview-name>{{machine.name}}</strong><i></i></div>
+          <div class="hsv-style-preview-body"><i></i><i></i><i></i><b></b></div>
+          <div class="hsv-style-preview-tray"></div>
+        </div>
       </div>
-    </div>
-    <div class="form-group stacked">
-      <label>Description</label>
-      <textarea name="machine.description" rows="3">{{machine.description}}</textarea>
-    </div>
+    </fieldset>
+
+    <fieldset class="hsv-editor-group">
+      <legend>Presentation</legend>
+      <div class="hsv-editor-group-grid">
+        <div class="form-group">
+          <label>Machine / Brand Image</label>
+          <div class="holosuite-vending-path-row">
+            <input type="text" name="machine.image" value="{{machine.image}}" data-dtype="String" />
+            <button type="button" data-action="browse-machine-image" data-target="machine.image" title="Browse"><i class="fas fa-folder-open"></i></button>
+          </div>
+          <small>Used for scene listings and the machine's brand mark.</small>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select name="machine.status">
+            <option value="online" {{#unless machineOffline}}selected{{/unless}}>Online</option>
+            <option value="offline" {{#if machineOffline}}selected{{/if}}>Offline</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Offline Image</label>
+          <div class="holosuite-vending-path-row">
+            <input type="text" name="machine.offlineImage" value="{{machine.offlineImage}}" />
+            <button type="button" data-action="browse-machine-image" data-target="machine.offlineImage" title="Browse"><i class="fas fa-folder-open"></i></button>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Sold-Out Image</label>
+          <div class="holosuite-vending-path-row">
+            <input type="text" name="machine.soldOutImage" value="{{machine.soldOutImage}}" />
+            <button type="button" data-action="browse-machine-image" data-target="machine.soldOutImage" title="Browse"><i class="fas fa-folder-open"></i></button>
+          </div>
+        </div>
+        <div class="form-group stacked">
+          <label>Description</label>
+          <textarea name="machine.description" rows="3">{{machine.description}}</textarea>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="hsv-editor-group">
+      <legend>Access &amp; Placement</legend>
+      <div class="hsv-editor-group-grid">
+        <div class="form-group holosuite-vending-checkbox">
+          <label><input type="checkbox" name="machine.requireProximity" {{#if machine.access.requireProximity}}checked{{/if}} /> Require presence in a linked Region</label>
+        </div>
+        <div class="form-group">
+          <label>Required Actor Item</label>
+          <input type="text" name="machine.requiredItemName" value="{{machine.access.requiredItemName}}" placeholder="Optional keycard or membership item" />
+        </div>
+        <div class="form-group stacked holosuite-vending-region-links">
+          <label>Linked Regions — {{sceneName}}</label>
+          {{#if hasSceneRegions}}
+            <div class="holosuite-vending-region-list">
+              {{#each regionOptions}}
+                <label class="holosuite-vending-region-choice {{#if selected}}is-selected{{/if}}">
+                  <input type="checkbox" name="machine.regionIds" value="{{id}}" {{#if selected}}checked{{/if}} />
+                  <span>{{name}}</span>
+                </label>
+              {{/each}}
+            </div>
+            <small>Entering any selected Region prompts the owning player to open this vending machine.</small>
+          {{else}}
+            <p class="holosuite-vending-empty">Create a Region in this scene, then reopen the editor to link it.</p>
+          {{/if}}
+        </div>
+        <details class="hsv-legacy-access stacked">
+          <summary>Legacy tile compatibility</summary>
+          <div class="form-group">
+            <label>Tile distance (grid spaces)</label>
+            <input type="number" name="machine.proximityDistance" value="{{machine.access.proximityDistance}}" min="1" step="1" />
+          </div>
+          <small>Only used by vending machines still attached to legacy scene Tiles.</small>
+        </details>
+      </div>
+    </fieldset>
   </section>
 
   <section class="holosuite-vending-inventory-panel">
     <header class="holosuite-vending-toolbar">
       <div>
-        <p class="holosuite-vending-kicker">Inventory</p>
-        <span>Drag Items here from the sidebar or actor sheets.</span>
+        <p class="holosuite-vending-kicker">Inventory Layout</p>
+        <span>Drop Items here, then drag rows or use the arrows to assign slots. {{inventoryCount}} / {{maxProducts}} products.</span>
       </div>
-      <button type="button" data-action="add-entry"><i class="fas fa-plus"></i> Add Entry</button>
+      <button type="button" data-action="add-entry" {{#if inventoryFull}}disabled title="This machine already contains {{maxProducts}} products"{{/if}}><i class="fas fa-plus"></i> Add Product</button>
     </header>
 
-    <div class="holosuite-vending-drop-zone">
-      {{#each machine.inventory}}
-        <article class="holosuite-vending-entry-editor">
-          <img src="{{image}}" alt="" />
+    {{#if hasArchivedProducts}}
+      <div class="hsv-inventory-overflow-warning">
+        <span><i class="fas fa-triangle-exclamation"></i> {{archivedProductCount}} legacy product(s) exceed the nine-slot limit and are preserved but inactive.</span>
+        <div>
+          <button type="button" data-action="restore-archived" {{#if inventoryFull}}disabled title="Remove an active product before restoring one"{{/if}}>Restore Next</button>
+          <button type="button" data-action="discard-archived">Discard Archived</button>
+        </div>
+      </div>
+    {{/if}}
+
+    <div class="holosuite-vending-drop-zone {{#if inventoryFull}}is-full{{/if}}">
+      {{#each entries}}
+        <article class="holosuite-vending-entry-editor" draggable="true" data-entry-id="{{id}}">
+          <div class="hsv-entry-art">
+            <strong class="hsv-entry-slot">{{slotCode}}</strong>
+            <img src="{{image}}" alt="" />
+          </div>
           <div class="holosuite-vending-entry-fields">
+            <div class="hsv-entry-heading">
+              <span class="hsv-drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i> Slot {{slotCode}}</span>
+              <div>
+                <button type="button" data-action="move-entry-up" data-entry-id="{{id}}" aria-label="Move {{displayName}} to the previous slot" {{#if isFirst}}disabled{{/if}}><i class="fas fa-arrow-up"></i></button>
+                <button type="button" data-action="move-entry-down" data-entry-id="{{id}}" aria-label="Move {{displayName}} to the next slot" {{#if isLast}}disabled{{/if}}><i class="fas fa-arrow-down"></i></button>
+              </div>
+            </div>
             <input type="text" name="entries.{{id}}.displayName" value="{{displayName}}" placeholder="Display name" />
-            <input type="text" name="entries.{{id}}.image" value="{{image}}" placeholder="Image" />
-            <input type="text" name="entries.{{id}}.itemUuid" value="{{itemUuid}}" placeholder="Item UUID" />
+            <label class="hsv-editor-display-art">
+              <span>Vending display art <small>Transparent PNG/WebP recommended</small></span>
+              <div class="holosuite-vending-path-row">
+                <input type="text" name="entries.{{id}}.image" value="{{image}}" placeholder="Image" />
+                <button type="button" data-action="browse-machine-image" data-target="entries.{{id}}.image" title="Browse display art"><i class="fas fa-folder-open"></i></button>
+              </div>
+            </label>
             <textarea name="entries.{{id}}.description" rows="2" placeholder="Description">{{description}}</textarea>
           </div>
           <div class="holosuite-vending-entry-numbers">
-            <label>Price <input type="number" name="entries.{{id}}.price" value="{{price}}" min="0" step="1" /></label>
+            <label>Price <input type="number" name="entries.{{id}}.price" value="{{price}}" min="0" step="0.01" /></label>
             <label>Stock <input type="number" name="entries.{{id}}.stock" value="{{stock}}" min="0" step="1" /></label>
-            <label>Max <input type="number" name="entries.{{id}}.maxStock" value="{{maxStock}}" min="0" step="1" /></label>
-            <button type="button" data-action="remove-entry" data-entry-id="{{id}}"><i class="fas fa-trash"></i> Remove</button>
+            <label>Maximum <input type="number" name="entries.{{id}}.maxStock" value="{{maxStock}}" min="0" step="1" /></label>
+            <button type="button" class="hsv-remove-product" data-action="remove-entry" data-entry-id="{{id}}"><i class="fas fa-trash"></i> Remove</button>
           </div>
         </article>
       {{else}}
-        <p class="holosuite-vending-empty">Drop an Item here or add an empty entry.</p>
+        <p class="holosuite-vending-empty">Drop an Item here or add an empty product.</p>
       {{/each}}
     </div>
   </section>
 
   <footer class="holosuite-vending-form-footer">
-    <button type="button" data-action="save-machine"><i class="fas fa-save"></i> Save Machine</button>
+    <span class="hsv-editor-save-state" data-save-state>{{#if isDirty}}Draft changes{{else}}All changes saved{{/if}}</span>
+    <div>
+      <button type="button" data-action="cancel-edit">Cancel</button>
+      <button type="button" data-action="save-machine"><i class="fas fa-save"></i> Save</button>
+      <button type="button" class="hsv-save-test" data-action="save-and-test"><i class="fas fa-store"></i> Save &amp; Test</button>
+    </div>
   </footer>
 </form>

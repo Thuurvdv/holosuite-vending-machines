@@ -1,3 +1,12 @@
 declare const ChatMessage: any;
+declare const CONFIG: any;
+declare const CONST: any;
+declare const Dialog: any;
+declare const FilePicker: any;
+declare const Hooks: any;
 declare const Item: any;
+declare const canvas: any;
+declare const foundry: any;
+declare const game: any;
+declare const ui: any;
 declare function fromUuid(uuid: string): Promise<any>;

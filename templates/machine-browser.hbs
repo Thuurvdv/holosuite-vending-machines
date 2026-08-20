@@ -9,15 +9,16 @@
 
   <div class="holosuite-vending-machine-list">
     {{#each machines}}
-      <article class="holosuite-vending-machine-row">
+      <article class="holosuite-vending-machine-row" data-machine-state="{{state}}">
         <img src="{{image}}" alt="" />
         <div>
           <h3>{{name}}</h3>
           <p>{{description}}</p>
-          <span>{{inventoryCount}} inventory entries</span>
+          <span>{{availableProducts}}/{{inventoryCount}} products available · {{totalStock}} units · {{linkLabel}}</span>
+          {{#if offline}}<small>This machine is offline and cannot be opened.</small>{{/if}}
         </div>
         <menu>
-          <button type="button" data-action="open-machine" data-machine-id="{{machineId}}"><i class="fas fa-store"></i> Open</button>
+          <button type="button" data-action="open-machine" data-machine-id="{{machineId}}" data-tile-id="{{tileId}}" data-region-id="{{regionId}}" {{#if offline}}disabled title="This machine is offline"{{/if}}><i class="fas fa-store"></i> Open</button>
         </menu>
       </article>
     {{else}}
@@ -25,4 +26,3 @@
     {{/each}}
   </div>
 </section>
-

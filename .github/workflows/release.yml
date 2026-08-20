@@ -1,0 +1,32 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: npm test
+      - run: npm run build
+      - name: Package module
+        shell: bash
+        run: |
+          mkdir -p release/holosuite-vending-machines
+          cp -r assets dist lang styles templates module.json README.md release/holosuite-vending-machines/
+          cd release
+          zip -r "holosuite-vending-machines-${GITHUB_REF_NAME}.zip" holosuite-vending-machines
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "release/holosuite-vending-machines-${GITHUB_REF_NAME}.zip" module.json --generate-notes

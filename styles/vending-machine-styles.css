@@ -1,0 +1,390 @@
+/*
+ * Per-machine structural skins.
+ *
+ * The industrial style is the established default in vending.css. Alternate
+ * styles live here so they may replace geometry, layout, and component
+ * treatment without coupling those choices to HoloSuite color themes.
+ */
+
+/* Corporate Kiosk ------------------------------------------------------- */
+
+.hsv-machine[data-machine-style="corporate-kiosk"] {
+  --hsv-kiosk-line: rgba(138, 170, 183, 0.34);
+  --hsv-kiosk-panel: rgba(9, 20, 27, 0.96);
+  --hsv-kiosk-panel-raised: rgba(15, 31, 40, 0.97);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"]::after {
+  inset: 14px;
+  border-radius: 22px;
+  opacity: 0.1;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-machine-chassis {
+  gap: 16px;
+  padding: 18px;
+  border: 1px solid #526873;
+  border-radius: 30px;
+  background-color: #091218;
+  background-image:
+    radial-gradient(circle at 50% -20%, rgba(106, 164, 184, 0.18), transparent 46%),
+    linear-gradient(135deg, #1c2b33 0%, #0b151b 18%, #071015 74%, #17272f 100%);
+  box-shadow:
+    0 24px 55px rgba(0, 0, 0, 0.68),
+    inset 0 0 0 6px #050b0f,
+    inset 0 0 0 7px rgba(144, 174, 187, 0.18),
+    inset 0 0 46px rgba(0, 0, 0, 0.44);
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-machine-chassis::before {
+  inset: 9px;
+  border: 1px solid rgba(171, 202, 214, 0.2);
+  border-radius: 22px;
+  clip-path: none;
+  box-shadow: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-status-module {
+  grid-template-columns: 190px minmax(0, 1fr) 188px;
+  min-height: 110px;
+  padding: 15px 54px 15px 17px;
+  border: 1px solid var(--hsv-kiosk-line);
+  border-radius: 20px 20px 8px 8px;
+  background-color: var(--hsv-kiosk-panel-raised);
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(105, 232, 255, 0.1), transparent 34%),
+    linear-gradient(180deg, rgba(18, 38, 49, 0.98), rgba(5, 14, 20, 0.98));
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.055),
+    0 8px 22px rgba(0, 0, 0, 0.34);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-status-module::after {
+  right: auto;
+  bottom: 0;
+  left: 20px;
+  width: 30%;
+  height: 3px;
+  border-radius: 3px;
+  opacity: 0.62;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-brand-block {
+  grid-template-columns: 58px minmax(0, 1fr);
+  gap: 11px;
+  padding: 4px 16px 4px 2px;
+  border-right: 1px solid var(--hsv-kiosk-line);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-brand-mark {
+  width: 58px;
+  height: 58px;
+  border: 1px solid rgba(151, 186, 200, 0.42);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(105, 232, 255, 0.14), rgba(1, 7, 11, 0.7));
+  clip-path: none;
+  box-shadow: inset 0 0 18px rgba(0, 0, 0, 0.52);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-brand-block .hsv-brand-mark img {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-brand-block strong {
+  font-size: 19px;
+  letter-spacing: 0.09em;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-brand-block b {
+  margin-top: 3px;
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-identity-block {
+  padding: 0 18px;
+  border-right: 0;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-identity-block h2 {
+  margin: 3px 0 7px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-telemetry {
+  gap: 3px;
+  padding: 7px;
+  border: 1px solid rgba(126, 157, 170, 0.25);
+  border-radius: 12px;
+  background: rgba(1, 7, 11, 0.42);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-telemetry > div,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-telemetry > div:nth-child(3) {
+  min-height: 20px;
+  padding: 2px 5px;
+  border-left: 0;
+  border-bottom: 1px solid rgba(126, 157, 170, 0.17);
+  background: transparent;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-telemetry > div:last-child {
+  border-bottom: 0;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-machine-close {
+  top: 17px;
+  right: 17px;
+  border-radius: 50%;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-machine-deck {
+  grid-template-columns: minmax(0, 1.48fr) minmax(370px, 0.92fr);
+  gap: 16px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-chamber,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-control-terminal {
+  border: 1px solid var(--hsv-kiosk-line);
+  border-radius: 20px;
+  background-color: var(--hsv-kiosk-panel);
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(80, 127, 145, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(13, 29, 38, 0.98), rgba(4, 11, 16, 0.99));
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.045),
+    0 10px 24px rgba(0, 0, 0, 0.32);
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-chamber {
+  padding: 14px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-grid {
+  gap: 12px;
+  padding-right: 2px;
+  scrollbar-color: #52717e transparent;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-slot {
+  grid-template-rows: 34px minmax(0, 1fr) 58px;
+  aspect-ratio: 0.79;
+  padding: 9px;
+  border: 1px solid rgba(124, 157, 170, 0.3);
+  border-radius: 15px;
+  background-color: #071117;
+  background-image:
+    radial-gradient(ellipse at 50% 62%, rgba(68, 111, 129, 0.16), transparent 55%),
+    linear-gradient(180deg, #10232d, #050b0f 24%, #050b0f 78%, #0b1a22);
+  box-shadow:
+    inset 0 1px rgba(255, 255, 255, 0.045),
+    0 5px 14px rgba(0, 0, 0, 0.34);
+  clip-path: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] button.hsv-product-slot:hover,
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] button.hsv-product-slot:focus-visible {
+  border-color: color-mix(in srgb, var(--hs-color-primary) 70%, #526b77);
+  border-radius: 15px;
+  box-shadow: 0 7px 18px rgba(0, 0, 0, 0.42), 0 0 12px rgba(105, 232, 255, 0.13);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-slot.is-selected {
+  border-color: var(--hs-color-primary);
+  box-shadow:
+    inset 0 0 0 1px rgba(105, 232, 255, 0.3),
+    0 7px 20px rgba(0, 0, 0, 0.42),
+    0 0 13px rgba(105, 232, 255, 0.18);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-slot.is-empty {
+  background-image: linear-gradient(180deg, #0a151b, #03070a 30%, #071015);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-slot.is-sold-out {
+  background-image:
+    linear-gradient(145deg, rgba(104, 15, 29, 0.36), transparent 52%),
+    linear-gradient(180deg, #1d1014, #060709 72%);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-code {
+  justify-content: flex-start;
+  margin: 0;
+  padding: 0 10px;
+  border: 0;
+  color: var(--hsv-steel);
+  font-size: 13px;
+  text-shadow: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-code::before {
+  top: auto;
+  right: auto;
+  bottom: 3px;
+  left: 10px;
+  width: 28px;
+  height: 2px;
+  border-radius: 2px;
+  transform: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-code i {
+  top: 12px;
+  right: 8px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-viewport {
+  margin: 0;
+  border: 1px solid rgba(102, 139, 154, 0.24);
+  border-radius: 11px;
+  background:
+    radial-gradient(ellipse at 50% 76%, rgba(84, 135, 155, 0.25), transparent 53%),
+    linear-gradient(180deg, #08151c, #010405 76%);
+  box-shadow: inset 0 10px 24px rgba(0, 0, 0, 0.72);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-light {
+  top: 7px;
+  left: 24%;
+  width: 52%;
+  height: 2px;
+  border-radius: 4px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-pedestal {
+  right: 18%;
+  bottom: 7px;
+  left: 18%;
+  height: 10px;
+  border: 0;
+  border-top: 2px solid var(--hsv-steel);
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(99, 151, 171, 0.24), transparent 68%);
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-footer {
+  margin: 0;
+  padding: 7px 10px;
+  border: 0;
+  border-top: 1px solid rgba(121, 154, 168, 0.24);
+  border-radius: 0 0 9px 9px;
+  background: rgba(10, 22, 29, 0.76);
+  box-shadow: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-control-terminal {
+  position: relative;
+  padding: 22px 25px 18px;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-control-terminal::before {
+  position: absolute;
+  top: 26px;
+  bottom: 26px;
+  left: 0;
+  width: 4px;
+  border-radius: 0 4px 4px 0;
+  background: var(--hs-color-primary);
+  content: "";
+  opacity: 0.55;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-console {
+  gap: 10px 14px;
+  padding: 4px 0 14px;
+  border-bottom-color: rgba(126, 157, 170, 0.22);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-console .hsv-preview-image {
+  min-height: 200px;
+  border-radius: 14px;
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-information h3 {
+  border-bottom-color: var(--hsv-kiosk-line);
+  text-transform: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-information button.hsv-product-description,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-queue-lines {
+  border-radius: 9px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-quantity-control {
+  border-bottom-color: rgba(126, 157, 170, 0.22);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-stepper button,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-stepper input,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-add-queue,
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-terminal-actions button {
+  border-radius: 8px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-terminal-actions .hsv-dispense-button {
+  border: 1px solid color-mix(in srgb, var(--hs-color-warning) 60%, #6b5147);
+  border-radius: 11px;
+  background: linear-gradient(180deg, #3b2b25, #1c1512);
+  color: #f2d5c8;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-retrieval-bay {
+  grid-template-columns: minmax(0, 1fr) 165px;
+  gap: 14px;
+  min-height: 112px;
+  padding: 13px 16px;
+  border: 1px solid var(--hsv-kiosk-line);
+  border-radius: 8px 8px 22px 22px;
+  background-color: var(--hsv-kiosk-panel-raised);
+  background-image: linear-gradient(180deg, #122630, #071117);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.045), 0 -5px 18px rgba(0, 0, 0, 0.24);
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-caution-plate {
+  display: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-tray-cavity {
+  min-height: 82px;
+  padding: 12px 28px 8px;
+  border: 1px solid rgba(119, 153, 167, 0.32);
+  border-radius: 16px;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(73, 126, 148, 0.2), transparent 56%),
+    linear-gradient(180deg, #020608, #07131a);
+  box-shadow: inset 0 12px 22px rgba(0, 0, 0, 0.76);
+  clip-path: none;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-tray-cavity > strong {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-service-plate {
+  min-height: 82px;
+  border: 1px solid rgba(124, 156, 168, 0.28);
+  border-radius: 13px;
+  background: rgba(3, 9, 13, 0.46);
+  clip-path: none;
+}
+
+@container hsv-window (max-width: 860px) {
+  .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-status-module {
+    grid-template-columns: 165px minmax(0, 1fr) 160px;
+  }
+
+  .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-machine-deck {
+    grid-template-columns: minmax(0, 1.35fr) minmax(330px, 0.95fr);
+  }
+}
+

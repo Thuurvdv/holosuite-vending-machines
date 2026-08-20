@@ -3,29 +3,73 @@
     <div>
       <p class="holosuite-vending-kicker">Machine Network</p>
       <h2>Vending Machines</h2>
-      <span>Currency item: {{currencyName}}</span>
+      <span>Currency source: {{currencySourceLabel}}</span>
     </div>
-    <button type="button" data-action="create-machine"><i class="fas fa-plus"></i> Create Machine</button>
+    <div class="holosuite-vending-toolbar-actions">
+      <button type="button" data-action="import-machines"><i class="fas fa-file-import"></i> Import</button>
+      <button type="button" data-action="export-machines"><i class="fas fa-file-export"></i> Export</button>
+      <button type="button" data-action="restock-all"><i class="fas fa-boxes-stacked"></i> Restock All</button>
+      <button type="button" data-action="create-machine"><i class="fas fa-plus"></i> Create</button>
+    </div>
   </header>
+
+  <label class="holosuite-vending-credit-transformer">
+    <input type="checkbox" name="creditTransformer" {{#if creditTransformer}}checked{{/if}} />
+    <span>
+      <strong>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Name"}}</strong>
+      <small>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Hint"}}</small>
+    </span>
+  </label>
 
   <div class="holosuite-vending-machine-list">
     {{#each machines}}
-      <article class="holosuite-vending-machine-row">
+      <article class="holosuite-vending-machine-row" data-machine-state="{{state}}">
         <img src="{{image}}" alt="" />
         <div>
           <h3>{{name}}</h3>
           <p>{{description}}</p>
-          <span>{{inventory.length}} inventory entries</span>
+          <span>{{stateLabel}} · {{totalStock}}/{{totalCapacity}} units · {{inventory.length}} products · {{regionCount}} linked regions</span>
+          <small>{{manufacturerName}} · {{styleLabel}}</small>
         </div>
         <menu>
-          <button type="button" data-action="place-machine" data-machine-id="{{id}}"><i class="fas fa-location-crosshairs"></i> Place</button>
-          <button type="button" data-action="place-machine-selected" data-machine-id="{{id}}"><i class="fas fa-user"></i> At Token</button>
+          <button class="holosuite-vending-open-test" type="button" data-action="open-machine" data-machine-id="{{id}}"><i class="fas fa-store"></i> {{localize "HOLOSUITEVENDING.Manager.OpenTest"}}</button>
           <button type="button" data-action="edit-machine" data-machine-id="{{id}}"><i class="fas fa-pen"></i> Edit</button>
-          <button type="button" data-action="delete-machine" data-machine-id="{{id}}"><i class="fas fa-trash"></i> Delete</button>
+          <button type="button" data-action="toggle-machine" data-machine-id="{{id}}"><i class="fas fa-power-off"></i> {{toggleLabel}}</button>
+          <details class="hsv-machine-more-actions">
+            <summary><i class="fas fa-ellipsis"></i> More</summary>
+            <div>
+              <button type="button" data-action="restock-machine" data-machine-id="{{id}}"><i class="fas fa-box-open"></i> Restock</button>
+              <button type="button" data-action="duplicate-machine" data-machine-id="{{id}}"><i class="fas fa-copy"></i> Duplicate</button>
+              <button type="button" class="hsv-danger-action" data-action="delete-machine" data-machine-id="{{id}}"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+          </details>
         </menu>
       </article>
     {{else}}
       <p class="holosuite-vending-empty">No vending machines configured.</p>
     {{/each}}
   </div>
+
+  <section class="holosuite-vending-ledger">
+    <header class="holosuite-vending-toolbar">
+      <div><p class="holosuite-vending-kicker">Audit Trail</p><h2>Recent Transactions</h2></div>
+      <div class="holosuite-vending-toolbar-actions">
+        <button type="button" data-action="export-ledger" {{#unless hasLedger}}disabled{{/unless}}>Export</button>
+        <button type="button" data-action="clear-ledger" {{#unless hasLedger}}disabled{{/unless}}>Clear</button>
+      </div>
+    </header>
+    <div class="holosuite-vending-ledger-list">
+      {{#each ledger}}
+        <article class="holosuite-vending-ledger-row {{#if failed}}is-failed{{/if}}">
+          <time>{{timeLabel}}</time>
+          <strong>{{machineName}}</strong>
+          <span>{{actorName}} · {{itemSummary}}</span>
+          <span>{{totalPriceDisplay}} {{currencyName}}</span>
+          {{#if error}}<small>{{error}}</small>{{/if}}
+        </article>
+      {{else}}
+        <p class="holosuite-vending-empty">No transactions recorded yet.</p>
+      {{/each}}
+    </div>
+  </section>
 </section>
