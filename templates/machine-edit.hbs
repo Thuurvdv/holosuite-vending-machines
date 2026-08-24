@@ -8,9 +8,8 @@
           <input type="text" name="machine.name" value="{{machine.name}}" />
         </div>
         <div class="form-group">
-          <label>Manufacturer</label>
+          <label>Manufacturer <i class="fas fa-circle-info hsv-field-info" tabindex="0" title="Printed verbatim on the machine." aria-label="Printed verbatim on the machine."></i></label>
           <input type="text" name="machine.manufacturerName" value="{{machine.manufacturerName}}" maxlength="48" placeholder="HoloSuite" />
-          <small>Printed verbatim on the machine.</small>
         </div>
         <div class="form-group stacked">
           <label>Machine Style</label>
@@ -33,12 +32,11 @@
       <legend>Presentation</legend>
       <div class="hsv-editor-group-grid">
         <div class="form-group">
-          <label>Machine / Brand Image</label>
+          <label>Machine / Brand Image <i class="fas fa-circle-info hsv-field-info" tabindex="0" title="Used for scene listings and the machine's brand mark." aria-label="Used for scene listings and the machine's brand mark."></i></label>
           <div class="holosuite-vending-path-row">
             <input type="text" name="machine.image" value="{{machine.image}}" data-dtype="String" />
             <button type="button" data-action="browse-machine-image" data-target="machine.image" title="Browse"><i class="fas fa-folder-open"></i></button>
           </div>
-          <small>Used for scene listings and the machine's brand mark.</small>
         </div>
         <div class="form-group">
           <label>Status</label>
@@ -46,20 +44,6 @@
             <option value="online" {{#unless machineOffline}}selected{{/unless}}>Online</option>
             <option value="offline" {{#if machineOffline}}selected{{/if}}>Offline</option>
           </select>
-        </div>
-        <div class="form-group">
-          <label>Offline Image</label>
-          <div class="holosuite-vending-path-row">
-            <input type="text" name="machine.offlineImage" value="{{machine.offlineImage}}" />
-            <button type="button" data-action="browse-machine-image" data-target="machine.offlineImage" title="Browse"><i class="fas fa-folder-open"></i></button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Sold-Out Image</label>
-          <div class="holosuite-vending-path-row">
-            <input type="text" name="machine.soldOutImage" value="{{machine.soldOutImage}}" />
-            <button type="button" data-action="browse-machine-image" data-target="machine.soldOutImage" title="Browse"><i class="fas fa-folder-open"></i></button>
-          </div>
         </div>
         <div class="form-group stacked">
           <label>Description</label>
@@ -74,12 +58,8 @@
         <div class="form-group holosuite-vending-checkbox">
           <label><input type="checkbox" name="machine.requireProximity" {{#if machine.access.requireProximity}}checked{{/if}} /> Require presence in a linked Region</label>
         </div>
-        <div class="form-group">
-          <label>Required Actor Item</label>
-          <input type="text" name="machine.requiredItemName" value="{{machine.access.requiredItemName}}" placeholder="Optional keycard or membership item" />
-        </div>
         <div class="form-group stacked holosuite-vending-region-links">
-          <label>Linked Regions — {{sceneName}}</label>
+          <label>Linked Regions</label>
           {{#if hasSceneRegions}}
             <div class="holosuite-vending-region-list">
               {{#each regionOptions}}
@@ -94,14 +74,6 @@
             <p class="holosuite-vending-empty">Create a Region in this scene, then reopen the editor to link it.</p>
           {{/if}}
         </div>
-        <details class="hsv-legacy-access stacked">
-          <summary>Legacy tile compatibility</summary>
-          <div class="form-group">
-            <label>Tile distance (grid spaces)</label>
-            <input type="number" name="machine.proximityDistance" value="{{machine.access.proximityDistance}}" min="1" step="1" />
-          </div>
-          <small>Only used by vending machines still attached to legacy scene Tiles.</small>
-        </details>
       </div>
     </fieldset>
   </section>
@@ -117,7 +89,7 @@
 
     {{#if hasArchivedProducts}}
       <div class="hsv-inventory-overflow-warning">
-        <span><i class="fas fa-triangle-exclamation"></i> {{archivedProductCount}} legacy product(s) exceed the nine-slot limit and are preserved but inactive.</span>
+        <span><i class="fas fa-triangle-exclamation"></i> {{archivedProductCount}} product(s) exceed the {{maxProducts}}-slot limit and are preserved but inactive.</span>
         <div>
           <button type="button" data-action="restore-archived" {{#if inventoryFull}}disabled title="Remove an active product before restoring one"{{/if}}>Restore Next</button>
           <button type="button" data-action="discard-archived">Discard Archived</button>

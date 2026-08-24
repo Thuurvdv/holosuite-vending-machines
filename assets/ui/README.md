@@ -1,6 +1,8 @@
-# Vending UI asset map
+# Legacy vending UI asset map
 
-These SVGs are intentionally lightweight placeholders. The player-facing UI uses them as decorative backgrounds; buttons, labels, product art, and state indicators remain HTML/CSS so the machine stays accessible and functional if an asset is replaced or missing.
+These earlier art-source placeholders are retained for reference and manual art workflows, but the active default machine now uses the lightweight vectors in `assets/vendor/`. Runtime paths are declared in `styles/vending.css`.
+
+Buttons, labels, product art, and state indicators remain HTML/CSS so the machine stays accessible and functional if any decorative asset is replaced or missing.
 
 | File | Photoshop master size | UI role |
 | --- | ---: | --- |

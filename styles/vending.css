@@ -309,6 +309,20 @@
   cursor: pointer;
 }
 
+.holosuite-vending-credit-transformer-row {
+  position: relative;
+}
+
+.holosuite-vending-credit-transformer-row > .holosuite-vending-credit-transformer {
+  padding-right: 42px;
+}
+
+.holosuite-vending-credit-transformer-row > .hsv-field-info {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+}
+
 .holosuite-vending-credit-transformer input {
   flex: 0 0 auto;
   width: 18px;
@@ -406,6 +420,46 @@
   gap: 12px;
 }
 
+/* Foundry v12 applies its dark-text form label color directly to labels and
+   may suppress scrolling on window-content. Keep the editor self-contained
+   and explicit so the same form works in v12 through v14. */
+.holosuite-vending-editor-app .window-content,
+.window-content.holosuite-vending-editor-app {
+  min-height: 0;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+}
+
+.holosuite-vending-editor {
+  height: 100%;
+  min-height: 0;
+  align-content: start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+
+.holosuite-vending-editor label,
+.holosuite-vending-editor .form-group > label,
+.holosuite-vending-editor .hsv-editor-display-art > span {
+  color: var(--holosuite-vending-text, #e7faff) !important;
+}
+
+.holosuite-vending-window .hsv-field-info {
+  margin-left: 4px;
+  color: var(--holosuite-vending-muted, #89a8b5);
+  font-size: 10px;
+  cursor: help;
+  transition: color 120ms ease, text-shadow 120ms ease;
+}
+
+.holosuite-vending-window .hsv-field-info:hover,
+.holosuite-vending-window .hsv-field-info:focus-visible {
+  color: var(--hs-color-primary, #69e8ff);
+  text-shadow: 0 0 7px color-mix(in srgb, var(--hs-color-primary, #69e8ff) 58%, transparent);
+  outline: none;
+}
+
 .holosuite-vending-editor-main {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -480,13 +534,55 @@
 .hsv-style-preview[data-machine-style="corporate-kiosk"] .hsv-style-preview-body b,
 .hsv-style-preview[data-machine-style="corporate-kiosk"] .hsv-style-preview-tray { border-radius: 9px; }
 
-.hsv-legacy-access {
-  padding: 8px 10px;
-  border: 1px dashed var(--holosuite-vending-line);
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] {
+  padding: 10px;
+  border: 1px solid #9f9688;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #f8f3e9, #d8d0c2);
+  color: #3c352d;
+  clip-path: none;
 }
 
-.hsv-legacy-access summary { color: var(--holosuite-vending-muted); cursor: pointer; }
-.hsv-legacy-access .form-group { margin-top: 9px; }
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] .hsv-style-preview-header,
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] .hsv-style-preview-body i,
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] .hsv-style-preview-body b,
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] .hsv-style-preview-tray {
+  border-color: #aaa092;
+  border-radius: 9px;
+  background: linear-gradient(180deg, #fcf8ef, #e4dccf);
+}
+
+.hsv-style-preview[data-machine-style="corporate-kiosk-white"] .hsv-style-preview-header span {
+  color: #a35e3d;
+}
+
+.hsv-style-preview[data-machine-style="neon"] {
+  border-color: #8e28b9;
+  background:
+    radial-gradient(circle at 82% 18%, rgba(117, 55, 255, 0.26), transparent 38%),
+    linear-gradient(145deg, #180b27, #050208 72%);
+  color: #fff1fc;
+  box-shadow: inset 0 0 0 2px #050208, 0 0 14px rgba(255, 38, 198, 0.24);
+}
+
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-header,
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-body i,
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-body b,
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-tray {
+  border-color: #ff2bc7;
+  background: linear-gradient(180deg, #1d0d2c, #050208);
+  box-shadow: inset 0 0 8px rgba(255, 43, 199, 0.16), 0 0 6px rgba(255, 43, 199, 0.2);
+}
+
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-header span {
+  color: #ff39cf;
+  text-shadow: 0 0 6px rgba(255, 43, 199, 0.65);
+}
+
+.hsv-style-preview[data-machine-style="neon"] .hsv-style-preview-header i {
+  background: #ff2bc7;
+  box-shadow: 0 0 8px #ff2bc7;
+}
 
 .holosuite-vending-editor-main .stacked {
   grid-column: 1 / -1;
@@ -661,8 +757,9 @@
   accent-color: var(--holosuite-vending-green);
 }
 
-.holosuite-vending-region-choice span {
+.holosuite-vending-window .holosuite-vending-editor .holosuite-vending-region-choice > span {
   min-width: 0;
+  color: var(--holosuite-vending-text, #e7faff) !important;
   overflow-wrap: anywhere;
 }
 
@@ -681,6 +778,11 @@
   box-shadow:
     inset 0 0 0 1px rgba(244, 255, 249, 0.08),
     0 0 14px rgba(98, 255, 182, 0.14);
+}
+
+.holosuite-vending-window .holosuite-vending-editor .holosuite-vending-region-choice.is-selected > span,
+.holosuite-vending-window .holosuite-vending-editor .holosuite-vending-region-choice:has(input:checked) > span {
+  color: #f4fff9 !important;
 }
 
 .holosuite-vending-region-links small {
@@ -814,13 +916,19 @@ body.holosuite-vending-placement-active {
 /* Player-facing physical machine. Asset URLs are the only paths that need to
    change when final Photoshop/vector exports replace the bundled placeholders. */
 .holosuite-vending-app {
-  --hsv-asset-shell: url("../assets/ui/machine-shell.svg");
-  --hsv-asset-header: url("../assets/ui/header-status.svg");
-  --hsv-asset-slot: url("../assets/ui/slot-frame.svg");
-  --hsv-asset-slot-sold-out: url("../assets/ui/slot-sold-out.svg");
-  --hsv-asset-slot-empty: url("../assets/ui/slot-empty.svg");
-  --hsv-asset-terminal: url("../assets/ui/control-panel.svg");
-  --hsv-asset-tray: url("../assets/ui/retrieval-tray.svg");
+  --hsv-asset-shell: url("../assets/vendor/machine-frame.svg");
+  --hsv-asset-header: url("../assets/vendor/machine-header-frame.svg");
+  --hsv-asset-slot: url("../assets/vendor/slot-frame.svg");
+  --hsv-asset-slot-sold-out: none;
+  --hsv-asset-slot-empty: url("../assets/vendor/slot-frame.svg");
+  --hsv-asset-terminal: url("../assets/vendor/terminal-frame.svg");
+  --hsv-asset-product-display: url("../assets/vendor/product-display-frame.svg");
+  --hsv-asset-tray: url("../assets/vendor/retrieval-bay.svg");
+  --hsv-asset-warning: url("../assets/vendor/warning-plate.svg");
+  --hsv-asset-mascot: url("../assets/vendor/mascot-plate.svg");
+  --hsv-asset-vent: none;
+  --hsv-asset-service-panel: none;
+  --hsv-asset-conduit: url("../assets/vendor/conduit.svg");
   --hsv-chassis: color-mix(in srgb, var(--hs-panel-strong) 82%, #243746);
   --hsv-screen: color-mix(in srgb, var(--hs-bg-deep) 88%, var(--hs-color-primary));
   container: hsv-window / inline-size;

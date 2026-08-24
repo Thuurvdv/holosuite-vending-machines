@@ -1,2278 +1,2533 @@
-var Re = Object.defineProperty;
-var Ue = (i, n, e) => n in i ? Re(i, n, { enumerable: !0, configurable: !0, writable: !0, value: e }) : i[n] = e;
-var T = (i, n, e) => Ue(i, typeof n != "symbol" ? n + "" : n, e);
-const u = "holosuite-vending-machines", Pe = "HoloSuite Vending Machines", W = "machineId", H = `module.${u}`, Ge = "HoloSuite", xe = "industrial", A = 9, ue = [
-  {
-    id: "industrial",
-    label: "Industrial Chassis",
-    description: "Armored panels, recessed product bays, and a heavy retrieval assembly."
-  },
-  {
-    id: "corporate-kiosk",
-    label: "Corporate Kiosk",
-    description: "A clean freestanding kiosk with rounded cards and a simplified service bay."
-  }
-], I = {
-  machines: "machines",
-  currencyMode: "currencyMode",
-  currencyPath: "currencyActorPath",
-  currencyName: "currencyItemName",
-  creditTransformer: "creditTransformer",
-  audioEnabled: "audioEnabled",
-  audioVolume: "audioVolume",
-  audioSelect: "audioSelect",
-  audioPurchase: "audioPurchase",
-  audioDispense: "audioDispense",
-  audioCollect: "audioCollect",
-  audioFailure: "audioFailure",
-  dispenses: "pendingDispenses",
-  ledger: "transactionLedger"
-}, x = {
-  select: `modules/${u}/assets/sounds/vending_select.ogg`,
-  purchase: `modules/${u}/assets/sounds/vending_purchase.ogg`,
-  dispense: `modules/${u}/assets/sounds/vending_dispense.ogg`,
-  collect: `modules/${u}/assets/sounds/vending_collect.ogg`,
-  failure: `modules/${u}/assets/sounds/vending_failure.ogg`
-}, Y = {
-  vending: `modules/${u}/templates/vending-app.hbs`,
-  browser: `modules/${u}/templates/machine-browser.hbs`,
-  manager: `modules/${u}/templates/machine-manager.hbs`,
-  editor: `modules/${u}/templates/machine-edit.hbs`
-}, k = Object.freeze({
-  ONLINE: "online",
-  OFFLINE: "offline",
-  SOLD_OUT: "sold-out"
+//#region src/constants.ts
+var e = "holosuite-vending-machines", t = `module.${e}`, n = "industrial", r = [
+	{
+		id: "industrial",
+		label: "Alien Market",
+		description: "A colorful off-world market terminal with armored bays and custom vendor hardware."
+	},
+	{
+		id: "corporate-kiosk",
+		label: "Executive Terminal",
+		description: "A dark blue executive terminal with rounded cards and restrained cyan accents."
+	},
+	{
+		id: "corporate-kiosk-white",
+		label: "Corporate Kiosk",
+		description: "A warm ivory corporate kiosk with restrained retro-future detailing."
+	},
+	{
+		id: "neon",
+		label: "Neon",
+		description: "A black-violet market terminal charged with hot-pink neon and electric cyan details."
+	}
+], i = {
+	machines: "machines",
+	currencyMode: "currencyMode",
+	currencyPath: "currencyActorPath",
+	currencyName: "currencyItemName",
+	creditTransformer: "creditTransformer",
+	audioEnabled: "audioEnabled",
+	audioVolume: "audioVolume",
+	audioSelect: "audioSelect",
+	audioPurchase: "audioPurchase",
+	audioDispense: "audioDispense",
+	audioCollect: "audioCollect",
+	audioFailure: "audioFailure",
+	dispenses: "pendingDispenses",
+	ledger: "transactionLedger"
+}, a = {
+	select: `modules/${e}/assets/sounds/vending_select.ogg`,
+	purchase: `modules/${e}/assets/sounds/vending_purchase.ogg`,
+	dispense: `modules/${e}/assets/sounds/vending_dispense.ogg`,
+	collect: `modules/${e}/assets/sounds/vending_collect.ogg`,
+	failure: `modules/${e}/assets/sounds/vending_failure.ogg`
+}, o = {
+	vending: `modules/${e}/templates/vending-app.hbs`,
+	browser: `modules/${e}/templates/machine-browser.hbs`,
+	manager: `modules/${e}/templates/machine-manager.hbs`,
+	editor: `modules/${e}/templates/machine-edit.hbs`
+}, s = Object.freeze({
+	ONLINE: "online",
+	OFFLINE: "offline",
+	SOLD_OUT: "sold-out"
 });
-function L(i, n) {
-  const e = Number(i) || 0;
-  return new Intl.NumberFormat(n, { minimumFractionDigits: 0, maximumFractionDigits: 2 }).format(Math.round((e + Number.EPSILON) * 100) / 100);
+function c(e, t) {
+	let n = Number(e) || 0;
+	return new Intl.NumberFormat(t, {
+		minimumFractionDigits: 0,
+		maximumFractionDigits: 2
+	}).format(Math.round((n + 2 ** -52) * 100) / 100);
 }
-function Ve(i = [], n = 0) {
-  var t, r, s;
-  const e = Array.isArray(i) ? i : [];
-  return ((t = e.find((a) => Number((a == null ? void 0 : a.stock) ?? 0) > 0 && Number((a == null ? void 0 : a.price) ?? 0) <= Number(n))) == null ? void 0 : t.id) ?? ((r = e.find((a) => Number((a == null ? void 0 : a.stock) ?? 0) > 0)) == null ? void 0 : r.id) ?? ((s = e[0]) == null ? void 0 : s.id) ?? null;
+function l(e = [], t = 0) {
+	let n = Array.isArray(e) ? e : [];
+	return n.find((e) => Number(e?.stock ?? 0) > 0 && Number(e?.price ?? 0) <= Number(t))?.id ?? n.find((e) => Number(e?.stock ?? 0) > 0)?.id ?? n[0]?.id ?? null;
 }
-function ze(i = [], n = 9, e = []) {
-  const t = Array.isArray(i) ? i : [], r = Array.isArray(e) ? e : [], s = Math.max(0, Math.floor(Number(n) || 0));
-  return {
-    active: t.slice(0, s),
-    overflow: [...t.slice(s), ...r]
-  };
+function u(e = [], t = 6, n = []) {
+	let r = Array.isArray(e) ? e : [], i = Array.isArray(n) ? n : [], a = Math.max(0, Math.floor(Number(t) || 0));
+	return {
+		active: r.slice(0, a),
+		overflow: [...r.slice(a), ...i]
+	};
 }
-function Me(i = []) {
-  const n = /* @__PURE__ */ new Map();
-  for (const e of Array.isArray(i) ? i : []) {
-    const t = String((e == null ? void 0 : e.entryId) ?? "").trim(), r = Math.min(99, Math.max(0, Math.floor(Number((e == null ? void 0 : e.quantity) ?? 0))));
-    !t || r < 1 || n.set(t, Math.min(99, (n.get(t) ?? 0) + r));
-  }
-  return Array.from(n, ([e, t]) => ({ entryId: e, quantity: t }));
+function d(e = []) {
+	let t = /* @__PURE__ */ new Map();
+	for (let n of Array.isArray(e) ? e : []) {
+		let e = String(n?.entryId ?? "").trim(), r = Math.min(99, Math.max(0, Math.floor(Number(n?.quantity ?? 0))));
+		!e || r < 1 || t.set(e, Math.min(99, (t.get(e) ?? 0) + r));
+	}
+	return Array.from(t, ([e, t]) => ({
+		entryId: e,
+		quantity: t
+	}));
 }
-function Fe(i, n = []) {
-  const e = Me(n), t = Array.isArray(i == null ? void 0 : i.inventory) ? i.inventory : [], r = e.map((s) => {
-    const a = t.find((d) => (d == null ? void 0 : d.id) === s.entryId);
-    if (!a) throw new Error("Inventory entry not found.");
-    const o = Math.max(0, Number(a.stock ?? 0));
-    if (s.quantity > o) throw new Error(`${a.displayName ?? "Item"} does not have enough stock.`);
-    const c = Math.max(0, Number(a.price ?? 0));
-    return {
-      entry: a,
-      entryId: s.entryId,
-      quantity: s.quantity,
-      unitPrice: c,
-      totalPrice: c * s.quantity
-    };
-  });
-  return {
-    lines: r,
-    itemCount: r.reduce((s, a) => s + a.quantity, 0),
-    totalPrice: r.reduce((s, a) => s + a.totalPrice, 0)
-  };
+function f(e, t = []) {
+	let n = d(t), r = Array.isArray(e?.inventory) ? e.inventory : [], i = n.map((e) => {
+		let t = r.find((t) => t?.id === e.entryId);
+		if (!t) throw Error("Inventory entry not found.");
+		let n = Math.max(0, Number(t.stock ?? 0));
+		if (e.quantity > n) throw Error(`${t.displayName ?? "Item"} does not have enough stock.`);
+		let i = Math.max(0, Number(t.price ?? 0));
+		return {
+			entry: t,
+			entryId: e.entryId,
+			quantity: e.quantity,
+			unitPrice: i,
+			totalPrice: i * e.quantity
+		};
+	});
+	return {
+		lines: i,
+		itemCount: i.reduce((e, t) => e + t.quantity, 0),
+		totalPrice: i.reduce((e, t) => e + t.totalPrice, 0)
+	};
 }
-function Ce(i) {
-  if ((i == null ? void 0 : i.status) === k.OFFLINE) return k.OFFLINE;
-  const n = Array.isArray(i == null ? void 0 : i.inventory) ? i.inventory : [];
-  return n.length > 0 && n.every((e) => Number((e == null ? void 0 : e.stock) ?? 0) <= 0) ? k.SOLD_OUT : k.ONLINE;
+function p(e) {
+	if (e?.status === s.OFFLINE) return s.OFFLINE;
+	let t = Array.isArray(e?.inventory) ? e.inventory : [];
+	return t.length > 0 && t.every((e) => Number(e?.stock ?? 0) <= 0) ? s.SOLD_OUT : s.ONLINE;
 }
-function ge(i) {
-  const n = Ce(i);
-  return n === k.OFFLINE && (i != null && i.offlineImage) ? i.offlineImage : n === k.SOLD_OUT && (i != null && i.soldOutImage) ? i.soldOutImage : (i == null ? void 0 : i.image) || "icons/environment/settlement/stall.webp";
+function m(e) {
+	return e?.image || "icons/environment/settlement/stall.webp";
 }
-function $e(i, n, e = 100) {
-  const t = Math.max(1, Number(e) || 100), r = {
-    x: Number((i == null ? void 0 : i.x) ?? 0) + Number((i == null ? void 0 : i.width) ?? 1) * t / 2,
-    y: Number((i == null ? void 0 : i.y) ?? 0) + Number((i == null ? void 0 : i.height) ?? 1) * t / 2
-  }, s = {
-    x: Number((n == null ? void 0 : n.x) ?? 0) + Number((n == null ? void 0 : n.width) ?? t) / 2,
-    y: Number((n == null ? void 0 : n.y) ?? 0) + Number((n == null ? void 0 : n.height) ?? t) / 2
-  };
-  return Math.hypot(r.x - s.x, r.y - s.y) / t;
+//#endregion
+//#region src/machine-store.ts
+function h(e = "machine") {
+	return `${e}-${foundry?.utils?.randomID?.() ?? Math.random().toString(36).slice(2, 10)}`;
 }
-function qe(i, n, e, t) {
-  return !i || !n ? !1 : $e(i, n, e) <= Math.max(0, Number(t) || 0);
+function g(e) {
+	return foundry.utils.deepClone(e ?? {});
 }
-function G(i = "machine") {
-  var e, t;
-  const n = ((t = (e = foundry == null ? void 0 : foundry.utils) == null ? void 0 : e.randomID) == null ? void 0 : t.call(e)) ?? Math.random().toString(36).slice(2, 10);
-  return `${i}-${n}`;
+function _(e, t = !1) {
+	return e == null || e === "" ? t : typeof e == "string" ? e === "true" || e === "on" || e === "1" : !!e;
 }
-function de(i) {
-  return foundry.utils.deepClone(i ?? {});
+function v(e, t = 0) {
+	let n = Number(e);
+	return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : t;
 }
-function _e(i, n = !1) {
-  return i == null || i === "" ? n : typeof i == "string" ? i === "true" || i === "on" || i === "1" : !!i;
+function y(e) {
+	let t = Array.isArray(e) ? e : String(e ?? "").split(/[\s,]+/);
+	return Array.from(new Set(t.map((e) => String(e).trim()).filter(Boolean)));
 }
-function ie(i, n = 0) {
-  const e = Number(i);
-  return Number.isFinite(e) ? Math.max(0, Math.floor(e)) : n;
+function ee(e) {
+	let t = String(e ?? "").trim();
+	return r.some((e) => e.id === t) ? t : n;
 }
-function Be(i, n = 1) {
-  const e = Number(i);
-  return Number.isFinite(e) ? Math.max(1, e) : n;
+function b(e) {
+	return (String(e ?? "").trim() || "HoloSuite").slice(0, 48);
 }
-function je(i) {
-  const n = Array.isArray(i) ? i : String(i ?? "").split(/[\s,]+/);
-  return Array.from(new Set(n.map((e) => String(e).trim()).filter(Boolean)));
+function x(e = {}) {
+	return {
+		id: e.id || h("entry"),
+		itemUuid: e.itemUuid || "",
+		embeddedData: e.embeddedData ? g(e.embeddedData) : null,
+		displayName: e.displayName || e.name || e.embeddedData?.name || "New Item",
+		image: e.image || e.img || e.embeddedData?.img || "icons/svg/item-bag.svg",
+		price: Math.max(0, Number.isFinite(Number(e.price)) ? Number(e.price) : 0),
+		stock: v(e.stock ?? e.maxStock, 1),
+		maxStock: v(e.maxStock ?? e.stock, 1),
+		description: e.description || e.embeddedData?.system?.description?.value || ""
+	};
 }
-function We(i) {
-  const n = String(i ?? "").trim();
-  return ue.some((e) => e.id === n) ? n : xe;
+function S(e = {}) {
+	let t = u(Array.isArray(e.inventory) ? e.inventory.map(x) : [], 6, Array.isArray(e.overflowInventory) ? e.overflowInventory.map(x) : []), n = e.status === s.OFFLINE ? s.OFFLINE : s.ONLINE;
+	return {
+		id: e.id || h("machine"),
+		name: e.name || "New Vending Machine",
+		manufacturerName: b(e.manufacturerName),
+		styleId: ee(e.styleId),
+		description: e.description || "",
+		image: e.image || e.icon || "icons/environment/settlement/stall.webp",
+		status: n,
+		regionIds: y(e.regionIds),
+		access: { requireProximity: _(e.access?.requireProximity ?? e.requireProximity, !0) },
+		inventory: t.active,
+		overflowInventory: t.overflow
+	};
 }
-function Ye(i) {
-  return (String(i ?? "").trim() || Ge).slice(0, 48);
+function C(e = {}) {
+	return {
+		version: 3,
+		machines: Array.isArray(e.machines) ? e.machines.map(S) : []
+	};
 }
-function re(i = {}) {
-  var n, e, t, r, s;
-  return {
-    id: i.id || G("entry"),
-    itemUuid: i.itemUuid || "",
-    embeddedData: i.embeddedData ? de(i.embeddedData) : null,
-    displayName: i.displayName || i.name || ((n = i.embeddedData) == null ? void 0 : n.name) || "New Item",
-    image: i.image || i.img || ((e = i.embeddedData) == null ? void 0 : e.img) || "icons/svg/item-bag.svg",
-    price: Math.max(0, Number.isFinite(Number(i.price)) ? Number(i.price) : 0),
-    stock: ie(i.stock ?? i.maxStock, 1),
-    maxStock: ie(i.maxStock ?? i.stock, 1),
-    description: i.description || ((s = (r = (t = i.embeddedData) == null ? void 0 : t.system) == null ? void 0 : r.description) == null ? void 0 : s.value) || ""
-  };
+function te(e = {}) {
+	return {
+		version: 1,
+		entries: (Array.isArray(e.entries) ? e.entries : []).slice(-250)
+	};
 }
-function V(i = {}) {
-  var s, a, o;
-  const n = Array.isArray(i.inventory) ? i.inventory.map(re) : [], e = Array.isArray(i.overflowInventory) ? i.overflowInventory.map(re) : [], t = ze(n, A, e), r = i.status === k.OFFLINE ? k.OFFLINE : k.ONLINE;
-  return {
-    id: i.id || G("machine"),
-    name: i.name || "New Vending Machine",
-    manufacturerName: Ye(i.manufacturerName),
-    styleId: We(i.styleId),
-    description: i.description || "",
-    image: i.image || i.icon || "icons/environment/settlement/stall.webp",
-    offlineImage: i.offlineImage || "",
-    soldOutImage: i.soldOutImage || "",
-    status: r,
-    regionIds: je(i.regionIds),
-    access: {
-      requireProximity: _e(((s = i.access) == null ? void 0 : s.requireProximity) ?? i.requireProximity, !1),
-      proximityDistance: Be(((a = i.access) == null ? void 0 : a.proximityDistance) ?? i.proximityDistance, 2),
-      requiredItemName: String(((o = i.access) == null ? void 0 : o.requiredItemName) ?? i.requiredItemName ?? "").trim()
-    },
-    inventory: t.active,
-    overflowInventory: t.overflow
-  };
+function w(e = {}) {
+	return {
+		id: String(e.id || e.requestId || h("dispense")),
+		requestId: String(e.requestId || e.id || ""),
+		machineId: String(e.machineId || ""),
+		machineName: String(e.machineName || "Unknown machine"),
+		actorUuid: String(e.actorUuid || ""),
+		actorId: String(e.actorId || ""),
+		actorName: String(e.actorName || "Unknown actor"),
+		userId: String(e.userId || ""),
+		userName: String(e.userName || "Unknown user"),
+		currencyName: String(e.currencyName || "Currency"),
+		itemSummary: String(e.itemSummary || ""),
+		itemCount: v(e.itemCount, 0),
+		totalPrice: Math.max(0, Number(e.totalPrice) || 0),
+		items: Array.isArray(e.items) ? g(e.items) : [],
+		image: String(e.image || ""),
+		createdAt: Number(e.createdAt) || Date.now(),
+		expiresAt: Number(e.expiresAt) || Date.now() + 11e3,
+		status: e.status === "delivering" ? "delivering" : "pending"
+	};
 }
-function fe(i = {}) {
-  return {
-    version: 3,
-    machines: Array.isArray(i.machines) ? i.machines.map(V) : []
-  };
+function ne(e = {}) {
+	return {
+		version: 1,
+		entries: Array.isArray(e.entries) ? e.entries.map(w) : []
+	};
 }
-function Qe(i = {}) {
-  return {
-    version: 1,
-    entries: (Array.isArray(i.entries) ? i.entries : []).slice(-250)
-  };
-}
-function se(i = {}) {
-  return {
-    id: String(i.id || i.requestId || G("dispense")),
-    requestId: String(i.requestId || i.id || ""),
-    machineId: String(i.machineId || ""),
-    machineName: String(i.machineName || "Unknown machine"),
-    actorUuid: String(i.actorUuid || ""),
-    actorId: String(i.actorId || ""),
-    actorName: String(i.actorName || "Unknown actor"),
-    userId: String(i.userId || ""),
-    userName: String(i.userName || "Unknown user"),
-    currencyName: String(i.currencyName || "Currency"),
-    itemSummary: String(i.itemSummary || ""),
-    itemCount: ie(i.itemCount, 0),
-    totalPrice: Math.max(0, Number(i.totalPrice) || 0),
-    items: Array.isArray(i.items) ? de(i.items) : [],
-    image: String(i.image || ""),
-    createdAt: Number(i.createdAt) || Date.now(),
-    expiresAt: Number(i.expiresAt) || Date.now() + 11e3,
-    status: i.status === "delivering" ? "delivering" : "pending"
-  };
-}
-function Ke(i = {}) {
-  return {
-    version: 1,
-    entries: Array.isArray(i.entries) ? i.entries.map(se) : []
-  };
-}
-class g {
-  static registerSettings() {
-    game.settings.register(u, I.machines, {
-      name: "HoloSuite Vending Machine Data",
-      scope: "world",
-      config: !1,
-      type: Object,
-      default: { version: 3, machines: [] },
-      onChange: () => Hooks.callAll(`${u}.machinesChanged`)
-    }), game.settings.register(u, I.currencyName, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Hint"),
-      scope: "world",
-      config: !0,
-      type: String,
-      default: "Credits",
-      restricted: !0
-    }), game.settings.register(u, I.currencyMode, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Hint"),
-      scope: "world",
-      config: !0,
-      type: String,
-      choices: {
-        auto: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Auto"),
-        actor: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Actor"),
-        item: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Item")
-      },
-      default: "auto",
-      restricted: !0
-    }), game.settings.register(u, I.currencyPath, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyPath.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyPath.Hint"),
-      scope: "world",
-      config: !0,
-      type: String,
-      default: "",
-      restricted: !0
-    }), game.settings.register(u, I.creditTransformer, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.CreditTransformer.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CreditTransformer.Hint"),
-      scope: "world",
-      config: !1,
-      type: Boolean,
-      default: !1,
-      restricted: !0,
-      onChange: () => Hooks.callAll(`${u}.currencyChanged`)
-    }), game.settings.register(u, I.audioEnabled, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Hint"),
-      scope: "world",
-      config: !0,
-      type: Boolean,
-      default: !0,
-      restricted: !0
-    }), game.settings.register(u, I.audioVolume, {
-      name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioVolume.Name"),
-      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioVolume.Hint"),
-      scope: "world",
-      config: !0,
-      type: Number,
-      range: { min: 0, max: 1, step: 0.05 },
-      default: 0.35,
-      restricted: !0
-    });
-    const n = [
-      [I.audioSelect, "Select", x.select],
-      [I.audioPurchase, "Purchase", x.purchase],
-      [I.audioDispense, "Dispense", x.dispense],
-      [I.audioCollect, "Collect", x.collect],
-      [I.audioFailure, "Failure", x.failure]
-    ];
-    for (const [e, t, r] of n)
-      game.settings.register(u, e, {
-        name: game.i18n.localize(`HOLOSUITEVENDING.Settings.Audio${t}.Name`),
-        hint: game.i18n.localize(`HOLOSUITEVENDING.Settings.Audio${t}.Hint`),
-        scope: "world",
-        config: !0,
-        type: String,
-        default: r,
-        filePicker: "audio",
-        restricted: !0
-      });
-    game.settings.register(u, I.ledger, {
-      name: "HoloSuite Vending Transaction Ledger",
-      scope: "world",
-      config: !1,
-      type: Object,
-      default: { version: 1, entries: [] }
-    }), game.settings.register(u, I.dispenses, {
-      name: "HoloSuite Pending Vending Dispenses",
-      scope: "world",
-      config: !1,
-      type: Object,
-      default: { version: 1, entries: [] }
-    });
-  }
-  static getState() {
-    return fe(game.settings.get(u, I.machines));
-  }
-  static async setState(n) {
-    if (!game.user.isGM) throw new Error("Only a GM can update vending machine data.");
-    await game.settings.set(u, I.machines, fe(n));
-  }
-  static getMachines() {
-    return this.getState().machines;
-  }
-  static getMachine(n) {
-    return this.getMachines().find((e) => e.id === n) ?? null;
-  }
-  static getMachineState(n) {
-    const e = typeof n == "string" ? this.getMachine(n) : n;
-    return Ce(e);
-  }
-  static getMachineDisplayImage(n) {
-    const e = typeof n == "string" ? this.getMachine(n) : n;
-    return ge(e);
-  }
-  static getCurrencyName() {
-    return game.settings.get(u, I.currencyName) || "Credits";
-  }
-  static getCurrencyMode() {
-    const n = String(game.settings.get(u, I.currencyMode) || "auto");
-    return ["auto", "actor", "item"].includes(n) ? n : "auto";
-  }
-  static getCurrencyPath() {
-    return String(game.settings.get(u, I.currencyPath) || "").trim();
-  }
-  static getCurrencySourceLabel() {
-    const n = this.getCurrencyMode(), e = this.getCurrencyPath();
-    return this.getCreditTransformer() ? "Credit Transformer · backed by each actor's system currency" : n === "actor" ? e ? `Actor currency · ${e}` : "Actor currency · automatic detection" : n === "item" ? `Inventory currency item · ${this.getCurrencyName()}` : e ? `Automatic system currency · ${e}` : "Automatic system currency detection with item fallback";
-  }
-  static getCreditTransformer() {
-    return game.settings.get(u, I.creditTransformer) === !0;
-  }
-  static async setCreditTransformer(n) {
-    var e;
-    if (!((e = game.user) != null && e.isGM)) throw new Error("Only a GM can change the credit transformer.");
-    return game.settings.set(u, I.creditTransformer, n === !0);
-  }
-  static getAudioConfig() {
-    return {
-      enabled: game.settings.get(u, I.audioEnabled) !== !1,
-      volume: Math.min(1, Math.max(0, Number(game.settings.get(u, I.audioVolume)) || 0)),
-      select: String(game.settings.get(u, I.audioSelect) || "").trim(),
-      purchase: String(game.settings.get(u, I.audioPurchase) || "").trim(),
-      dispense: String(game.settings.get(u, I.audioDispense) || "").trim(),
-      collect: String(game.settings.get(u, I.audioCollect) || "").trim(),
-      failure: String(game.settings.get(u, I.audioFailure) || "").trim()
-    };
-  }
-  static async upsertMachine(n) {
-    if (Array.isArray(n == null ? void 0 : n.inventory) && n.inventory.length > A)
-      throw new Error(`A vending machine can contain no more than ${A} products.`);
-    const e = this.getState(), t = V(n), r = e.machines.findIndex((s) => s.id === t.id);
-    r >= 0 ? e.machines[r] = t : e.machines.push(t), await this.setState(e);
-    try {
-      await this.syncMachineTiles(t.id);
-    } catch (s) {
-      console.warn(`${u} | Could not synchronize vending tile art`, s);
-    }
-    return t;
-  }
-  static async deleteMachine(n) {
-    const e = this.getState();
-    e.machines = e.machines.filter((t) => t.id !== n), await this.setState(e);
-  }
-  static async updateEntryStocks(n, e) {
-    const t = this.getState(), r = t.machines.find((s) => s.id === n);
-    if (!r) throw new Error("Vending machine not found.");
-    for (const s of r.inventory)
-      Object.prototype.hasOwnProperty.call(e, s.id) && (s.stock = Math.max(0, Math.floor(Number(e[s.id]) || 0)));
-    await this.setState(t);
-    try {
-      await this.syncMachineTiles(n);
-    } catch (s) {
-      console.warn(`${u} | Could not synchronize vending tile art`, s);
-    }
-    return V(r);
-  }
-  static async updateEntryStock(n, e, t) {
-    return this.updateEntryStocks(n, { [e]: t });
-  }
-  static async restockMachine(n) {
-    const e = this.getMachine(n);
-    if (!e) throw new Error("Vending machine not found.");
-    const t = Object.fromEntries(e.inventory.map((r) => [r.id, r.maxStock]));
-    return this.updateEntryStocks(n, t);
-  }
-  static async restockAll() {
-    const n = this.getState();
-    for (const e of n.machines)
-      for (const t of e.inventory) t.stock = t.maxStock;
-    return await this.setState(n), await Promise.allSettled(n.machines.map((e) => this.syncMachineTiles(e.id))), n.machines;
-  }
-  static getLedger() {
-    return Qe(game.settings.get(u, I.ledger));
-  }
-  static getDispenseState() {
-    return Ke(game.settings.get(u, I.dispenses));
-  }
-  static getPendingDispenses() {
-    return this.getDispenseState().entries;
-  }
-  static getPendingDispense(n) {
-    return this.getPendingDispenses().find((e) => e.requestId === n) ?? null;
-  }
-  static async addPendingDispense(n) {
-    var s;
-    if (!((s = game.user) != null && s.isGM)) throw new Error("Only a GM can authorize vending-machine delivery.");
-    const e = this.getDispenseState(), t = se(n), r = e.entries.findIndex((a) => a.requestId === t.requestId);
-    return r >= 0 ? e.entries[r] = t : e.entries.push(t), await game.settings.set(u, I.dispenses, e), t;
-  }
-  static async updatePendingDispense(n, e) {
-    var s;
-    if (!((s = game.user) != null && s.isGM)) throw new Error("Only a GM can update vending-machine delivery.");
-    const t = this.getDispenseState(), r = t.entries.findIndex((a) => a.requestId === n);
-    return r < 0 ? null : (t.entries[r] = se({ ...t.entries[r], ...e }), await game.settings.set(u, I.dispenses, t), t.entries[r]);
-  }
-  static async removePendingDispense(n) {
-    var r;
-    if (!((r = game.user) != null && r.isGM)) throw new Error("Only a GM can complete vending-machine delivery.");
-    const e = this.getDispenseState(), t = e.entries.length;
-    return e.entries = e.entries.filter((s) => s.requestId !== n), e.entries.length !== t ? (await game.settings.set(u, I.dispenses, e), !0) : !1;
-  }
-  static async appendLedger(n) {
-    if (!game.user.isGM) return null;
-    const e = this.getLedger(), t = {
-      id: n.id || G("transaction"),
-      requestId: n.requestId || "",
-      timestamp: n.timestamp || Date.now(),
-      status: n.status === "failed" ? "failed" : "success",
-      machineId: n.machineId || "",
-      machineName: n.machineName || "Unknown machine",
-      actorId: n.actorId || "",
-      actorName: n.actorName || "Unknown actor",
-      userId: n.userId || "",
-      userName: n.userName || "Unknown user",
-      itemSummary: n.itemSummary || "",
-      itemCount: Math.max(0, Number(n.itemCount) || 0),
-      totalPrice: Math.max(0, Number(n.totalPrice) || 0),
-      currencyName: n.currencyName || this.getCurrencyName(),
-      error: n.error || ""
-    };
-    return e.entries.push(t), e.entries = e.entries.slice(-250), await game.settings.set(u, I.ledger, e), Hooks.callAll(`${u}.ledgerChanged`, t), t;
-  }
-  static hasProcessedRequest(n) {
-    return n ? this.getLedger().entries.some((e) => e.requestId === n && e.status === "success") : !1;
-  }
-  static async clearLedger() {
-    if (!game.user.isGM) throw new Error("Only a GM can clear the transaction ledger.");
-    await game.settings.set(u, I.ledger, { version: 1, entries: [] }), Hooks.callAll(`${u}.ledgerChanged`, null);
-  }
-  static exportData() {
-    return {
-      format: "holosuite-vending-machines",
-      version: 3,
-      exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
-      currencyName: this.getCurrencyName(),
-      machines: de(this.getMachines())
-    };
-  }
-  static async importData(n) {
-    if (!game.user.isGM) throw new Error("Only a GM can import vending machines.");
-    const e = Array.isArray(n) ? n : n == null ? void 0 : n.machines;
-    if (!Array.isArray(e)) throw new Error("This file does not contain a vending machine list.");
-    const t = e.find((a) => Array.isArray(a == null ? void 0 : a.inventory) && a.inventory.length > A);
-    if (t)
-      throw new Error(`Cannot import ${t.name || "a vending machine"}: it contains ${t.inventory.length} products, but the maximum is ${A}.`);
-    const r = this.getState(), s = [];
-    for (const a of e) {
-      const o = V(a);
-      s.push(o);
-      const c = r.machines.findIndex((d) => d.id === o.id);
-      c >= 0 ? r.machines[c] = o : r.machines.push(o);
-    }
-    return await this.setState(r), await Promise.allSettled(s.map((a) => this.syncMachineTiles(a.id))), s.length;
-  }
-  static async syncMachineTiles(n) {
-    var s, a, o;
-    if (!((s = game.user) != null && s.isGM)) return;
-    const e = this.getMachine(n);
-    if (!e) return;
-    const t = ge(e), r = Array.from(((a = game.scenes) == null ? void 0 : a.contents) ?? game.scenes ?? []);
-    for (const c of r) {
-      const l = Array.from(((o = c == null ? void 0 : c.tiles) == null ? void 0 : o.contents) ?? (c == null ? void 0 : c.tiles) ?? []).filter((m) => {
-        var f, S;
-        return ((f = m == null ? void 0 : m.getFlag) == null ? void 0 : f.call(m, u, W)) === n && ((S = m == null ? void 0 : m.texture) == null ? void 0 : S.src) !== t;
-      }).map((m) => ({ _id: m.id, "texture.src": t }));
-      l.length && await c.updateEmbeddedDocuments("Tile", l);
-    }
-  }
-  static createMachine(n = {}) {
-    return V({ id: G("machine"), ...n });
-  }
-  static createEntry(n = {}) {
-    return re({ id: G("entry"), ...n });
-  }
-}
-function Ae() {
-  var i, n, e;
-  return ((n = (i = globalThis.foundry) == null ? void 0 : i.applications) == null ? void 0 : n.api) ?? ((e = foundry == null ? void 0 : foundry.applications) == null ? void 0 : e.api) ?? null;
-}
-function be() {
-  var i, n, e;
-  return ((n = (i = globalThis.foundry) == null ? void 0 : i.appv1) == null ? void 0 : n.api) ?? ((e = foundry == null ? void 0 : foundry.appv1) == null ? void 0 : e.api) ?? null;
-}
-function Je(i = {}, n = {}) {
-  var t, r, s;
-  const e = ((r = (t = globalThis.foundry) == null ? void 0 : t.utils) == null ? void 0 : r.mergeObject) ?? ((s = foundry == null ? void 0 : foundry.utils) == null ? void 0 : s.mergeObject);
-  return typeof e == "function" ? e(i, n, { inplace: !1 }) : { ...i, ...n };
-}
-function he(i = {}) {
-  return {
-    id: String(i.id ?? `legacy-application-${Math.random().toString(36).slice(2, 10)}`),
-    tag: i.tag ?? "section",
-    classes: Array.isArray(i.classes) ? i.classes : [],
-    window: { title: i.title ?? "", icon: i.icon, resizable: i.resizable === !0 },
-    position: {
-      width: Number(i.width ?? 600),
-      height: i.height === "auto" ? "auto" : Number(i.height ?? 600)
-    }
-  };
-}
-function ke(i) {
-  return class extends i {
-    constructor(t = {}) {
-      const r = Je(new.target.defaultOptions ?? {}, t);
-      super(he(r));
-      T(this, "_v1Options");
-      this._v1Options = r;
-    }
-    static get defaultOptions() {
-      return {};
-    }
-    static get DEFAULT_OPTIONS() {
-      return he(this.defaultOptions ?? {});
-    }
-    render(t = {}, r = {}) {
-      return typeof t == "boolean" ? super.render({ ...r, force: t }) : super.render(t);
-    }
-    activateListeners(t) {
-    }
-    async _renderHTML(t, r) {
-      var d, l, m;
-      const s = typeof this.getData == "function" ? await this.getData() : {}, a = ((d = this._v1Options) == null ? void 0 : d.template) ?? ((l = this.options) == null ? void 0 : l.template) ?? ((m = this.constructor.defaultOptions) == null ? void 0 : m.template);
-      if (!a) return document.createDocumentFragment();
-      const o = await globalThis.renderTemplate(a, s), c = document.createElement("template");
-      return c.innerHTML = o.trim(), c.content;
-    }
-    _replaceHTML(t, r, s) {
-      var l, m, f, S;
-      r.replaceChildren(t);
-      const a = globalThis.jQuery ?? globalThis.$, o = ((l = r.closest) == null ? void 0 : l.call(r, ".window-app, .app, .application")) ?? r, c = a ? a(o) : o;
-      try {
-        Object.defineProperty(this, "element", { value: c, configurable: !0, writable: !0 });
-      } catch {
-        try {
-          this.element = c;
-        } catch {
-        }
-      }
-      const d = (m = this._v1Options) == null ? void 0 : m.classes;
-      Array.isArray(d) && d.length && (r.classList.add(...d), (S = (f = r.closest) == null ? void 0 : f.call(r, ".window-app, .app, .application")) == null || S.classList.add(...d)), typeof this.activateListeners == "function" && this.activateListeners(a ? a(r) : r);
-    }
-  };
-}
-function Q() {
-  const i = Ae(), n = be(), e = globalThis.Application ?? (n == null ? void 0 : n.Application) ?? (i == null ? void 0 : i.ApplicationV1);
-  if (e) return e;
-  const t = i == null ? void 0 : i.ApplicationV2;
-  return t ? ke(t) : null;
-}
-function Ze() {
-  const i = Ae(), n = be(), e = globalThis.FormApplication ?? (n == null ? void 0 : n.FormApplication) ?? (i == null ? void 0 : i.FormApplication) ?? globalThis.Application ?? (n == null ? void 0 : n.Application) ?? (i == null ? void 0 : i.ApplicationV1);
-  if (e) return e;
-  const t = i == null ? void 0 : i.ApplicationV2;
-  return t ? ke(t) : Q();
-}
-const Xe = Q();
-function pe() {
-  var i, n, e;
-  return ((e = (n = (i = canvas == null ? void 0 : canvas.tokens) == null ? void 0 : i.controlled) == null ? void 0 : n[0]) == null ? void 0 : e.actor) ?? game.user.character ?? null;
-}
-function et() {
-  var s, a, o, c, d, l, m, f, S;
-  const i = [], n = /* @__PURE__ */ new Set(), e = Array.from(((a = (s = canvas == null ? void 0 : canvas.scene) == null ? void 0 : s.regions) == null ? void 0 : a.contents) ?? ((o = canvas == null ? void 0 : canvas.scene) == null ? void 0 : o.regions) ?? []);
-  for (const p of g.getMachines()) {
-    const N = e.find((y) => {
-      var E, O;
-      return (O = (E = p.regionIds) == null ? void 0 : E.includes) == null ? void 0 : O.call(E, String(y.id));
-    });
-    N && (n.add(p.id), i.push({
-      regionId: N.id,
-      machineId: p.id,
-      name: p.name,
-      description: p.description,
-      image: g.getMachineDisplayImage(p),
-      inventoryCount: ((c = p.inventory) == null ? void 0 : c.length) ?? 0,
-      availableProducts: ((d = p.inventory) == null ? void 0 : d.filter((y) => y.stock > 0).length) ?? 0,
-      totalStock: ((l = p.inventory) == null ? void 0 : l.reduce((y, E) => y + E.stock, 0)) ?? 0,
-      state: g.getMachineState(p),
-      offline: g.getMachineState(p) === "offline",
-      linkLabel: `Region: ${N.name || N.id}`
-    }));
-  }
-  const t = ((f = (m = canvas == null ? void 0 : canvas.scene) == null ? void 0 : m.tiles) == null ? void 0 : f.contents) ?? ((S = canvas == null ? void 0 : canvas.scene) == null ? void 0 : S.tiles) ?? [], r = Array.from(t).map((p) => {
-    var E, O, C, w;
-    const N = (E = p == null ? void 0 : p.getFlag) == null ? void 0 : E.call(p, u, W), y = N ? g.getMachine(N) : null;
-    return !y || n.has(N) ? null : {
-      tileId: p.id,
-      machineId: N,
-      name: y.name,
-      description: y.description,
-      image: g.getMachineDisplayImage(y),
-      inventoryCount: ((O = y.inventory) == null ? void 0 : O.length) ?? 0,
-      availableProducts: ((C = y.inventory) == null ? void 0 : C.filter((D) => D.stock > 0).length) ?? 0,
-      totalStock: ((w = y.inventory) == null ? void 0 : w.reduce((D, h) => D + h.stock, 0)) ?? 0,
-      state: g.getMachineState(y),
-      offline: g.getMachineState(y) === "offline",
-      linkLabel: "Legacy Tile"
-    };
-  }).filter(Boolean);
-  return [...i, ...r];
-}
-class tt extends Xe {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "holosuite-vending-browser",
-      classes: ["holosuite-vending-window", "holosuite-vending-browser-app"],
-      template: Y.browser,
-      width: 620,
-      height: "auto",
-      resizable: !0,
-      title: "Vending Access"
-    });
-  }
-  async getData() {
-    var e;
-    const n = pe();
-    return {
-      machines: et(),
-      actorName: (n == null ? void 0 : n.name) ?? "",
-      sceneName: ((e = canvas == null ? void 0 : canvas.scene) == null ? void 0 : e.name) ?? "Current Scene"
-    };
-  }
-  activateListeners(n) {
-    super.activateListeners(n), n.find("[data-action='open-machine']").on("click", (e) => {
-      var o, c, d, l, m;
-      const t = e.currentTarget.dataset.machineId, r = e.currentTarget.dataset.tileId, s = e.currentTarget.dataset.regionId, a = ((l = (d = (c = (o = canvas == null ? void 0 : canvas.tokens) == null ? void 0 : o.controlled) == null ? void 0 : c[0]) == null ? void 0 : d.document) == null ? void 0 : l.id) ?? "";
-      game.holosuiteVending.openMachine(t, pe(), {
-        source: s ? "region-browser" : "legacy-tile-browser",
-        sceneId: ((m = canvas == null ? void 0 : canvas.scene) == null ? void 0 : m.id) ?? "",
-        tileId: r,
-        regionId: s,
-        tokenId: a
-      });
-    });
-  }
-}
-const K = Object.freeze({
-  cp: 0.01,
-  sp: 0.1,
-  ep: 0.5,
-  gp: 1,
-  pp: 10
-});
-function z(i) {
-  return Math.round((Number(i) + Number.EPSILON) * 1e8) / 1e8;
-}
-function B(i, n = K) {
-  return Number(n[String(i).toLocaleLowerCase()]) || 1;
-}
-function ae(i = [], n = K) {
-  return z((Array.isArray(i) ? i : []).reduce((e, t) => e + (Number(t == null ? void 0 : t.amount) || 0) * B(t == null ? void 0 : t.key, n), 0));
-}
-function nt(i = [], n = 0, e = K) {
-  const t = Array.isArray(i) ? i : [], r = ae(t, e);
-  let s = z(Math.max(0, r - Math.max(0, Number(n) || 0)));
-  const a = [...t].sort((c, d) => B(d == null ? void 0 : d.key, e) - B(c == null ? void 0 : c.key, e)), o = {};
-  return a.forEach((c, d) => {
-    const l = B(c == null ? void 0 : c.key, e), f = d === a.length - 1 ? z(s / l) : Math.floor(z(s / l));
-    o[c.path] = f, s = z(Math.max(0, s - f * l));
-  }), {
-    updates: o,
-    totalBefore: r,
-    totalAfter: ae(
-      t.map((c) => ({ ...c, amount: o[c.path] ?? c.amount })),
-      e
-    )
-  };
-}
-function it(i, n = null) {
-  return i ? n && !n.isGM && i.userId !== n.id ? "forbidden" : i.status === "delivering" ? "busy" : "deliver" : "missing";
-}
-function rt(i, n = Date.now()) {
-  return Math.max(0, Number(i) - Number(n));
-}
-const st = [
-  "system.quantity",
-  "system.qty",
-  "system.amount",
-  "system.count",
-  "system.stack",
-  "system.uses.value"
-], ye = [
-  "system.currency",
-  "system.currencies",
-  "system.money",
-  "system.wealth",
-  "system.resources.currency"
-], at = K, ot = {
-  cp: "CP",
-  sp: "SP",
-  ep: "EP",
-  gp: "GP",
-  pp: "PP",
-  credits: "Credits",
-  credit: "Credits",
-  creds: "Credits",
-  currency: "Currency",
-  funds: "Funds",
-  wealth: "Wealth"
+var T = class {
+	static registerSettings() {
+		game.settings.register(e, i.machines, {
+			name: "HoloSuite Vending Machine Data",
+			scope: "world",
+			config: !1,
+			type: Object,
+			default: {
+				version: 3,
+				machines: []
+			},
+			onChange: () => Hooks.callAll(`${e}.machinesChanged`)
+		}), game.settings.register(e, i.currencyName, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Hint"),
+			scope: "world",
+			config: !0,
+			type: String,
+			default: "Credits",
+			restricted: !0
+		}), game.settings.register(e, i.currencyMode, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Hint"),
+			scope: "world",
+			config: !0,
+			type: String,
+			choices: {
+				auto: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Auto"),
+				actor: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Actor"),
+				item: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyMode.Item")
+			},
+			default: "auto",
+			restricted: !0
+		}), game.settings.register(e, i.currencyPath, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyPath.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyPath.Hint"),
+			scope: "world",
+			config: !0,
+			type: String,
+			default: "",
+			restricted: !0
+		}), game.settings.register(e, i.creditTransformer, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.CreditTransformer.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CreditTransformer.Hint"),
+			scope: "world",
+			config: !1,
+			type: Boolean,
+			default: !1,
+			restricted: !0,
+			onChange: () => Hooks.callAll(`${e}.currencyChanged`)
+		}), game.settings.register(e, i.audioEnabled, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Hint"),
+			scope: "world",
+			config: !0,
+			type: Boolean,
+			default: !0,
+			restricted: !0
+		}), game.settings.register(e, i.audioVolume, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioVolume.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioVolume.Hint"),
+			scope: "world",
+			config: !0,
+			type: Number,
+			range: {
+				min: 0,
+				max: 1,
+				step: .05
+			},
+			default: .35,
+			restricted: !0
+		});
+		let t = [
+			[
+				i.audioSelect,
+				"Select",
+				a.select
+			],
+			[
+				i.audioPurchase,
+				"Purchase",
+				a.purchase
+			],
+			[
+				i.audioDispense,
+				"Dispense",
+				a.dispense
+			],
+			[
+				i.audioCollect,
+				"Collect",
+				a.collect
+			],
+			[
+				i.audioFailure,
+				"Failure",
+				a.failure
+			]
+		];
+		for (let [n, r, i] of t) game.settings.register(e, n, {
+			name: game.i18n.localize(`HOLOSUITEVENDING.Settings.Audio${r}.Name`),
+			hint: game.i18n.localize(`HOLOSUITEVENDING.Settings.Audio${r}.Hint`),
+			scope: "world",
+			config: !0,
+			type: String,
+			default: i,
+			filePicker: "audio",
+			restricted: !0
+		});
+		game.settings.register(e, i.ledger, {
+			name: "HoloSuite Vending Transaction Ledger",
+			scope: "world",
+			config: !1,
+			type: Object,
+			default: {
+				version: 1,
+				entries: []
+			}
+		}), game.settings.register(e, i.dispenses, {
+			name: "HoloSuite Pending Vending Dispenses",
+			scope: "world",
+			config: !1,
+			type: Object,
+			default: {
+				version: 1,
+				entries: []
+			}
+		});
+	}
+	static getState() {
+		return C(game.settings.get(e, i.machines));
+	}
+	static async setState(t) {
+		if (!game.user.isGM) throw Error("Only a GM can update vending machine data.");
+		await game.settings.set(e, i.machines, C(t));
+	}
+	static getMachines() {
+		return this.getState().machines;
+	}
+	static getMachine(e) {
+		return this.getMachines().find((t) => t.id === e) ?? null;
+	}
+	static getMachineState(e) {
+		return p(typeof e == "string" ? this.getMachine(e) : e);
+	}
+	static getMachineDisplayImage(e) {
+		return m(typeof e == "string" ? this.getMachine(e) : e);
+	}
+	static getCurrencyName() {
+		return game.settings.get("holosuite-vending-machines", i.currencyName) || "Credits";
+	}
+	static getCurrencyMode() {
+		let e = String(game.settings.get("holosuite-vending-machines", i.currencyMode) || "auto");
+		return [
+			"auto",
+			"actor",
+			"item"
+		].includes(e) ? e : "auto";
+	}
+	static getCurrencyPath() {
+		return String(game.settings.get("holosuite-vending-machines", i.currencyPath) || "").trim();
+	}
+	static getCurrencySourceLabel() {
+		let e = this.getCurrencyMode(), t = this.getCurrencyPath();
+		return this.getCreditTransformer() ? "Credit Transformer · backed by each actor's system currency" : e === "actor" ? t ? `Actor currency · ${t}` : "Actor currency · automatic detection" : e === "item" ? `Inventory currency item · ${this.getCurrencyName()}` : t ? `Automatic system currency · ${t}` : "Automatic system currency detection with item fallback";
+	}
+	static getCreditTransformer() {
+		return game.settings.get(e, i.creditTransformer) === !0;
+	}
+	static async setCreditTransformer(t) {
+		if (!game.user?.isGM) throw Error("Only a GM can change the credit transformer.");
+		return game.settings.set(e, i.creditTransformer, t === !0);
+	}
+	static getAudioConfig() {
+		return {
+			enabled: game.settings.get(e, i.audioEnabled) !== !1,
+			volume: Math.min(1, Math.max(0, Number(game.settings.get("holosuite-vending-machines", i.audioVolume)) || 0)),
+			select: String(game.settings.get("holosuite-vending-machines", i.audioSelect) || "").trim(),
+			purchase: String(game.settings.get("holosuite-vending-machines", i.audioPurchase) || "").trim(),
+			dispense: String(game.settings.get("holosuite-vending-machines", i.audioDispense) || "").trim(),
+			collect: String(game.settings.get("holosuite-vending-machines", i.audioCollect) || "").trim(),
+			failure: String(game.settings.get("holosuite-vending-machines", i.audioFailure) || "").trim()
+		};
+	}
+	static async upsertMachine(e) {
+		if (Array.isArray(e?.inventory) && e.inventory.length > 6) throw Error("A vending machine can contain no more than 6 products.");
+		let t = this.getState(), n = S(e), r = t.machines.findIndex((e) => e.id === n.id);
+		return r >= 0 ? t.machines[r] = n : t.machines.push(n), await this.setState(t), n;
+	}
+	static async deleteMachine(e) {
+		let t = this.getState();
+		t.machines = t.machines.filter((t) => t.id !== e), await this.setState(t);
+	}
+	static async updateEntryStocks(e, t) {
+		let n = this.getState(), r = n.machines.find((t) => t.id === e);
+		if (!r) throw Error("Vending machine not found.");
+		for (let e of r.inventory) Object.prototype.hasOwnProperty.call(t, e.id) && (e.stock = Math.max(0, Math.floor(Number(t[e.id]) || 0)));
+		return await this.setState(n), S(r);
+	}
+	static async updateEntryStock(e, t, n) {
+		return this.updateEntryStocks(e, { [t]: n });
+	}
+	static async restockMachine(e) {
+		let t = this.getMachine(e);
+		if (!t) throw Error("Vending machine not found.");
+		let n = Object.fromEntries(t.inventory.map((e) => [e.id, e.maxStock]));
+		return this.updateEntryStocks(e, n);
+	}
+	static async restockAll() {
+		let e = this.getState();
+		for (let t of e.machines) for (let e of t.inventory) e.stock = e.maxStock;
+		return await this.setState(e), e.machines;
+	}
+	static getLedger() {
+		return te(game.settings.get(e, i.ledger));
+	}
+	static getDispenseState() {
+		return ne(game.settings.get(e, i.dispenses));
+	}
+	static getPendingDispenses() {
+		return this.getDispenseState().entries;
+	}
+	static getPendingDispense(e) {
+		return this.getPendingDispenses().find((t) => t.requestId === e) ?? null;
+	}
+	static async addPendingDispense(t) {
+		if (!game.user?.isGM) throw Error("Only a GM can authorize vending-machine delivery.");
+		let n = this.getDispenseState(), r = w(t), a = n.entries.findIndex((e) => e.requestId === r.requestId);
+		return a >= 0 ? n.entries[a] = r : n.entries.push(r), await game.settings.set(e, i.dispenses, n), r;
+	}
+	static async updatePendingDispense(t, n) {
+		if (!game.user?.isGM) throw Error("Only a GM can update vending-machine delivery.");
+		let r = this.getDispenseState(), a = r.entries.findIndex((e) => e.requestId === t);
+		return a < 0 ? null : (r.entries[a] = w({
+			...r.entries[a],
+			...n
+		}), await game.settings.set(e, i.dispenses, r), r.entries[a]);
+	}
+	static async removePendingDispense(t) {
+		if (!game.user?.isGM) throw Error("Only a GM can complete vending-machine delivery.");
+		let n = this.getDispenseState(), r = n.entries.length;
+		return n.entries = n.entries.filter((e) => e.requestId !== t), n.entries.length !== r && (await game.settings.set(e, i.dispenses, n), !0);
+	}
+	static async appendLedger(t) {
+		if (!game.user.isGM) return null;
+		let n = this.getLedger(), r = {
+			id: t.id || h("transaction"),
+			requestId: t.requestId || "",
+			timestamp: t.timestamp || Date.now(),
+			status: t.status === "failed" ? "failed" : "success",
+			machineId: t.machineId || "",
+			machineName: t.machineName || "Unknown machine",
+			actorId: t.actorId || "",
+			actorName: t.actorName || "Unknown actor",
+			userId: t.userId || "",
+			userName: t.userName || "Unknown user",
+			itemSummary: t.itemSummary || "",
+			itemCount: Math.max(0, Number(t.itemCount) || 0),
+			totalPrice: Math.max(0, Number(t.totalPrice) || 0),
+			currencyName: t.currencyName || this.getCurrencyName(),
+			error: t.error || ""
+		};
+		return n.entries.push(r), n.entries = n.entries.slice(-250), await game.settings.set(e, i.ledger, n), Hooks.callAll(`${e}.ledgerChanged`, r), r;
+	}
+	static hasProcessedRequest(e) {
+		return e ? this.getLedger().entries.some((t) => t.requestId === e && t.status === "success") : !1;
+	}
+	static async clearLedger() {
+		if (!game.user.isGM) throw Error("Only a GM can clear the transaction ledger.");
+		await game.settings.set(e, i.ledger, {
+			version: 1,
+			entries: []
+		}), Hooks.callAll(`${e}.ledgerChanged`, null);
+	}
+	static exportData() {
+		return {
+			format: "holosuite-vending-machines",
+			version: 3,
+			exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
+			currencyName: this.getCurrencyName(),
+			machines: g(this.getMachines())
+		};
+	}
+	static async importData(e) {
+		if (!game.user.isGM) throw Error("Only a GM can import vending machines.");
+		let t = Array.isArray(e) ? e : e?.machines;
+		if (!Array.isArray(t)) throw Error("This file does not contain a vending machine list.");
+		let n = t.find((e) => Array.isArray(e?.inventory) && e.inventory.length > 6);
+		if (n) throw Error(`Cannot import ${n.name || "a vending machine"}: it contains ${n.inventory.length} products, but the maximum is 6.`);
+		let r = this.getState(), i = [];
+		for (let e of t) {
+			let t = S(e);
+			i.push(t);
+			let n = r.machines.findIndex((e) => e.id === t.id);
+			n >= 0 ? r.machines[n] = t : r.machines.push(t);
+		}
+		return await this.setState(r), i.length;
+	}
+	static createMachine(e = {}) {
+		return S({
+			id: h("machine"),
+			...e
+		});
+	}
+	static createEntry(e = {}) {
+		return x({
+			id: h("entry"),
+			...e
+		});
+	}
 };
-function F(i) {
-  for (const n of st) {
-    const e = foundry.utils.getProperty(i, n);
-    if (Number.isFinite(Number(e))) return { path: n, value: Number(e) };
-  }
-  return { path: null, value: 1 };
+//#endregion
+//#region src/application-base.ts
+function E() {
+	return globalThis.foundry?.applications?.api ?? foundry?.applications?.api ?? null;
 }
-function le(i) {
-  return Array.from((i == null ? void 0 : i.items) ?? []);
+function D() {
+	return globalThis.foundry?.appv1?.api ?? foundry?.appv1?.api ?? null;
 }
-function ct(i, n) {
-  const e = String(n).trim().toLocaleLowerCase();
-  return le(i).find((t) => String(t.name).trim().toLocaleLowerCase() === e);
+function re(e = {}, t = {}) {
+	let n = globalThis.foundry?.utils?.mergeObject ?? foundry?.utils?.mergeObject;
+	return typeof n == "function" ? n(e, t, { inplace: !1 }) : {
+		...e,
+		...t
+	};
 }
-function ut(i, n) {
-  return i == null || i === "" ? [] : Number.isFinite(Number(i)) ? [{ key: n.split(".").at(-1) || "currency", path: n, amount: Number(i) }] : typeof i != "object" || Array.isArray(i) ? [] : Object.entries(i).filter(([, e]) => e !== null && e !== "" && Number.isFinite(Number(e))).map(([e, t]) => ({ key: e, path: `${n}.${e}`, amount: Number(t) }));
+function O(e = {}) {
+	return {
+		id: String(e.id ?? `legacy-application-${Math.random().toString(36).slice(2, 10)}`),
+		tag: e.tag ?? "section",
+		classes: Array.isArray(e.classes) ? e.classes : [],
+		window: {
+			title: e.title ?? "",
+			icon: e.icon,
+			resizable: e.resizable === !0
+		},
+		position: {
+			width: Number(e.width ?? 600),
+			height: e.height === "auto" ? "auto" : Number(e.height ?? 600)
+		}
+	};
 }
-function dt(i) {
-  if (!i) return [];
-  const n = g.getCurrencyPath(), e = n ? [n, ...ye] : ye, t = /* @__PURE__ */ new Set();
-  for (const r of e) {
-    if (!r || t.has(r)) continue;
-    t.add(r);
-    const s = ut(foundry.utils.getProperty(i, r), r);
-    if (s.length) return s;
-  }
-  return [];
+function ie(e) {
+	return class extends e {
+		static get defaultOptions() {
+			return {};
+		}
+		static get DEFAULT_OPTIONS() {
+			return O(this.defaultOptions ?? {});
+		}
+		_v1Options;
+		constructor(e = {}) {
+			let t = re(new.target.defaultOptions ?? {}, e);
+			super(O(t)), this._v1Options = t;
+		}
+		render(e = {}, t = {}) {
+			return typeof e == "boolean" ? super.render({
+				...t,
+				force: e
+			}) : super.render(e);
+		}
+		activateListeners(e) {}
+		async _renderHTML(e, t) {
+			let n = typeof this.getData == "function" ? await this.getData() : {}, r = this._v1Options?.template ?? this.options?.template ?? this.constructor.defaultOptions?.template;
+			if (!r) return document.createDocumentFragment();
+			let i = await globalThis.renderTemplate(r, n), a = document.createElement("template");
+			return a.innerHTML = i.trim(), a.content;
+		}
+		_replaceHTML(e, t, n) {
+			t.replaceChildren(e);
+			let r = globalThis.jQuery ?? globalThis.$, i = t.closest?.(".window-app, .app, .application") ?? t, a = r ? r(i) : i;
+			try {
+				Object.defineProperty(this, "element", {
+					value: a,
+					configurable: !0,
+					writable: !0
+				});
+			} catch {
+				try {
+					this.element = a;
+				} catch {}
+			}
+			let o = this._v1Options?.classes;
+			Array.isArray(o) && o.length && (t.classList.add(...o), t.closest?.(".window-app, .app, .application")?.classList.add(...o)), typeof this.activateListeners == "function" && this.activateListeners(r ? r(t) : t);
+		}
+	};
 }
-function lt(i) {
-  return ae(i);
+function k() {
+	let e = E(), t = D(), n = globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
+	if (n) return n;
+	let r = e?.ApplicationV2;
+	return r ? ie(r) : null;
 }
-function mt(i) {
-  const n = i.map((e) => String(e.key).toLocaleLowerCase());
-  return n.some((e) => Object.hasOwn(at, e)) ? "GP" : n.length === 1 ? ot[n[0]] ?? String(i[0].key).toLocaleUpperCase() : g.getCurrencyName();
+function ae() {
+	let e = E(), t = D(), n = globalThis.FormApplication ?? t?.FormApplication ?? e?.FormApplication ?? globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
+	if (n) return n;
+	let r = e?.ApplicationV2;
+	return r ? ie(r) : k();
 }
-function J(i) {
-  const n = g.getCurrencyMode(), e = dt(i);
-  if ((n === "auto" || n === "actor") && e.length)
-    return {
-      kind: "actor",
-      actor: i,
-      entries: e,
-      value: lt(e),
-      label: g.getCreditTransformer() ? "Credits" : mt(e)
-    };
-  if (n === "actor") return { kind: "invalid", actor: i, value: 0, label: g.getCurrencyName() };
-  const t = ct(i, g.getCurrencyName());
-  return t ? { kind: "item", item: t, value: F(t).value, label: t.name || g.getCurrencyName() } : { kind: "missing", value: 0, label: g.getCurrencyName() };
+//#endregion
+//#region src/region-access.mjs
+function A(e) {
+	if (!e) return [];
+	if (Array.isArray(e)) return e;
+	if (Array.isArray(e.contents)) return e.contents;
+	if (typeof e.values == "function") return Array.from(e.values());
+	try {
+		return Array.from(e);
+	} catch {
+		return [];
+	}
 }
-function Ie(i, n) {
-  var e;
-  return !n || !i ? !1 : i.isGM ? !0 : ((e = n.testUserPermission) == null ? void 0 : e.call(n, i, "OWNER")) ?? !1;
+function oe(e, t) {
+	let n = String(t ?? "");
+	return !e || !n ? null : e.get?.(n) ?? A(e).find((e) => String(e?.id ?? e?._id ?? "") === n) ?? null;
 }
-function j(i, n) {
-  var t;
-  if (!i || !n) return null;
-  const e = Array.from(i.contents ?? i);
-  return ((t = i.get) == null ? void 0 : t.call(i, n)) ?? e.find((r) => (r == null ? void 0 : r.id) === n) ?? null;
+function se(e, t) {
+	let n = String(t ?? "");
+	return !e || !n ? !1 : e.has?.(n) || e.get?.(n) ? !0 : A(e).some((e) => {
+		let t = Array.isArray(e) ? e[1] : e;
+		return String(t?.id ?? t?._id ?? t ?? "") === n;
+	});
 }
-function gt(i, n, e = "") {
-  var s, a;
-  const t = Array.from(((s = i == null ? void 0 : i.tokens) == null ? void 0 : s.contents) ?? (i == null ? void 0 : i.tokens) ?? []), r = e ? j(i == null ? void 0 : i.tokens, e) : null;
-  return (r == null ? void 0 : r.actorId) === (n == null ? void 0 : n.id) || ((a = r == null ? void 0 : r.actor) == null ? void 0 : a.id) === (n == null ? void 0 : n.id) ? r : t.find((o) => {
-    var c;
-    return (o == null ? void 0 : o.actorId) === (n == null ? void 0 : n.id) || ((c = o == null ? void 0 : o.actor) == null ? void 0 : c.id) === (n == null ? void 0 : n.id);
-  }) ?? null;
+function ce(e) {
+	return !!e && (Array.isArray(e) || Array.isArray(e.contents) || typeof e.has == "function" || typeof e.values == "function" || typeof e[Symbol.iterator] == "function");
 }
-function Ne({ machine: i, actor: n, user: e, context: t = {} }) {
-  var s, a, o, c, d, l;
-  if (!i) return { allowed: !1, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine") };
-  if (g.getMachineState(i) === k.OFFLINE)
-    return { allowed: !1, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.Offline") };
-  if (e != null && e.isGM) return { allowed: !0, reason: "" };
-  const r = String(((s = i.access) == null ? void 0 : s.requiredItemName) ?? "").trim();
-  if (r && !le(n).find((f) => String((f == null ? void 0 : f.name) ?? "").trim().toLocaleLowerCase() === r.toLocaleLowerCase() && F(f).value > 0))
-    return {
-      allowed: !1,
-      reason: game.i18n.format("HOLOSUITEVENDING.Notifications.RequiredItem", { item: r })
-    };
-  if ((a = i.access) != null && a.requireProximity) {
-    const m = j(game.scenes, t.sceneId) ?? (canvas == null ? void 0 : canvas.scene), f = gt(m, n, t.tokenId);
-    if (t.regionId) {
-      const S = j(m == null ? void 0 : m.regions, t.regionId), p = t.source === "region-behavior" || t.source === "region-socket", N = (c = (o = i.regionIds) == null ? void 0 : o.includes) == null ? void 0 : c.call(o, String(t.regionId));
-      if (!p || !S || !N || !f)
-        return { allowed: !1, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
-    } else {
-      const S = j(m == null ? void 0 : m.tiles, t.tileId), p = ((d = m == null ? void 0 : m.grid) == null ? void 0 : d.size) ?? ((l = canvas == null ? void 0 : canvas.grid) == null ? void 0 : l.size) ?? 100;
-      if (!qe(f, S, p, i.access.proximityDistance))
-        return { allowed: !1, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
-    }
-    if (!f)
-      return { allowed: !1, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
-  }
-  return { allowed: !0, reason: "" };
+function le(e, t) {
+	if (!e || !t) return !1;
+	let n = String(t.id ?? t._id ?? "");
+	return !!n && String(e.actorId ?? e.actor?.id ?? e.document?.actorId ?? "") === n;
 }
-async function ft(i) {
-  var e, t, r;
-  if (i.itemUuid) {
-    const s = await fromUuid(i.itemUuid);
-    if (s) return s.toObject ? s.toObject() : foundry.utils.deepClone(s);
-  }
-  if (i.embeddedData) return foundry.utils.deepClone(i.embeddedData);
-  const n = ((r = (t = (e = game.system) == null ? void 0 : e.documentTypes) == null ? void 0 : t.Item) == null ? void 0 : r[0]) ?? "loot";
-  return {
-    name: i.displayName,
-    type: n,
-    img: i.image,
-    system: {}
-  };
+function ue(e, t, n = "") {
+	if (!e || !t) return [];
+	let r = A(e.tokens), i = oe(e.tokens, n), a = [];
+	le(i, t) && a.push(i);
+	for (let e of r) le(e, t) && !a.some((t) => t.id === e.id) && a.push(e);
+	return a;
 }
-async function ht(i, n) {
-  if (!i || n <= 0) return null;
-  if (i.kind === "actor") {
-    const a = Object.fromEntries(i.entries.map((c) => [c.path, c.amount])), { updates: o } = nt(i.entries, n);
-    return await i.actor.update(o), { type: "actor", actor: i.actor, previous: a };
-  }
-  if (i.kind !== "item") return null;
-  const e = i.item, t = F(e), r = e.toObject ? e.toObject() : foundry.utils.deepClone(e), s = t.value - n;
-  return s <= 0 ? (await e.delete(), { type: "deleted", actor: e.parent, snapshot: r }) : (await e.update({ [t.path]: s }), { type: "updated", item: e, path: t.path, previous: t.value });
+function de(e, t) {
+	let n = t?.document ?? t, r = Number(e?.grid?.size ?? e?.dimensions?.size ?? globalThis.canvas?.grid?.size ?? 100) || 100, i = Number(n?.x), a = Number(n?.y);
+	return !Number.isFinite(i) || !Number.isFinite(a) ? null : {
+		x: i + Number(n?.width ?? 1) * r / 2,
+		y: a + Number(n?.height ?? 1) * r / 2,
+		elevation: Number(n?.elevation ?? 0)
+	};
 }
-async function pt(i) {
-  if (!i) return;
-  if (i.type === "actor") {
-    await i.actor.update(i.previous);
-    return;
-  }
-  if (i.type === "updated") {
-    await i.item.update({ [i.path]: i.previous });
-    return;
-  }
-  const n = foundry.utils.deepClone(i.snapshot);
-  delete n._id, await i.actor.createEmbeddedDocuments("Item", [n]);
+function fe(e, t) {
+	let n = [
+		e?.regions,
+		e?._regions,
+		e?.document?.regions,
+		e?.document?._regions,
+		e?.object?.regions
+	];
+	for (let e of n) if (ce(e)) return {
+		known: !0,
+		present: se(e, t)
+	};
+	return {
+		known: !1,
+		present: !1
+	};
 }
-async function yt(i, n, e) {
-  const t = foundry.utils.deepClone(n);
-  delete t._id, t.name = t.name || "Vended Item", t.img = t.img || "icons/svg/item-bag.svg";
-  const r = F(t), s = le(i).find((c) => c.name === t.name && c.type === t.type);
-  if (s) {
-    const c = F(s);
-    if (c.path) {
-      const d = Math.max(1, r.value) * e;
-      return await s.update({ [c.path]: c.value + d }), { type: "updated", item: s, path: c.path, previous: c.value };
-    }
-  }
-  if (r.path) {
-    foundry.utils.setProperty(t, r.path, Math.max(1, r.value) * e);
-    const c = await i.createEmbeddedDocuments("Item", [t]);
-    return { type: "created", actor: i, ids: c.map((d) => d.id) };
-  }
-  const a = Array.from({ length: e }, () => foundry.utils.deepClone(t)), o = await i.createEmbeddedDocuments("Item", a);
-  return { type: "created", actor: i, ids: o.map((c) => c.id) };
+function pe(e, t) {
+	let n = [
+		e?.tokens,
+		e?._tokens,
+		e?.document?.tokens,
+		e?.object?.tokens
+	];
+	for (let e of n) if (ce(e)) return {
+		known: !0,
+		present: se(e, t)
+	};
+	return {
+		known: !1,
+		present: !1
+	};
 }
-async function It(i) {
-  var n;
-  for (const e of [...i].reverse())
-    e.type === "updated" ? await e.item.update({ [e.path]: e.previous }) : (n = e.ids) != null && n.length && await e.actor.deleteEmbeddedDocuments("Item", e.ids);
+function me(e, t, n) {
+	let r = String(e?.id ?? e?._id ?? ""), i = String(t?.id ?? t?._id ?? t?.document?.id ?? "");
+	if (!r || !i) return !1;
+	let a = fe(t, r);
+	if (a.known) return a.present;
+	let o = pe(e, i);
+	if (o.known) return o.present;
+	let s = de(n, t);
+	if (!s) return !1;
+	for (let t of [e, e?.object]) if (t) {
+		if (typeof t.testPoint == "function") {
+			let e = t.testPoint(s, s.elevation);
+			if (typeof e == "boolean") return e;
+		}
+		if (typeof t.contains == "function") {
+			let e = t.contains(s.x, s.y) ?? t.contains(s);
+			if (typeof e == "boolean") return e;
+		}
+	}
+	return !1;
 }
-async function Z(i, n, e) {
-  var t, r;
-  if (game.user.id === i) {
-    (r = (t = ui.notifications)[n]) == null || r.call(t, e);
-    return;
-  }
-  game.socket.emit(H, { type: "notify", moduleId: u, userId: i, level: n, message: e });
+function he({ scene: e, machine: t, actor: n, tokenId: r = "" }) {
+	if (!e || !t || !n) return null;
+	let i = new Set((t.regionIds ?? []).map((e) => String(e)));
+	if (!i.size) return null;
+	let a = A(e.regions).filter((e) => i.has(String(e?.id ?? e?._id ?? "")));
+	for (let t of ue(e, n, r)) for (let n of a) if (me(n, t, e)) return {
+		region: n,
+		token: t.document ?? t
+	};
+	return null;
 }
-function we(i, n) {
-  const e = { type: "purchase-result", moduleId: u, userId: i, ...n };
-  if (game.user.id === i) {
-    Hooks.callAll(`${u}.purchaseResult`, e);
-    return;
-  }
-  game.socket.emit(H, e);
+//#endregion
+//#region src/machine-browser-app.ts
+var ge = k();
+function j() {
+	return canvas?.tokens?.controlled?.[0]?.actor ?? game.user.character ?? null;
 }
-function X(i, n) {
-  const e = { type: "collection-result", moduleId: u, userId: i, ...n };
-  if (game.user.id === i) {
-    Hooks.callAll(`${u}.collectionResult`, e);
-    return;
-  }
-  game.socket.emit(H, e);
+function _e(e) {
+	let t = [], n = canvas?.scene, r = Array.from(n?.regions?.contents ?? n?.regions ?? []);
+	for (let i of T.getMachines()) {
+		let a = r.find((e) => i.regionIds?.includes?.(String(e.id)));
+		if (!a) continue;
+		let o = i.access?.requireProximity && !game.user?.isGM, s = o ? he({
+			scene: n,
+			machine: i,
+			actor: e,
+			tokenId: canvas?.tokens?.controlled?.[0]?.document?.id ?? ""
+		}) : null;
+		if (o && !s) continue;
+		let c = s?.region ?? a, l = s?.token?.id ?? canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
+		c && t.push({
+			regionId: c.id,
+			tokenId: l,
+			machineId: i.id,
+			name: i.name,
+			description: i.description,
+			image: T.getMachineDisplayImage(i),
+			inventoryCount: i.inventory?.length ?? 0,
+			availableProducts: i.inventory?.filter((e) => e.stock > 0).length ?? 0,
+			totalStock: i.inventory?.reduce((e, t) => e + t.stock, 0) ?? 0,
+			state: T.getMachineState(i),
+			offline: T.getMachineState(i) === "offline",
+			linkLabel: `Region: ${c.name || c.id}`
+		});
+	}
+	return t;
 }
-async function Nt({ actor: i, itemSummary: n, totalPrice: e, currencyName: t }) {
-  await ChatMessage.create({
-    speaker: ChatMessage.getSpeaker({ actor: i }),
-    content: game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
-      actor: i.name,
-      item: n,
-      price: L(e),
-      currency: t
-    })
-  });
+var ve = class extends ge {
+	static get defaultOptions() {
+		return foundry.utils.mergeObject(super.defaultOptions, {
+			id: "holosuite-vending-browser",
+			classes: ["holosuite-vending-window", "holosuite-vending-browser-app"],
+			template: o.browser,
+			width: 620,
+			height: "auto",
+			resizable: !0,
+			title: "Vending Access"
+		});
+	}
+	async getData() {
+		let e = j();
+		return {
+			machines: _e(e),
+			actorName: e?.name ?? "",
+			sceneName: canvas?.scene?.name ?? "Current Scene"
+		};
+	}
+	activateListeners(e) {
+		super.activateListeners(e), e.find("[data-action='open-machine']").on("click", (e) => {
+			let t = e.currentTarget.dataset.machineId, n = e.currentTarget.dataset.regionId, r = e.currentTarget.dataset.tokenId ?? "";
+			game.holosuiteVending.openMachine(t, j(), {
+				source: "region-browser",
+				sceneId: canvas?.scene?.id ?? "",
+				regionId: n,
+				tokenId: r
+			});
+		});
+	}
+}, M = Object.freeze({
+	cp: .01,
+	sp: .1,
+	ep: .5,
+	gp: 1,
+	pp: 10
+});
+function N(e) {
+	return Math.round((Number(e) + 2 ** -52) * 1e8) / 1e8;
 }
-async function Se(i) {
-  try {
-    return await g.appendLedger(i);
-  } catch (n) {
-    return console.warn(`${u} | Could not update transaction ledger`, n), null;
-  }
+function P(e, t = M) {
+	return Number(t[String(e).toLocaleLowerCase()]) || 1;
 }
-class b {
-  static registerSocket() {
-    game.socket.on(H, async (n) => {
-      var e, t;
-      if (!(!n || n.moduleId && n.moduleId !== u)) {
-        if (n.type === "notify" && n.userId === game.user.id) {
-          (t = (e = ui.notifications)[n.level || "info"]) == null || t.call(e, n.message);
-          return;
-        }
-        if (n.type === "purchase-result" && n.userId === game.user.id) {
-          Hooks.callAll(`${u}.purchaseResult`, n);
-          return;
-        }
-        if (n.type === "collection-result" && n.userId === game.user.id) {
-          Hooks.callAll(`${u}.collectionResult`, n);
-          return;
-        }
-        if (n.type === "purchase" && game.user.isGM && this.isResponsibleGM()) {
-          await this.handlePurchaseRequest(n);
-          return;
-        }
-        n.type === "collection" && game.user.isGM && this.isResponsibleGM() && await this.handleCollectionRequest(n);
-      }
-    });
-  }
-  static isResponsibleGM() {
-    const n = game.users.find((e) => e.active && e.isGM);
-    return (n == null ? void 0 : n.id) === game.user.id;
-  }
-  static checkAccess({ machineId: n, actor: e, user: t = game.user, context: r = {} }) {
-    return Ne({ machine: g.getMachine(n), actor: e, user: t, context: r });
-  }
-  static getCurrencyBalance(n) {
-    return J(n).value;
-  }
-  static getCurrencyProfile(n) {
-    const e = J(n);
-    return { balance: e.value, label: e.label, source: e.kind };
-  }
-  static enqueue(n) {
-    const e = this.transactionQueue.then(() => this.processPurchase(n));
-    return this.transactionQueue = e.catch(() => {
-    }), e;
-  }
-  static enqueueCollection(n) {
-    const e = this.transactionQueue.then(() => this.finalizeDispense(n));
-    return this.transactionQueue = e.catch(() => {
-    }), e;
-  }
-  static scheduleDispense(n) {
-    var a;
-    const e = n == null ? void 0 : n.requestId;
-    if (!e || !((a = game.user) != null && a.isGM) || !this.isResponsibleGM()) return;
-    const t = this.dispenseTimers.get(e);
-    t && window.clearTimeout(t);
-    const r = rt(n.expiresAt), s = window.setTimeout(async () => {
-      this.dispenseTimers.delete(e);
-      try {
-        await this.enqueueCollection({ requestId: e, automatic: !0 });
-      } catch (o) {
-        console.warn(`${u} | Automatic vending collection failed`, o);
-      }
-    }, Math.min(r, 2147e6));
-    this.dispenseTimers.set(e, s);
-  }
-  static resumePendingDispenses() {
-    var n;
-    if (!(!((n = game.user) != null && n.isGM) || !this.isResponsibleGM()))
-      for (const e of g.getPendingDispenses()) this.scheduleDispense(e);
-  }
-  static async requestPurchase({ machineId: n, entryId: e = "", lines: t = [], actor: r, context: s = {} }) {
-    var l, m;
-    const a = Me(t.length ? t : [{ entryId: e, quantity: 1 }]);
-    if (!r)
-      return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor")), !1;
-    if (!a.length) return !1;
-    const o = this.checkAccess({ machineId: n, actor: r, context: s });
-    if (!o.allowed)
-      return ui.notifications.warn(o.reason), !1;
-    const c = ((m = (l = foundry == null ? void 0 : foundry.utils) == null ? void 0 : l.randomID) == null ? void 0 : m.call(l, 16)) ?? `${game.user.id}-${Date.now()}-${Math.random()}`;
-    if (game.user.isGM && this.isResponsibleGM())
-      try {
-        const f = await this.enqueue({ requestId: c, machineId: n, lines: a, actor: r, user: game.user, context: s });
-        return { accepted: !0, pending: !1, requestId: c, result: f };
-      } catch (f) {
-        return ui.notifications.warn(f.message), !1;
-      }
-    return Ie(game.user, r) ? game.users.find((f) => f.active && f.isGM) ? (game.socket.emit(H, {
-      type: "purchase",
-      moduleId: u,
-      requestId: c,
-      userId: game.user.id,
-      machineId: n,
-      lines: a,
-      actorUuid: r.uuid,
-      context: s
-    }), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Processing")), { accepted: !0, pending: !0, requestId: c }) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoGM")), !1) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor")), !1);
-  }
-  static async handlePurchaseRequest(n) {
-    var r, s, a;
-    const e = game.users.get(n.userId), t = await fromUuid(n.actorUuid);
-    try {
-      const o = await this.enqueue({
-        requestId: n.requestId,
-        machineId: n.machineId,
-        lines: n.lines,
-        actor: t,
-        user: e,
-        context: n.context ?? {}
-      });
-      we(n.userId, {
-        status: "success",
-        requestId: n.requestId,
-        machineId: n.machineId,
-        reservationId: ((r = o == null ? void 0 : o.reservation) == null ? void 0 : r.requestId) ?? n.requestId,
-        itemCount: ((s = o == null ? void 0 : o.cart) == null ? void 0 : s.itemCount) ?? 0,
-        image: ((a = o == null ? void 0 : o.reservation) == null ? void 0 : a.image) ?? ""
-      });
-    } catch (o) {
-      console.warn(`${u} | Purchase failed`, o), await Z(n.userId, "warn", o.message), we(n.userId, {
-        status: "failed",
-        requestId: n.requestId,
-        machineId: n.machineId,
-        message: o.message
-      });
-    }
-  }
-  static async requestCollection({ requestId: n, automatic: e = !1 }) {
-    if (!n) return !1;
-    if (game.user.isGM && this.isResponsibleGM())
-      try {
-        return { accepted: !0, pending: !1, result: await this.enqueueCollection({ requestId: n, user: game.user, automatic: e }) };
-      } catch (r) {
-        return ui.notifications.warn(r.message), !1;
-      }
-    return game.users.find((r) => r.active && r.isGM) ? (game.socket.emit(H, {
-      type: "collection",
-      moduleId: u,
-      requestId: n,
-      userId: game.user.id,
-      automatic: e
-    }), { accepted: !0, pending: !0 }) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoGM")), !1);
-  }
-  static async handleCollectionRequest(n) {
-    var e;
-    try {
-      const t = game.users.get(n.userId), r = await this.enqueueCollection({
-        requestId: n.requestId,
-        user: t,
-        automatic: n.automatic === !0,
-        notifyResult: !1
-      });
-      X(n.userId, {
-        status: "success",
-        requestId: n.requestId,
-        machineId: ((e = r == null ? void 0 : r.reservation) == null ? void 0 : e.machineId) ?? "",
-        automatic: (r == null ? void 0 : r.automatic) === !0
-      });
-    } catch (t) {
-      console.warn(`${u} | Collection failed`, t), await Z(n.userId, "warn", t.message), X(n.userId, {
-        status: "failed",
-        requestId: n.requestId,
-        message: t.message
-      });
-    }
-  }
-  static async processPurchase({ requestId: n, machineId: e, lines: t, actor: r, user: s, context: a = {} }) {
-    var f, S, p;
-    const o = g.getPendingDispense(n);
-    if (o)
-      return {
-        duplicate: !0,
-        reservation: o,
-        cart: { itemCount: o.itemCount, totalPrice: o.totalPrice, lines: [] }
-      };
-    if (this.processedRequests.has(n) || g.hasProcessedRequest(n)) return { duplicate: !0 };
-    const c = J(r), d = c.label;
-    let l = g.getMachine(e);
-    const m = {
-      requestId: n,
-      machineId: e,
-      machineName: (l == null ? void 0 : l.name) ?? "Unknown machine",
-      actorId: (r == null ? void 0 : r.id) ?? "",
-      actorName: (r == null ? void 0 : r.name) ?? "Unknown actor",
-      userId: (s == null ? void 0 : s.id) ?? "",
-      userName: (s == null ? void 0 : s.name) ?? "Unknown user",
-      currencyName: d
-    };
-    try {
-      if (!Ie(s, r))
-        throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-      l = g.getMachine(e);
-      const N = Ne({ machine: l, actor: r, user: s, context: a });
-      if (!N.allowed) throw new Error(N.reason);
-      const y = Fe(l, t);
-      if (!y.lines.length) throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.EmptyCart"));
-      if (y.totalPrice > 0 && c.kind === "invalid")
-        throw new Error(game.i18n.format("HOLOSUITEVENDING.Notifications.CurrencyPathInvalid", {
-          path: g.getCurrencyPath() || "automatic detection"
-        }));
-      if (y.totalPrice > 0 && c.value < y.totalPrice)
-        throw new Error(game.i18n.format("HOLOSUITEVENDING.Notifications.NoCurrency", { currency: d }));
-      const E = [];
-      for (const h of y.lines)
-        E.push({ line: h, itemData: await ft(h.entry) });
-      let O = null;
-      const C = Object.fromEntries(y.lines.map((h) => [h.entryId, h.entry.stock]));
-      let w = !1, D = null;
-      try {
-        O = await ht(c, y.totalPrice);
-        const h = Object.fromEntries(y.lines.map((M) => [M.entryId, M.entry.stock - M.quantity]));
-        await g.updateEntryStocks(e, h), w = !0;
-        const v = y.lines.map((M) => `${M.quantity}× ${M.entry.displayName}`).join(", ");
-        D = await g.addPendingDispense({
-          id: n,
-          requestId: n,
-          machineId: e,
-          machineName: l.name,
-          actorUuid: r.uuid,
-          actorId: r.id,
-          actorName: r.name,
-          userId: s.id,
-          userName: s.name,
-          currencyName: d,
-          itemSummary: v,
-          itemCount: y.itemCount,
-          totalPrice: y.totalPrice,
-          items: E.map((M) => ({
-            itemData: M.itemData,
-            quantity: M.line.quantity,
-            displayName: M.line.entry.displayName,
-            image: M.line.entry.image
-          })),
-          image: y.itemCount > 1 ? "icons/svg/item-bag.svg" : ((p = (S = (f = E[0]) == null ? void 0 : f.line) == null ? void 0 : S.entry) == null ? void 0 : p.image) ?? "",
-          createdAt: Date.now(),
-          expiresAt: Date.now() + 10850,
-          status: "pending"
-        });
-      } catch (h) {
-        if (w)
-          try {
-            await g.updateEntryStocks(e, C);
-          } catch (v) {
-            console.error(`${u} | Reserved-stock rollback failed`, v);
-          }
-        try {
-          await pt(O);
-        } catch (v) {
-          console.error(`${u} | Currency rollback failed`, v);
-        }
-        throw h;
-      }
-      return this.processedRequests.add(n), this.processedRequests.size > 500 && this.processedRequests.delete(this.processedRequests.values().next().value), this.scheduleDispense(D), { cart: y, reservation: D };
-    } catch (N) {
-      throw await Se({ ...m, status: "failed", error: N.message }), N;
-    }
-  }
-  static async finalizeDispense({ requestId: n, user: e = null, automatic: t = !1, notifyResult: r = !0 }) {
-    const s = g.getPendingDispense(n), a = it(s, e);
-    if (a === "missing") return { duplicate: !0, automatic: t };
-    if (a === "forbidden")
-      throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-    if (a === "busy")
-      throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.CollectionBusy"));
-    const o = await fromUuid(s.actorUuid);
-    if (!o) throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-    await g.updatePendingDispense(n, { status: "delivering" });
-    const c = [];
-    try {
-      for (const l of s.items)
-        c.push(await yt(o, l.itemData, l.quantity));
-      await g.removePendingDispense(n);
-    } catch (l) {
-      try {
-        await It(c);
-      } catch (m) {
-        console.error(`${u} | Collected-item rollback failed`, m);
-      }
-      throw await g.updatePendingDispense(n, { status: "pending" }), this.scheduleDispense({ ...s, expiresAt: Date.now() + 5e3 }), l;
-    }
-    const d = this.dispenseTimers.get(n);
-    d && window.clearTimeout(d), this.dispenseTimers.delete(n), await Se({
-      requestId: n,
-      machineId: s.machineId,
-      machineName: s.machineName,
-      actorId: s.actorId,
-      actorName: s.actorName,
-      userId: s.userId,
-      userName: s.userName,
-      currencyName: s.currencyName,
-      status: "success",
-      itemSummary: s.itemSummary,
-      itemCount: s.itemCount,
-      totalPrice: s.totalPrice
-    });
-    try {
-      await Nt({
-        actor: o,
-        itemSummary: s.itemSummary,
-        totalPrice: s.totalPrice,
-        currencyName: s.currencyName
-      });
-    } catch (l) {
-      console.warn(`${u} | Could not create purchase chat message`, l);
-    }
-    return await Z(s.userId, "info", game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
-      actor: s.actorName,
-      item: s.itemSummary,
-      price: L(s.totalPrice),
-      currency: s.currencyName
-    })), t && r && X(s.userId, {
-      status: "success",
-      requestId: n,
-      machineId: s.machineId,
-      automatic: !0
-    }), { reservation: s, automatic: t };
-  }
-  static async purchase({ machineId: n, entryId: e, actor: t, user: r, context: s = {} }) {
-    var a, o;
-    return this.enqueue({
-      requestId: ((o = (a = foundry == null ? void 0 : foundry.utils) == null ? void 0 : a.randomID) == null ? void 0 : o.call(a, 16)) ?? `${Date.now()}-${Math.random()}`,
-      machineId: n,
-      lines: [{ entryId: e, quantity: 1 }],
-      actor: t,
-      user: r,
-      context: s
-    });
-  }
+function F(e = [], t = M) {
+	return N((Array.isArray(e) ? e : []).reduce((e, n) => e + (Number(n?.amount) || 0) * P(n?.key, t), 0));
 }
-T(b, "transactionQueue", Promise.resolve()), T(b, "processedRequests", /* @__PURE__ */ new Set()), T(b, "dispenseTimers", /* @__PURE__ */ new Map());
-const wt = Q(), U = /* @__PURE__ */ new Set();
-function St(i) {
-  var n, e, t;
-  return i || ((t = (e = (n = canvas == null ? void 0 : canvas.tokens) == null ? void 0 : n.controlled) == null ? void 0 : e[0]) != null && t.actor ? canvas.tokens.controlled[0].actor : game.user.character ?? null);
+function ye(e = [], t = 0, n = M) {
+	let r = Array.isArray(e) ? e : [], i = F(r, n), a = N(Math.max(0, i - Math.max(0, Number(t) || 0))), o = [...r].sort((e, t) => P(t?.key, n) - P(e?.key, n)), s = {};
+	return o.forEach((e, t) => {
+		let r = P(e?.key, n), i = t === o.length - 1 ? N(a / r) : Math.floor(N(a / r));
+		s[e.path] = i, a = N(Math.max(0, a - i * r));
+	}), {
+		updates: s,
+		totalBefore: i,
+		totalAfter: F(r.map((e) => ({
+			...e,
+			amount: s[e.path] ?? e.amount
+		})), n)
+	};
 }
-function oe(i) {
-  const n = document.createElement("div");
-  return n.innerHTML = String(i ?? ""), String(n.textContent ?? "").replace(/\s+/g, " ").trim();
+function be(e, t = null) {
+	return e ? t && !t.isGM && e.userId !== t.id ? "forbidden" : e.status === "delivering" ? "busy" : "deliver" : "missing";
 }
-function vt(i, n = 180) {
-  const e = oe(i);
-  if (e.length <= n) return e;
-  const t = e.slice(0, Math.max(1, n - 1)), r = t.lastIndexOf(" "), s = r >= Math.floor(n * 0.65) ? r : t.length;
-  return `${t.slice(0, s).trimEnd()}…`;
+function xe(e, t = Date.now()) {
+	return Math.max(0, Number(e) - Number(t));
 }
-function Et(i) {
-  const n = document.createElement("div");
-  return n.textContent = String(i ?? ""), n.innerHTML;
+//#endregion
+//#region src/purchase-service.ts
+var Se = [
+	"system.quantity",
+	"system.qty",
+	"system.amount",
+	"system.count",
+	"system.stack",
+	"system.uses.value"
+], I = [
+	"system.currency",
+	"system.currencies",
+	"system.money",
+	"system.wealth",
+	"system.resources.currency"
+], Ce = M, we = {
+	cp: "CP",
+	sp: "SP",
+	ep: "EP",
+	gp: "GP",
+	pp: "PP",
+	credits: "Credits",
+	credit: "Credits",
+	creds: "Credits",
+	currency: "Currency",
+	funds: "Funds",
+	wealth: "Wealth"
+};
+function L(e) {
+	for (let t of Se) {
+		let n = foundry.utils.getProperty(e, t);
+		if (Number.isFinite(Number(n))) return {
+			path: t,
+			value: Number(n)
+		};
+	}
+	return {
+		path: null,
+		value: 1
+	};
 }
-async function Dt(i, n) {
-  var t, r;
-  if (!i) return null;
-  const e = globalThis.AudioHelper ?? ((r = (t = globalThis.foundry) == null ? void 0 : t.audio) == null ? void 0 : r.AudioHelper);
-  if (e != null && e.play)
-    try {
-      return await e.play({ src: i, volume: n, loop: !1 }, !1);
-    } catch (s) {
-      console.warn(`${u} | AudioHelper playback failed`, s);
-    }
-  try {
-    const s = new Audio(i);
-    return s.volume = n, await s.play(), s;
-  } catch (s) {
-    return console.warn(`${u} | Browser audio playback failed`, s), null;
-  }
+function R(e) {
+	return Array.from(e?.items ?? []);
 }
-function ve(i) {
-  try {
-    typeof (i == null ? void 0 : i.stop) == "function" ? i.stop() : typeof (i == null ? void 0 : i.pause) == "function" && i.pause();
-  } catch (n) {
-    console.warn(`${u} | Could not stop vending audio`, n);
-  }
+function Te(e, t) {
+	let n = String(t).trim().toLocaleLowerCase();
+	return R(e).find((e) => String(e.name).trim().toLocaleLowerCase() === n);
 }
-class R extends wt {
-  constructor(e, t = {}) {
-    super(t);
-    T(this, "machineId");
-    T(this, "actor");
-    T(this, "selectedEntryId");
-    T(this, "context");
-    T(this, "cart");
-    T(this, "lastDispense");
-    T(this, "pendingRequestId");
-    T(this, "pendingDispense");
-    T(this, "activeReservationId");
-    T(this, "checkoutPending");
-    T(this, "pendingFocusSelector");
-    T(this, "dispenseTimers");
-    T(this, "audioHandles");
-    T(this, "viewportResizeHandler");
-    this.machineId = e, this.actor = St(t.actor), this.selectedEntryId = t.selectedEntryId ?? null, this.context = t.context ?? {}, this.cart = /* @__PURE__ */ new Map(), this.lastDispense = null, this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = null, this.checkoutPending = !1, this.pendingFocusSelector = "", this.dispenseTimers = /* @__PURE__ */ new Set(), this.audioHandles = /* @__PURE__ */ new Map(), this.viewportResizeHandler = () => this.applyViewportScale(), window.addEventListener("resize", this.viewportResizeHandler), this.options.id = `holosuite-vending-machine-${e}`, U.add(this);
-  }
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "holosuite-vending-machine",
-      classes: ["holosuite-vending-window", "holosuite-vending-app"],
-      template: Y.vending,
-      width: 1050,
-      height: "auto",
-      resizable: !1,
-      minimizable: !1,
-      title: "HoloSuite Vending Machine"
-    });
-  }
-  get title() {
-    var e;
-    return ((e = g.getMachine(this.machineId)) == null ? void 0 : e.name) ?? "HoloSuite Vending Machine";
-  }
-  async close(e = {}) {
-    this.clearDispenseTimers();
-    for (const t of this.audioHandles.values()) ve(t);
-    return this.audioHandles.clear(), window.removeEventListener("resize", this.viewportResizeHandler), U.delete(this), super.close(e);
-  }
-  get machine() {
-    return g.getMachine(this.machineId);
-  }
-  playAudio(e) {
-    const t = g.getAudioConfig(), r = t[e];
-    !t.enabled || !r || t.volume <= 0 || (ve(this.audioHandles.get(e)), Dt(r, t.volume).then((s) => {
-      s && this.audioHandles.set(e, s);
-    }));
-  }
-  async openProductDetails(e) {
-    var s, a, o;
-    const t = (a = (s = this.machine) == null ? void 0 : s.inventory) == null ? void 0 : a.find((c) => c.id === e);
-    if (!t) return;
-    if (t.itemUuid)
-      try {
-        const c = await fromUuid(t.itemUuid);
-        if ((o = c == null ? void 0 : c.sheet) != null && o.render) {
-          c.sheet.render(!0);
-          return;
-        }
-      } catch (c) {
-        console.warn(`${u} | Could not open source item ${t.itemUuid}`, c);
-      }
-    const r = oe(t.description);
-    new Dialog({
-      title: t.displayName || "Product Details",
-      content: `<div class="hsv-product-dialog"><p>${Et(r || "No product description supplied.")}</p></div>`,
-      buttons: { close: { label: "Close" } },
-      default: "close"
-    }).render(!0);
-  }
-  clearDispenseTimers() {
-    for (const e of this.dispenseTimers) window.clearTimeout(e);
-    this.dispenseTimers.clear();
-  }
-  scheduleDispense(e, t) {
-    const r = window.setTimeout(() => {
-      this.dispenseTimers.delete(r), e();
-    }, t);
-    this.dispenseTimers.add(r);
-  }
-  beginDispenseSequence(e, t = "", r = "") {
-    this.clearDispenseTimers(), this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = r, this.checkoutPending = !1, this.lastDispense = { state: "dispensing", message: "ITEM TRANSFER IN PROGRESS", image: t }, this.playAudio("dispense"), this.render(!1), this.scheduleDispense(() => {
-      this.lastDispense = {
-        state: "ready",
-        message: `${e} ITEM${e === 1 ? "" : "S"} — CLICK TO RETRIEVE`,
-        image: t
-      }, this.render(!1);
-    }, 850);
-  }
-  async finishRetrieval(e = !1) {
-    var s, a;
-    if (((s = this.lastDispense) == null ? void 0 : s.state) !== "ready" || !this.activeReservationId) return;
-    const t = this.lastDispense.image ?? "";
-    this.lastDispense = { state: "collecting", message: e ? "AUTOMATIC TRANSFER" : "SECURING ITEM", image: t }, this.render(!1);
-    const r = await b.requestCollection({ requestId: this.activeReservationId, automatic: e });
-    if (!r) {
-      this.lastDispense = { state: "ready", message: "CLICK TO RETRY COLLECTION", image: t }, this.render(!1);
-      return;
-    }
-    r.pending || this.showCollectionComplete(((a = r.result) == null ? void 0 : a.automatic) === !0, t);
-  }
-  showCollectionComplete(e = !1, t = "") {
-    this.clearDispenseTimers(), this.playAudio("collect"), this.activeReservationId = null, this.lastDispense = {
-      state: e ? "automatic" : "collected",
-      message: game.i18n.localize(e ? "HOLOSUITEVENDING.Retrieval.Automatic" : "HOLOSUITEVENDING.Retrieval.Collected"),
-      image: t
-    }, this.render(!1), this.scheduleDispense(() => {
-      this.lastDispense = null, this.render(!1);
-    }, 2400);
-  }
-  showDispenseFailure(e = "AUTHORIZATION FAILED") {
-    this.clearDispenseTimers(), this.pendingRequestId = null, this.pendingDispense = null, this.checkoutPending = !1, this.playAudio("failure"), this.lastDispense = { state: "failure", message: e }, this.render(!1), this.scheduleDispense(() => {
-      this.lastDispense = null, this.render(!1);
-    }, 3500);
-  }
-  handlePurchaseResult(e) {
-    if (e.machineId !== this.machineId || e.requestId !== this.pendingRequestId) return;
-    const t = this.pendingDispense ?? { itemCount: Number(e.itemCount) || 1, image: "" };
-    if (e.status === "success") {
-      this.cart.clear(), this.beginDispenseSequence(
-        Number(e.itemCount) || t.itemCount,
-        e.image || t.image,
-        e.reservationId || e.requestId
-      );
-      return;
-    }
-    this.showDispenseFailure(e.message || "AUTHORIZATION FAILED");
-  }
-  handleCollectionResult(e) {
-    var r;
-    if (e.requestId !== this.activeReservationId) return;
-    const t = ((r = this.lastDispense) == null ? void 0 : r.image) ?? "";
-    if (e.status === "success") {
-      this.showCollectionComplete(e.automatic === !0, t);
-      return;
-    }
-    this.lastDispense = { state: "ready", message: e.message || "CLICK TO RETRY COLLECTION", image: t }, this.render(!1);
-  }
-  pruneCart(e) {
-    const t = new Map(e.map((r) => [r.id, r]));
-    for (const [r, s] of this.cart) {
-      const a = t.get(r);
-      !a || a.stock <= 0 ? this.cart.delete(r) : this.cart.set(r, Math.min(s, a.stock));
-    }
-  }
-  renderWithFocus(e = "") {
-    this.pendingFocusSelector = e, this.render(!1);
-  }
-  applyViewportScale() {
-    var d, l, m;
-    const e = ((d = this.element) == null ? void 0 : d[0]) ?? this.element, t = (l = e == null ? void 0 : e.querySelector) == null ? void 0 : l.call(e, ".hsv-machine"), r = (m = t == null ? void 0 : t.querySelector) == null ? void 0 : m.call(t, ".hsv-machine-chassis");
-    if (!t || !r) return;
-    t.style.zoom = "1";
-    const s = r.getBoundingClientRect();
-    if (!s.width || !s.height) return;
-    const a = Math.max(320, window.innerWidth - 28), o = Math.max(320, window.innerHeight - 28), c = Math.max(0.56, Math.min(1, a / s.width, o / s.height));
-    t.style.zoom = String(Math.floor(c * 100) / 100), t.dataset.viewportScale = String(Math.round(c * 100));
-  }
-  async getData() {
-    var w, D;
-    const e = this.machine, t = (e == null ? void 0 : e.inventory) ?? [];
-    this.pruneCart(t);
-    const r = b.getCurrencyProfile(this.actor), s = r.balance;
-    !this.selectedEntryId && t.length && (this.selectedEntryId = Ve(t, s));
-    const a = t.find((h) => h.id === this.selectedEntryId) ?? t[0] ?? null;
-    this.selectedEntryId = (a == null ? void 0 : a.id) ?? null;
-    const o = t.filter((h) => this.cart.has(h.id)).map((h) => {
-      const v = this.cart.get(h.id) ?? 0, M = h.price * v;
-      return { ...h, quantity: v, lineTotal: M, lineTotalDisplay: L(M) };
-    }), c = o.reduce((h, v) => h + v.quantity, 0), d = o.reduce((h, v) => h + v.lineTotal, 0), l = b.checkAccess({ machineId: this.machineId, actor: this.actor, context: this.context }), m = g.getMachineState(e), f = t.map((h, v) => {
-      const M = h.maxStock > 0 ? h.stock / h.maxStock : 0, $ = h.stock > 0 ? Math.max(1, Math.ceil(M * 10)) : 0, q = oe(h.description);
-      return {
-        ...h,
-        slotCode: `${String.fromCharCode(65 + Math.floor(v / 3))}${String(v % 3 + 1).padStart(2, "0")}`,
-        selected: (a == null ? void 0 : a.id) === h.id,
-        soldOut: h.stock <= 0,
-        affordable: h.price <= s,
-        priceDisplay: L(h.price),
-        cartQuantity: this.cart.get(h.id) ?? 0,
-        descriptionPreview: vt(h.description) || "No product profile supplied.",
-        descriptionCanOpen: !!(h.itemUuid || q),
-        stockSegments: Array.from({ length: 10 }, (me, He) => ({ active: He < $ }))
-      };
-    }), S = Math.max(6, Math.ceil(f.length / 3) * 3), p = Array.from({ length: S }, (h, v) => f[v] ? f[v] : {
-      empty: !0,
-      slotCode: `${String.fromCharCode(65 + Math.floor(v / 3))}${String(v % 3 + 1).padStart(2, "0")}`
-    }), N = f.find((h) => h.id === (a == null ? void 0 : a.id)) ?? null, y = d > s, E = String((e == null ? void 0 : e.id) ?? this.machineId).replace(/[^a-z0-9]/gi, "").toUpperCase(), O = this.lastDispense ?? {
-      state: "standby",
-      message: m === "offline" ? "OUTPUT BAY LOCKED" : "AWAITING PURCHASE"
-    }, C = {
-      standby: m === "offline" ? "LOCKED" : "READY",
-      authorizing: "AUTHORIZING",
-      dispensing: "DISPENSING",
-      ready: "COLLECT ITEM",
-      collecting: "TRANSFERRING",
-      collected: "ITEM COLLECTED",
-      automatic: "AUTO DISPENSED",
-      failure: "TRANSACTION FAILED"
-    };
-    return {
-      machine: e,
-      manufacturerName: (e == null ? void 0 : e.manufacturerName) ?? "HoloSuite",
-      machineStyleId: (e == null ? void 0 : e.styleId) ?? "industrial",
-      machineDisplayImage: g.getMachineDisplayImage(e),
-      machineState: m,
-      machineOffline: m === "offline",
-      machineSoldOut: m === "sold-out",
-      displaySlots: p,
-      selected: N,
-      selectedSoldOut: !N || N.stock <= 0,
-      actorName: ((w = this.actor) == null ? void 0 : w.name) ?? "",
-      currencyName: r.label,
-      currencyBalance: s,
-      currencyBalanceDisplay: L(s),
-      accessAllowed: l.allowed,
-      accessReason: l.reason,
-      cartLines: o,
-      cartCount: c,
-      cartTotal: d,
-      cartTotalDisplay: L(d),
-      insufficientBalance: y,
-      canCheckout: l.allowed && c > 0 && !y && !this.checkoutPending && !["authorizing", "dispensing", "ready", "collecting"].includes(((D = this.lastDispense) == null ? void 0 : D.state) ?? ""),
-      checkoutPending: this.checkoutPending,
-      unitNumber: `HSV-${E.slice(-6).padStart(6, "0")}`,
-      systemStatus: m === "online" ? "NOMINAL" : m === "sold-out" ? "DEPLETED" : "OFFLINE",
-      telemetryTemperature: m === "offline" ? "--" : "04 C",
-      telemetryBus: m === "offline" ? "0 V" : "48 V",
-      retrievalState: O.state,
-      retrievalMessage: O.message,
-      retrievalLabel: C[O.state] ?? "READY",
-      retrievalImage: O.image ?? "",
-      retrievalCanCollect: O.state === "ready"
-    };
-  }
-  activateListeners(e) {
-    var a;
-    super.activateListeners(e), e.find("[data-action='close-machine']").on("click", () => this.close()), e.find("[data-action='collect-dispensed']").on("click", () => this.finishRetrieval(!1)), e.find("[data-action='open-product-details']").on("click", async (o) => {
-      o.preventDefault(), await this.openProductDetails(o.currentTarget.dataset.entryId);
-    });
-    const t = (e == null ? void 0 : e[0]) ?? e, r = this.pendingFocusSelector;
-    this.pendingFocusSelector = "", window.requestAnimationFrame(() => {
-      var o, c, d;
-      this.applyViewportScale(), r && ((d = (c = (o = t == null ? void 0 : t.querySelector) == null ? void 0 : o.call(t, r)) == null ? void 0 : c.focus) == null || d.call(c));
-    });
-    const s = (a = t == null ? void 0 : t.querySelector) == null ? void 0 : a.call(t, "[data-drag-handle]");
-    s == null || s.addEventListener("pointerdown", (o) => {
-      var N, y;
-      const c = o.target;
-      if (o.button !== 0 || c.closest("button, input, select, textarea, a")) return;
-      const d = ((N = this.element) == null ? void 0 : N[0]) ?? this.element ?? ((y = t.closest) == null ? void 0 : y.call(t, ".window-app, .application, .app"));
-      if (!(d != null && d.getBoundingClientRect)) return;
-      o.preventDefault();
-      const l = d.getBoundingClientRect(), m = o.clientX, f = o.clientY, S = (E) => {
-        var h;
-        const O = l.left + E.clientX - m, C = l.top + E.clientY - f, w = Math.min(window.innerWidth - 80, Math.max(80 - l.width, O)), D = Math.min(window.innerHeight - 40, Math.max(0, C));
-        (h = this.setPosition) == null || h.call(this, { left: Math.round(w), top: Math.round(D) });
-      }, p = () => {
-        document.removeEventListener("pointermove", S), document.removeEventListener("pointerup", p), document.removeEventListener("pointercancel", p);
-      };
-      document.addEventListener("pointermove", S), document.addEventListener("pointerup", p), document.addEventListener("pointercancel", p);
-    }), e.find("[data-action='select-entry']").on("click", (o) => {
-      var d, l;
-      this.selectedEntryId !== o.currentTarget.dataset.entryId && this.playAudio("select"), this.selectedEntryId = o.currentTarget.dataset.entryId;
-      const c = ((l = (d = globalThis.CSS) == null ? void 0 : d.escape) == null ? void 0 : l.call(d, this.selectedEntryId)) ?? this.selectedEntryId;
-      this.renderWithFocus(`[data-action='select-entry'][data-entry-id='${c}']`);
-    }), e.find("[data-action='decrease-quantity'], [data-action='increase-quantity']").on("click", (o) => {
-      const c = e.find("[name='purchaseQuantity']"), d = Math.max(1, Number(c.attr("min")) || 1), l = Math.max(d, Number(c.attr("max")) || d), m = o.currentTarget.dataset.action === "increase-quantity" ? 1 : -1, f = Math.min(l, Math.max(d, (Number(c.val()) || d) + m));
-      c.val(f).trigger("change");
-    }), e.find("[data-action='add-to-cart']").on("click", () => {
-      var l, m;
-      const o = (m = (l = this.machine) == null ? void 0 : l.inventory) == null ? void 0 : m.find((f) => f.id === this.selectedEntryId);
-      if (!o || o.stock <= 0) return;
-      const c = Math.max(1, Math.floor(Number(e.find("[name='purchaseQuantity']").val()) || 1)), d = Math.min(o.stock, (this.cart.get(o.id) ?? 0) + c);
-      this.cart.set(o.id, d), this.renderWithFocus("[data-action='add-to-cart']");
-    }), e.find("[data-action='remove-from-cart']").on("click", (o) => {
-      this.cart.delete(o.currentTarget.dataset.entryId), this.renderWithFocus("[data-action='add-to-cart']");
-    }), e.find("[data-action='clear-cart']").on("click", () => {
-      var c, d;
-      this.cart.clear();
-      const o = ((d = (c = globalThis.CSS) == null ? void 0 : c.escape) == null ? void 0 : d.call(c, this.selectedEntryId ?? "")) ?? this.selectedEntryId;
-      this.renderWithFocus(`[data-action='select-entry'][data-entry-id='${o}']`);
-    }), e.find("[data-action='checkout']").on("click", async () => {
-      var S, p, N, y, E, O, C, w, D;
-      if (!this.actor) {
-        ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-        return;
-      }
-      const o = Array.from(this.cart, ([h, v]) => ({ entryId: h, quantity: v }));
-      if (!o.length) return;
-      const c = o.reduce((h, v) => h + v.quantity, 0), d = o.reduce((h, v) => {
-        var $, q;
-        const M = (q = ($ = this.machine) == null ? void 0 : $.inventory) == null ? void 0 : q.find((me) => me.id === v.entryId);
-        return h + ((M == null ? void 0 : M.price) ?? 0) * v.quantity;
-      }, 0), l = c > 1 ? "icons/svg/item-bag.svg" : ((N = (p = (S = this.machine) == null ? void 0 : S.inventory) == null ? void 0 : p.find((h) => h.id === o[0].entryId)) == null ? void 0 : N.image) ?? "";
-      if (!await Dialog.confirm({
-        title: game.i18n.localize("HOLOSUITEVENDING.Cart.Checkout"),
-        content: `<p>${game.i18n.format("HOLOSUITEVENDING.Cart.Confirm", {
-          count: c,
-          total: L(d),
-          currency: b.getCurrencyProfile(this.actor).label
-        })}</p>`
-      })) return;
-      this.checkoutPending = !0, this.lastDispense = { state: "authorizing", message: "SUBMITTING PURCHASE" }, this.render(!1), this.playAudio("purchase");
-      const f = await b.requestPurchase({
-        machineId: this.machineId,
-        lines: o,
-        actor: this.actor,
-        context: this.context
-      });
-      if (f)
-        if (f.pending) {
-          this.clearDispenseTimers(), this.pendingRequestId = f.requestId, this.pendingDispense = { itemCount: c, image: l }, this.lastDispense = { state: "authorizing", message: "AWAITING GM AUTHORIZATION" }, this.render(!1);
-          const h = f.requestId;
-          this.scheduleDispense(() => {
-            this.pendingRequestId === h && this.showDispenseFailure("AUTHORIZATION TIMED OUT");
-          }, 15e3);
-        } else
-          this.cart.clear(), this.beginDispenseSequence(
-            ((E = (y = f.result) == null ? void 0 : y.cart) == null ? void 0 : E.itemCount) ?? c,
-            ((C = (O = f.result) == null ? void 0 : O.reservation) == null ? void 0 : C.image) || l,
-            ((D = (w = f.result) == null ? void 0 : w.reservation) == null ? void 0 : D.requestId) || f.requestId
-          );
-      else
-        this.showDispenseFailure("AUTHORIZATION FAILED — CART PRESERVED");
-    });
-  }
-  static refreshMachine(e) {
-    for (const t of U)
-      t.machineId === e && t.render(!1);
-  }
-  static refreshAll() {
-    for (const e of U) e.render(!1);
-  }
-  static handlePurchaseResult(e) {
-    for (const t of U) t.handlePurchaseResult(e);
-  }
-  static handleCollectionResult(e) {
-    for (const t of U) t.handleCollectionResult(e);
-  }
+function Ee(e, t) {
+	return e == null || e === "" ? [] : Number.isFinite(Number(e)) ? [{
+		key: t.split(".").at(-1) || "currency",
+		path: t,
+		amount: Number(e)
+	}] : typeof e != "object" || Array.isArray(e) ? [] : Object.entries(e).filter(([, e]) => e !== null && e !== "" && Number.isFinite(Number(e))).map(([e, n]) => ({
+		key: e,
+		path: `${t}.${e}`,
+		amount: Number(n)
+	}));
 }
-const Tt = Q(), Ot = Ze();
-function Mt(i) {
-  var e;
-  const n = {
-    machine: {},
-    entries: {}
-  };
-  for (const [t, r] of new FormData(i).entries()) {
-    const s = String(t), a = String(r ?? "");
-    if (s.startsWith("machine.")) {
-      n.machine[s.slice(8)] = a;
-      continue;
-    }
-    const o = s.match(/^entries\.([^.]+)\.([^.]+)$/);
-    if (!o) continue;
-    const [, c, d] = o;
-    (e = n.entries)[c] ?? (e[c] = {}), n.entries[c][d] = a;
-  }
-  return n;
+function De(e) {
+	if (!e) return [];
+	let t = T.getCurrencyPath(), n = t ? [t, ...I] : I, r = /* @__PURE__ */ new Set();
+	for (let t of n) {
+		if (!t || r.has(t)) continue;
+		r.add(t);
+		let n = Ee(foundry.utils.getProperty(e, t), t);
+		if (n.length) return n;
+	}
+	return [];
 }
-function _(i, n = 0) {
-  const e = Number(i);
-  return Number.isFinite(e) ? e : n;
+function Oe(e) {
+	return F(e);
 }
-function Ee(i, n) {
-  const e = JSON.stringify(i, null, 2), t = globalThis.saveDataToFile;
-  if (typeof t == "function") {
-    t(e, "application/json", n);
-    return;
-  }
-  const r = URL.createObjectURL(new Blob([e], { type: "application/json" })), s = document.createElement("a");
-  s.href = r, s.download = n, s.click(), URL.revokeObjectURL(r);
+function ke(e) {
+	let t = e.map((e) => String(e.key).toLocaleLowerCase());
+	return t.some((e) => Object.hasOwn(Ce, e)) ? "GP" : t.length === 1 ? we[t[0]] ?? String(e[0].key).toLocaleUpperCase() : T.getCurrencyName();
 }
-async function Ct() {
-  return new Promise((i, n) => {
-    const e = document.createElement("input");
-    e.type = "file", e.accept = ".json,application/json", e.addEventListener("change", async () => {
-      var t;
-      try {
-        const r = (t = e.files) == null ? void 0 : t[0];
-        if (!r) return i(null);
-        i(JSON.parse(await r.text()));
-      } catch (r) {
-        n(r);
-      }
-    }, { once: !0 }), e.click();
-  });
+function z(e) {
+	let t = T.getCurrencyMode(), n = De(e);
+	if ((t === "auto" || t === "actor") && n.length) return {
+		kind: "actor",
+		actor: e,
+		entries: n,
+		value: Oe(n),
+		label: T.getCreditTransformer() ? "Credits" : ke(n)
+	};
+	if (t === "actor") return {
+		kind: "invalid",
+		actor: e,
+		value: 0,
+		label: T.getCurrencyName()
+	};
+	let r = Te(e, T.getCurrencyName());
+	return r ? {
+		kind: "item",
+		item: r,
+		value: L(r).value,
+		label: r.name || T.getCurrencyName()
+	} : {
+		kind: "missing",
+		value: 0,
+		label: T.getCurrencyName()
+	};
 }
-function ee(i = []) {
-  var e, t, r;
-  const n = new Set(i);
-  return Array.from(((t = (e = canvas == null ? void 0 : canvas.scene) == null ? void 0 : e.regions) == null ? void 0 : t.contents) ?? ((r = canvas == null ? void 0 : canvas.scene) == null ? void 0 : r.regions) ?? []).map((s) => ({
-    id: String(s.id ?? ""),
-    name: String(s.name || s.id || "Unnamed Region"),
-    selected: n.has(String(s.id ?? ""))
-  })).filter((s) => s.id);
+function Ae(e, t) {
+	return !t || !e ? !1 : e.isGM ? !0 : t.testUserPermission?.(e, "OWNER") ?? !1;
 }
-async function At(i) {
-  var s, a, o;
-  const n = (s = i.dataTransfer) == null ? void 0 : s.getData("text/plain");
-  if (!n) return null;
-  const e = JSON.parse(n), t = await Item.fromDropData(e);
-  if (!t) return null;
-  const r = t.toObject();
-  return g.createEntry({
-    itemUuid: t.uuid ?? e.uuid ?? "",
-    embeddedData: r,
-    displayName: t.name,
-    image: t.img,
-    description: ((o = (a = r.system) == null ? void 0 : a.description) == null ? void 0 : o.value) || "",
-    price: 0,
-    stock: 1,
-    maxStock: 1
-  });
+function je({ machine: e, actor: t, user: n, context: r = {} }) {
+	return e ? T.getMachineState(e) === s.OFFLINE ? {
+		allowed: !1,
+		reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.Offline")
+	} : n?.isGM ? {
+		allowed: !0,
+		reason: ""
+	} : e.access?.requireProximity && !he({
+		scene: oe(game.scenes, r.sceneId) ?? canvas?.scene,
+		machine: e,
+		actor: t,
+		tokenId: r.tokenId
+	}) ? {
+		allowed: !1,
+		reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar")
+	} : {
+		allowed: !0,
+		reason: ""
+	} : {
+		allowed: !1,
+		reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")
+	};
 }
-class Le extends Ot {
-  constructor(e = {}) {
-    super(e);
-    T(this, "machineChangeHook");
-    this.machineChangeHook = Hooks.on(`${u}.machinesChanged`, () => this.render(!1));
-  }
-  async close(e = {}) {
-    return this.machineChangeHook !== void 0 && Hooks.off(`${u}.machinesChanged`, this.machineChangeHook), super.close(e);
-  }
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "holosuite-vending-manager",
-      classes: ["holosuite-vending-window", "holosuite-vending-manager-app"],
-      template: Y.manager,
-      width: 880,
-      height: 720,
-      resizable: !0,
-      title: "HoloSuite Vending Machines"
-    });
-  }
-  async getData() {
-    const e = g.getLedger().entries.slice(-25).reverse().map((t) => ({
-      ...t,
-      totalPriceDisplay: L(t.totalPrice),
-      timeLabel: new Date(t.timestamp).toLocaleString(),
-      failed: t.status === "failed"
-    }));
-    return {
-      machines: g.getMachines().map((t) => {
-        var r;
-        return {
-          ...t,
-          state: g.getMachineState(t),
-          stateLabel: g.getMachineState(t) === "sold-out" ? "Sold Out" : g.getMachineState(t) === "offline" ? "Offline" : "Online",
-          online: t.status !== "offline",
-          toggleLabel: t.status === "offline" ? "Bring Online" : "Take Offline",
-          styleLabel: ((r = ue.find((s) => s.id === t.styleId)) == null ? void 0 : r.label) ?? "Industrial Chassis",
-          regionCount: t.regionIds.length,
-          totalStock: t.inventory.reduce((s, a) => s + a.stock, 0),
-          totalCapacity: t.inventory.reduce((s, a) => s + a.maxStock, 0)
-        };
-      }),
-      currencyName: g.getCurrencyName(),
-      currencySourceLabel: g.getCurrencySourceLabel(),
-      creditTransformer: g.getCreditTransformer(),
-      ledger: e,
-      hasLedger: e.length > 0
-    };
-  }
-  activateListeners(e) {
-    super.activateListeners(e), e.find("[name='creditTransformer']").on("change", async (t) => {
-      await g.setCreditTransformer(t.currentTarget.checked), this.render(!1);
-    }), e.find("[data-action='open-machine']").on("click", (t) => {
-      var o, c, d, l, m;
-      const r = t.currentTarget.dataset.machineId, s = ((c = (o = canvas == null ? void 0 : canvas.tokens) == null ? void 0 : o.controlled) == null ? void 0 : c[0]) ?? null, a = (s == null ? void 0 : s.actor) ?? ((d = game.user) == null ? void 0 : d.character) ?? null;
-      if (!a) {
-        ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
-        return;
-      }
-      new R(r, {
-        actor: a,
-        context: {
-          source: "gm-test",
-          sceneId: ((l = canvas == null ? void 0 : canvas.scene) == null ? void 0 : l.id) ?? "",
-          tokenId: ((m = s == null ? void 0 : s.document) == null ? void 0 : m.id) ?? (s == null ? void 0 : s.id) ?? ""
-        }
-      }).render(!0);
-    }), e.find("[data-action='create-machine']").on("click", () => {
-      const t = g.createMachine();
-      new te(t.id, { draft: t, isNew: !0 }).render(!0);
-    }), e.find("[data-action='duplicate-machine']").on("click", async (t) => {
-      const r = g.getMachine(t.currentTarget.dataset.machineId);
-      if (!r) return;
-      const s = foundry.utils.deepClone(r);
-      delete s.id, s.name = `${r.name} Copy`;
-      const a = await g.upsertMachine(g.createMachine(s));
-      this.render(!1), new te(a.id).render(!0);
-    }), e.find("[data-action='toggle-machine']").on("click", async (t) => {
-      const r = g.getMachine(t.currentTarget.dataset.machineId);
-      r && (r.status = r.status === "offline" ? "online" : "offline", await g.upsertMachine(r), this.render(!1));
-    }), e.find("[data-action='restock-machine']").on("click", async (t) => {
-      await g.restockMachine(t.currentTarget.dataset.machineId), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Restocked")), this.render(!1);
-    }), e.find("[data-action='restock-all']").on("click", async () => {
-      await Dialog.confirm({
-        title: game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllTitle"),
-        content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllConfirm")}</p>`
-      }) && (await g.restockAll(), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.RestockedAll")), this.render(!1));
-    }), e.find("[data-action='export-machines']").on("click", () => {
-      Ee(g.exportData(), "holosuite-vending-machines.json");
-    }), e.find("[data-action='import-machines']").on("click", async () => {
-      try {
-        const t = await Ct();
-        if (!t) return;
-        const r = await g.importData(t);
-        ui.notifications.info(game.i18n.format("HOLOSUITEVENDING.Notifications.Imported", { count: r })), this.render(!1);
-      } catch (t) {
-        console.error(`${u} | Import failed`, t), ui.notifications.error((t == null ? void 0 : t.message) || game.i18n.localize("HOLOSUITEVENDING.Notifications.ImportFailed"));
-      }
-    }), e.find("[data-action='export-ledger']").on("click", () => {
-      Ee(g.getLedger(), "holosuite-vending-ledger.json");
-    }), e.find("[data-action='clear-ledger']").on("click", async () => {
-      await Dialog.confirm({
-        title: game.i18n.localize("HOLOSUITEVENDING.Ledger.Clear"),
-        content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Ledger.ClearConfirm")}</p>`
-      }) && (await g.clearLedger(), this.render(!1));
-    }), e.find("[data-action='edit-machine']").on("click", (t) => {
-      new te(t.currentTarget.dataset.machineId).render(!0);
-    }), e.find("[data-action='delete-machine']").on("click", async (t) => {
-      const r = t.currentTarget.dataset.machineId;
-      await Dialog.confirm({
-        title: "Delete Vending Machine",
-        content: "<p>Delete this vending machine? Linked Regions and legacy Tiles will no longer open it.</p>"
-      }) && await g.deleteMachine(r), this.render(!1);
-    });
-  }
+async function Me(e) {
+	if (e.itemUuid) {
+		let t = await fromUuid(e.itemUuid);
+		if (t) return t.toObject ? t.toObject() : foundry.utils.deepClone(t);
+	}
+	if (e.embeddedData) return foundry.utils.deepClone(e.embeddedData);
+	let t = game.system?.documentTypes?.Item?.[0] ?? "loot";
+	return {
+		name: e.displayName,
+		type: t,
+		img: e.image,
+		system: {}
+	};
 }
-class te extends Tt {
-  constructor(e, t = {}) {
-    super(t);
-    T(this, "machineId");
-    T(this, "draft");
-    T(this, "isDirty");
-    this.machineId = e, this.draft = foundry.utils.deepClone(t.draft ?? g.getMachine(e) ?? g.createMachine({ id: e })), this.isDirty = t.isNew === !0, this.options.id = `holosuite-vending-editor-${e}`;
-  }
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "holosuite-vending-editor",
-      classes: ["holosuite-vending-window", "holosuite-vending-editor-app"],
-      template: Y.editor,
-      width: 940,
-      height: 760,
-      resizable: !0,
-      title: "Edit Vending Machine"
-    });
-  }
-  get title() {
-    var e;
-    return ((e = this.draft) == null ? void 0 : e.name) ?? "Edit Vending Machine";
-  }
-  async close(e = {}) {
-    return this.isDirty && e.force !== !0 && !await Dialog.confirm({
-      title: game.i18n.localize("HOLOSUITEVENDING.Editor.UnsavedTitle"),
-      content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.UnsavedConfirm")}</p>`
-    }) ? this : super.close(e);
-  }
-  async getData() {
-    var t, r, s;
-    const e = this.draft;
-    return {
-      machine: e,
-      entries: e.inventory.map((a, o) => ({
-        ...a,
-        slotCode: `${String.fromCharCode(65 + Math.floor(o / 3))}${String(o % 3 + 1).padStart(2, "0")}`,
-        isFirst: o === 0,
-        isLast: o === e.inventory.length - 1
-      })),
-      inventoryCount: (e == null ? void 0 : e.inventory.length) ?? 0,
-      inventoryFull: ((e == null ? void 0 : e.inventory.length) ?? 0) >= A,
-      archivedProductCount: ((t = e == null ? void 0 : e.overflowInventory) == null ? void 0 : t.length) ?? 0,
-      hasArchivedProducts: (((r = e == null ? void 0 : e.overflowInventory) == null ? void 0 : r.length) ?? 0) > 0,
-      maxProducts: A,
-      isDirty: this.isDirty,
-      styleOptions: ue.map((a) => ({
-        ...a,
-        selected: (e == null ? void 0 : e.styleId) === a.id
-      })),
-      machineOffline: (e == null ? void 0 : e.status) === "offline",
-      regionOptions: ee((e == null ? void 0 : e.regionIds) ?? []),
-      hasSceneRegions: ee().length > 0,
-      sceneName: ((s = canvas == null ? void 0 : canvas.scene) == null ? void 0 : s.name) ?? "Current Scene",
-      currencyName: g.getCurrencyName()
-    };
-  }
-  markDirty(e) {
-    var t, r, s;
-    this.isDirty = !0, (s = (r = (t = e == null ? void 0 : e.find) == null ? void 0 : t.call(e, "[data-save-state]")) == null ? void 0 : r.text) == null || s.call(r, game.i18n.localize("HOLOSUITEVENDING.Editor.DraftChanges"));
-  }
-  syncDraftFromForm(e) {
-    var c, d, l, m, f, S, p, N, y, E, O, C;
-    if (!e) return this.draft;
-    const t = Mt(e), r = this.draft, s = new Set(ee().map((w) => w.id)), a = new FormData(e).getAll("machine.regionIds").map((w) => String(w)).filter(Boolean), o = [
-      ...(r.regionIds ?? []).filter((w) => !s.has(w)),
-      ...a
-    ];
-    return this.draft = {
-      ...r,
-      name: ((c = t.machine) == null ? void 0 : c.name) || r.name,
-      manufacturerName: ((d = t.machine) == null ? void 0 : d.manufacturerName) || r.manufacturerName,
-      styleId: ((l = t.machine) == null ? void 0 : l.styleId) || r.styleId,
-      description: ((m = t.machine) == null ? void 0 : m.description) || "",
-      image: ((f = t.machine) == null ? void 0 : f.image) || "",
-      offlineImage: ((S = t.machine) == null ? void 0 : S.offlineImage) || "",
-      soldOutImage: ((p = t.machine) == null ? void 0 : p.soldOutImage) || "",
-      status: ((N = t.machine) == null ? void 0 : N.status) === "offline" ? "offline" : "online",
-      regionIds: o,
-      access: {
-        requireProximity: !!((y = e.querySelector("[name='machine.requireProximity']")) != null && y.checked),
-        proximityDistance: Math.max(1, _((E = t.machine) == null ? void 0 : E.proximityDistance, ((O = r.access) == null ? void 0 : O.proximityDistance) ?? 2)),
-        requiredItemName: ((C = t.machine) == null ? void 0 : C.requiredItemName) || ""
-      },
-      inventory: r.inventory.map((w) => {
-        var h;
-        const D = ((h = t.entries) == null ? void 0 : h[w.id]) ?? {};
-        return g.createEntry({
-          ...w,
-          displayName: D.displayName || w.displayName,
-          image: D.image || w.image,
-          itemUuid: D.itemUuid || w.itemUuid,
-          price: _(D.price, w.price),
-          stock: _(D.stock, w.stock),
-          maxStock: _(D.maxStock, w.maxStock),
-          description: D.description ?? w.description
-        });
-      })
-    }, this.draft.id = this.machineId, this.draft;
-  }
-  activateListeners(e) {
-    super.activateListeners(e), e.find("form").on("submit", async (t) => {
-      t.preventDefault(), t.stopPropagation();
-    }), e.find("input, textarea, select").on("input change", () => this.markDirty(e)), e.find("[name='machine.styleId']").on("change", (t) => {
-      var s, a;
-      const r = (s = t.currentTarget.selectedOptions) == null ? void 0 : s[0];
-      e.find("[data-style-preview]").attr("data-machine-style", t.currentTarget.value), e.find("[data-style-description]").text(((a = r == null ? void 0 : r.dataset) == null ? void 0 : a.description) || "");
-    }), e.find("[name='machine.name']").on("input", (t) => e.find("[data-preview-name]").text(t.currentTarget.value || "Vending Machine")), e.find("[name='machine.manufacturerName']").on("input", (t) => e.find("[data-preview-manufacturer]").text(t.currentTarget.value || "HoloSuite")), e.find("[data-action='save-machine'], [data-action='save-and-test']").on("click", async (t) => {
-      var s, a, o, c, d;
-      t.preventDefault(), t.stopPropagation();
-      const r = t.currentTarget.closest("form");
-      if (r)
-        try {
-          if (await this.save(r), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Editor.Saved")), e.find("[data-save-state]").text(game.i18n.localize("HOLOSUITEVENDING.Editor.AllChangesSaved")), t.currentTarget.dataset.action === "save-and-test") {
-            const l = ((a = (s = canvas == null ? void 0 : canvas.tokens) == null ? void 0 : s.controlled) == null ? void 0 : a[0]) ?? null, m = (l == null ? void 0 : l.actor) ?? ((o = game.user) == null ? void 0 : o.character) ?? null;
-            if (!m) {
-              ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
-              return;
-            }
-            new R(this.machineId, {
-              actor: m,
-              context: { source: "gm-test", sceneId: ((c = canvas == null ? void 0 : canvas.scene) == null ? void 0 : c.id) ?? "", tokenId: ((d = l == null ? void 0 : l.document) == null ? void 0 : d.id) ?? (l == null ? void 0 : l.id) ?? "" }
-            }).render(!0);
-          }
-        } catch (l) {
-          console.error(`${u} | Failed to save vending machine`, l), ui.notifications.error("Could not save vending machine. Check the console for details.");
-        }
-    }), e.find("[data-action='cancel-edit']").on("click", () => this.close()), e.find("[data-action='browse-machine-image']").on("click", (t) => {
-      var a;
-      t.preventDefault();
-      const r = t.currentTarget.dataset.target || "machine.image", s = (a = t.currentTarget.closest(".holosuite-vending-path-row")) == null ? void 0 : a.querySelector(`[name='${r}']`);
-      if (!s || typeof FilePicker > "u") {
-        ui.notifications.warn("Foundry FilePicker is not available.");
-        return;
-      }
-      new FilePicker({
-        type: "image",
-        current: s.value,
-        callback: (o) => {
-          s.value = o, s.dispatchEvent(new Event("input", { bubbles: !0 }));
-        }
-      }).browse();
-    }), e.find("[data-action='add-entry']").on("click", (t) => {
-      if (this.syncDraftFromForm(t.currentTarget.closest("form")), this.draft.inventory.length >= A) {
-        ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: A }));
-        return;
-      }
-      this.draft.inventory.push(g.createEntry()), this.isDirty = !0, this.render(!1);
-    }), e.find("[data-action='restore-archived']").on("click", (t) => {
-      var r;
-      this.syncDraftFromForm(t.currentTarget.closest("form")), !(this.draft.inventory.length >= A || !((r = this.draft.overflowInventory) != null && r.length)) && (this.draft.inventory.push(this.draft.overflowInventory.shift()), this.isDirty = !0, this.render(!1));
-    }), e.find("[data-action='discard-archived']").on("click", async (t) => {
-      await Dialog.confirm({
-        title: game.i18n.localize("HOLOSUITEVENDING.Editor.DiscardArchivedTitle"),
-        content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.DiscardArchivedConfirm")}</p>`
-      }) && (this.syncDraftFromForm(t.currentTarget.closest("form")), this.draft.overflowInventory = [], this.isDirty = !0, this.render(!1));
-    }), e.find("[data-action='remove-entry']").on("click", async (t) => {
-      await Dialog.confirm({
-        title: game.i18n.localize("HOLOSUITEVENDING.Editor.RemoveProductTitle"),
-        content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.RemoveProductConfirm")}</p>`
-      }) && (this.syncDraftFromForm(t.currentTarget.closest("form")), this.draft.inventory = this.draft.inventory.filter((s) => s.id !== t.currentTarget.dataset.entryId), this.isDirty = !0, this.render(!1));
-    }), e.find("[data-action='move-entry-up'], [data-action='move-entry-down']").on("click", (t) => {
-      this.syncDraftFromForm(t.currentTarget.closest("form"));
-      const r = this.draft.inventory.findIndex((o) => o.id === t.currentTarget.dataset.entryId), s = t.currentTarget.dataset.action === "move-entry-up" ? -1 : 1, a = r + s;
-      r < 0 || a < 0 || a >= this.draft.inventory.length || ([this.draft.inventory[r], this.draft.inventory[a]] = [this.draft.inventory[a], this.draft.inventory[r]], this.isDirty = !0, this.render(!1));
-    }), e.find(".holosuite-vending-entry-editor").on("dragstart", (t) => {
-      var s, a;
-      const r = t.originalEvent;
-      if (!((a = (s = r.target) == null ? void 0 : s.closest) != null && a.call(s, ".hsv-drag-handle"))) {
-        t.preventDefault();
-        return;
-      }
-      r.dataTransfer.effectAllowed = "move", r.dataTransfer.setData("application/x-holosuite-vending-entry", t.currentTarget.dataset.entryId);
-    }), e.find(".holosuite-vending-entry-editor").on("dragover", (t) => {
-      var r;
-      Array.from(((r = t.originalEvent.dataTransfer) == null ? void 0 : r.types) ?? []).includes("application/x-holosuite-vending-entry") && t.preventDefault();
-    }), e.find(".holosuite-vending-entry-editor").on("drop", (t) => {
-      var c;
-      const r = (c = t.originalEvent.dataTransfer) == null ? void 0 : c.getData("application/x-holosuite-vending-entry");
-      if (!r) return;
-      t.preventDefault(), t.stopPropagation(), this.syncDraftFromForm(t.currentTarget.closest("form"));
-      const s = this.draft.inventory.findIndex((d) => d.id === r), a = this.draft.inventory.findIndex((d) => d.id === t.currentTarget.dataset.entryId);
-      if (s < 0 || a < 0 || s === a) return;
-      const [o] = this.draft.inventory.splice(s, 1);
-      this.draft.inventory.splice(a, 0, o), this.isDirty = !0, this.render(!1);
-    }), e.find(".holosuite-vending-drop-zone").on("dragover", (t) => t.preventDefault()), e.find(".holosuite-vending-drop-zone").on("drop", async (t) => {
-      var r;
-      t.preventDefault();
-      try {
-        if ((r = t.originalEvent.dataTransfer) != null && r.getData("application/x-holosuite-vending-entry")) return;
-        if (this.syncDraftFromForm(t.currentTarget.closest("form")), this.draft.inventory.length >= A) {
-          ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: A }));
-          return;
-        }
-        const s = await At(t.originalEvent);
-        if (!s) return;
-        this.draft.inventory.push(s), this.isDirty = !0, this.render(!1);
-      } catch (s) {
-        console.warn(`${u} | Item drop failed`, s), ui.notifications.warn("Could not add that item to the vending machine.");
-      }
-    });
-  }
-  async save(e) {
-    this.syncDraftFromForm(e), this.draft = foundry.utils.deepClone(await g.upsertMachine(this.draft)), this.isDirty = !1;
-  }
+async function Ne(e, t) {
+	if (!e || t <= 0) return null;
+	if (e.kind === "actor") {
+		let n = Object.fromEntries(e.entries.map((e) => [e.path, e.amount])), { updates: r } = ye(e.entries, t);
+		return await e.actor.update(r), {
+			type: "actor",
+			actor: e.actor,
+			previous: n
+		};
+	}
+	if (e.kind !== "item") return null;
+	let n = e.item, r = L(n), i = n.toObject ? n.toObject() : foundry.utils.deepClone(n), a = r.value - t;
+	return a <= 0 ? (await n.delete(), {
+		type: "deleted",
+		actor: n.parent,
+		snapshot: i
+	}) : (await n.update({ [r.path]: a }), {
+		type: "updated",
+		item: n,
+		path: r.path,
+		previous: r.value
+	});
 }
-const ce = "executeScript", bt = /* @__PURE__ */ new Set(["holosuiteVending", `${u}.openMachine`]);
-function kt() {
-  var i, n, e;
-  return Array.from(((n = (i = canvas == null ? void 0 : canvas.scene) == null ? void 0 : i.regions) == null ? void 0 : n.contents) ?? ((e = canvas == null ? void 0 : canvas.scene) == null ? void 0 : e.regions) ?? []);
+async function Pe(e) {
+	if (!e) return;
+	if (e.type === "actor") {
+		await e.actor.update(e.previous);
+		return;
+	}
+	if (e.type === "updated") {
+		await e.item.update({ [e.path]: e.previous });
+		return;
+	}
+	let t = foundry.utils.deepClone(e.snapshot);
+	delete t._id, await e.actor.createEmbeddedDocuments("Item", [t]);
 }
-function Lt(i, n) {
-  return Array.from((i == null ? void 0 : i.behaviors) ?? []).find((e) => {
-    var t, r;
-    return (e == null ? void 0 : e.type) === ce && String(((r = (t = e == null ? void 0 : e.flags) == null ? void 0 : t[u]) == null ? void 0 : r.machineId) ?? "") === n;
-  }) ?? null;
+async function Fe(e, t, n) {
+	let r = foundry.utils.deepClone(t);
+	delete r._id, r.name = r.name || "Vended Item", r.img = r.img || "icons/svg/item-bag.svg";
+	let i = L(r), a = R(e).find((e) => e.name === r.name && e.type === r.type);
+	if (a) {
+		let e = L(a);
+		if (e.path) {
+			let t = Math.max(1, i.value) * n;
+			return await a.update({ [e.path]: e.value + t }), {
+				type: "updated",
+				item: a,
+				path: e.path,
+				previous: e.value
+			};
+		}
+	}
+	if (i.path) return foundry.utils.setProperty(r, i.path, Math.max(1, i.value) * n), {
+		type: "created",
+		actor: e,
+		ids: (await e.createEmbeddedDocuments("Item", [r])).map((e) => e.id)
+	};
+	let o = Array.from({ length: n }, () => foundry.utils.deepClone(r));
+	return {
+		type: "created",
+		actor: e,
+		ids: (await e.createEmbeddedDocuments("Item", o)).map((e) => e.id)
+	};
 }
-function Ht(i) {
-  return Array.from((i == null ? void 0 : i.behaviors) ?? []).filter((n) => {
-    var e, t;
-    return ((t = (e = n == null ? void 0 : n.flags) == null ? void 0 : e[u]) == null ? void 0 : t.machineId) || bt.has(n == null ? void 0 : n.type);
-  });
+async function Ie(e) {
+	for (let t of [...e].reverse()) t.type === "updated" ? await t.item.update({ [t.path]: t.previous }) : t.ids?.length && await t.actor.deleteEmbeddedDocuments("Item", t.ids);
 }
-function Rt(i) {
-  return g.getMachines().filter((n) => n.regionIds.includes(i)).map((n) => n.id);
+async function B(n, r, i) {
+	if (game.user.id === n) {
+		ui.notifications[r]?.(i);
+		return;
+	}
+	game.socket.emit(t, {
+		type: "notify",
+		moduleId: e,
+		userId: n,
+		level: r,
+		message: i
+	});
 }
-function De(i) {
-  return `${Pe}: ${i.name}`;
+function Le(n, r) {
+	let i = {
+		type: "purchase-result",
+		moduleId: e,
+		userId: n,
+		...r
+	};
+	if (game.user.id === n) {
+		Hooks.callAll(`${e}.purchaseResult`, i);
+		return;
+	}
+	game.socket.emit(t, i);
 }
-function Te(i) {
-  return [
-    "const userId = event.user?.id;",
-    "if (!userId) return;",
-    `game.socket.emit("${H}", {`,
-    '  action: "openVendingFromRegion",',
-    `  machineId: ${JSON.stringify(i)},`,
-    "  userId,",
-    "  sceneId: scene?.id,",
-    "  regionId: region?.id,",
-    "  behaviorId: behavior?.id,",
-    "  tokenId: event.data?.token?.id",
-    "});",
-    "if (game.user?.id === userId && !game.user?.isGM) {",
-    `  await game.holosuiteVending?.promptMachineAccess?.(${JSON.stringify(i)}, {`,
-    "    actor: event.data?.token?.actor,",
-    '    context: { source: "region-behavior", sceneId: scene?.id, regionId: region?.id, behaviorId: behavior?.id, tokenId: event.data?.token?.id }',
-    "  });",
-    "}"
-  ].join(`
-`);
+function V(n, r) {
+	let i = {
+		type: "collection-result",
+		moduleId: e,
+		userId: n,
+		...r
+	};
+	if (game.user.id === n) {
+		Hooks.callAll(`${e}.collectionResult`, i);
+		return;
+	}
+	game.socket.emit(t, i);
 }
-function Ut(i) {
-  var t, r, s, a, o;
-  const n = ((r = (t = game.scenes) == null ? void 0 : t.get) == null ? void 0 : r.call(t, i.sceneId)) ?? (canvas == null ? void 0 : canvas.scene), e = ((a = (s = n == null ? void 0 : n.tokens) == null ? void 0 : s.get) == null ? void 0 : a.call(s, i.tokenId)) ?? Array.from(((o = n == null ? void 0 : n.tokens) == null ? void 0 : o.contents) ?? (n == null ? void 0 : n.tokens) ?? []).find((c) => (c == null ? void 0 : c.id) === i.tokenId);
-  return (e == null ? void 0 : e.actor) ?? null;
+async function Re({ actor: e, itemSummary: t, totalPrice: n, currencyName: r }) {
+	await ChatMessage.create({
+		speaker: ChatMessage.getSpeaker({ actor: e }),
+		content: game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
+			actor: e.name,
+			item: t,
+			price: c(n),
+			currency: r
+		})
+	});
 }
-function Pt() {
-  var i, n;
-  (n = (i = game.socket) == null ? void 0 : i.on) == null || n.call(i, H, async (e) => {
-    var t, r, s, a;
-    (e == null ? void 0 : e.action) === "openVendingFromRegion" && (e.userId !== ((t = game.user) == null ? void 0 : t.id) || (r = game.user) != null && r.isGM || await ((a = (s = game.holosuiteVending) == null ? void 0 : s.promptMachineAccess) == null ? void 0 : a.call(s, String(e.machineId || ""), {
-      actor: Ut(e),
-      context: {
-        source: "region-socket",
-        sceneId: e.sceneId,
-        regionId: e.regionId,
-        behaviorId: e.behaviorId,
-        tokenId: e.tokenId
-      }
-    })));
-  });
+async function ze(t) {
+	try {
+		return await T.appendLedger(t);
+	} catch (t) {
+		return console.warn(`${e} | Could not update transaction ledger`, t), null;
+	}
 }
-async function P() {
-  var n, e, t;
-  if (!((n = game.user) != null && n.isGM) || !(canvas != null && canvas.scene) || !((t = (e = CONFIG.RegionBehavior) == null ? void 0 : e.dataModels) != null && t[ce])) return;
-  const i = g.getMachines();
-  for (const r of kt()) {
-    const s = String(r.id ?? ""), a = new Set(Rt(s)), o = Ht(r).filter((l) => {
-      var m, f;
-      return !a.has(String(((f = (m = l.flags) == null ? void 0 : m[u]) == null ? void 0 : f.machineId) ?? ""));
-    }).map((l) => l.id);
-    o.length && await r.deleteEmbeddedDocuments("RegionBehavior", o);
-    const c = [], d = [];
-    for (const l of a) {
-      const m = i.find((p) => p.id === l);
-      if (!m) continue;
-      const f = Lt(r, l), S = {
-        name: De(m),
-        disabled: !1,
-        "system.events": ["tokenEnter"],
-        "system.source": Te(l),
-        [`flags.${u}.machineId`]: l
-      };
-      f ? d.push({ _id: f.id, ...S }) : c.push({
-        name: De(m),
-        type: ce,
-        disabled: !1,
-        system: { events: ["tokenEnter"], source: Te(l) },
-        flags: { [u]: { machineId: l } }
-      });
-    }
-    d.length && await r.updateEmbeddedDocuments("RegionBehavior", d), c.length && await r.createEmbeddedDocuments("RegionBehavior", c);
-  }
+var H = class {
+	static transactionQueue = Promise.resolve();
+	static processedRequests = /* @__PURE__ */ new Set();
+	static dispenseTimers = /* @__PURE__ */ new Map();
+	static registerSocket() {
+		game.socket.on(t, async (t) => {
+			if (!(!t || t.moduleId && t.moduleId !== "holosuite-vending-machines")) {
+				if (t.type === "notify" && t.userId === game.user.id) {
+					ui.notifications[t.level || "info"]?.(t.message);
+					return;
+				}
+				if (t.type === "purchase-result" && t.userId === game.user.id) {
+					Hooks.callAll(`${e}.purchaseResult`, t);
+					return;
+				}
+				if (t.type === "collection-result" && t.userId === game.user.id) {
+					Hooks.callAll(`${e}.collectionResult`, t);
+					return;
+				}
+				if (t.type === "purchase" && game.user.isGM && this.isResponsibleGM()) {
+					await this.handlePurchaseRequest(t);
+					return;
+				}
+				t.type === "collection" && game.user.isGM && this.isResponsibleGM() && await this.handleCollectionRequest(t);
+			}
+		});
+	}
+	static isResponsibleGM() {
+		return game.users.find((e) => e.active && e.isGM)?.id === game.user.id;
+	}
+	static checkAccess({ machineId: e, actor: t, user: n = game.user, context: r = {} }) {
+		return je({
+			machine: T.getMachine(e),
+			actor: t,
+			user: n,
+			context: r
+		});
+	}
+	static getCurrencyBalance(e) {
+		return z(e).value;
+	}
+	static getCurrencyProfile(e) {
+		let t = z(e);
+		return {
+			balance: t.value,
+			label: t.label,
+			source: t.kind
+		};
+	}
+	static enqueue(e) {
+		let t = this.transactionQueue.then(() => this.processPurchase(e));
+		return this.transactionQueue = t.catch(() => void 0), t;
+	}
+	static enqueueCollection(e) {
+		let t = this.transactionQueue.then(() => this.finalizeDispense(e));
+		return this.transactionQueue = t.catch(() => void 0), t;
+	}
+	static scheduleDispense(t) {
+		let n = t?.requestId;
+		if (!n || !game.user?.isGM || !this.isResponsibleGM()) return;
+		let r = this.dispenseTimers.get(n);
+		r && window.clearTimeout(r);
+		let i = xe(t.expiresAt), a = window.setTimeout(async () => {
+			this.dispenseTimers.delete(n);
+			try {
+				await this.enqueueCollection({
+					requestId: n,
+					automatic: !0
+				});
+			} catch (t) {
+				console.warn(`${e} | Automatic vending collection failed`, t);
+			}
+		}, Math.min(i, 2147e6));
+		this.dispenseTimers.set(n, a);
+	}
+	static resumePendingDispenses() {
+		if (!(!game.user?.isGM || !this.isResponsibleGM())) for (let e of T.getPendingDispenses()) this.scheduleDispense(e);
+	}
+	static async requestPurchase({ machineId: n, entryId: r = "", lines: i = [], actor: a, context: o = {} }) {
+		let s = d(i.length ? i : [{
+			entryId: r,
+			quantity: 1
+		}]);
+		if (!a) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor")), !1;
+		if (!s.length) return !1;
+		let c = this.checkAccess({
+			machineId: n,
+			actor: a,
+			context: o
+		});
+		if (!c.allowed) return ui.notifications.warn(c.reason), !1;
+		let l = foundry?.utils?.randomID?.(16) ?? `${game.user.id}-${Date.now()}-${Math.random()}`;
+		if (game.user.isGM && this.isResponsibleGM()) try {
+			return {
+				accepted: !0,
+				pending: !1,
+				requestId: l,
+				result: await this.enqueue({
+					requestId: l,
+					machineId: n,
+					lines: s,
+					actor: a,
+					user: game.user,
+					context: o
+				})
+			};
+		} catch (e) {
+			return ui.notifications.warn(e.message), !1;
+		}
+		return Ae(game.user, a) ? game.users.find((e) => e.active && e.isGM) ? (game.socket.emit(t, {
+			type: "purchase",
+			moduleId: e,
+			requestId: l,
+			userId: game.user.id,
+			machineId: n,
+			lines: s,
+			actorUuid: a.uuid,
+			context: o
+		}), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Processing")), {
+			accepted: !0,
+			pending: !0,
+			requestId: l
+		}) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoGM")), !1) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor")), !1);
+	}
+	static async handlePurchaseRequest(t) {
+		let n = game.users.get(t.userId), r = await fromUuid(t.actorUuid);
+		try {
+			let e = await this.enqueue({
+				requestId: t.requestId,
+				machineId: t.machineId,
+				lines: t.lines,
+				actor: r,
+				user: n,
+				context: t.context ?? {}
+			});
+			Le(t.userId, {
+				status: "success",
+				requestId: t.requestId,
+				machineId: t.machineId,
+				reservationId: e?.reservation?.requestId ?? t.requestId,
+				itemCount: e?.cart?.itemCount ?? 0,
+				image: e?.reservation?.image ?? ""
+			});
+		} catch (n) {
+			console.warn(`${e} | Purchase failed`, n), await B(t.userId, "warn", n.message), Le(t.userId, {
+				status: "failed",
+				requestId: t.requestId,
+				machineId: t.machineId,
+				message: n.message
+			});
+		}
+	}
+	static async requestCollection({ requestId: n, automatic: r = !1 }) {
+		if (!n) return !1;
+		if (game.user.isGM && this.isResponsibleGM()) try {
+			return {
+				accepted: !0,
+				pending: !1,
+				result: await this.enqueueCollection({
+					requestId: n,
+					user: game.user,
+					automatic: r
+				})
+			};
+		} catch (e) {
+			return ui.notifications.warn(e.message), !1;
+		}
+		return game.users.find((e) => e.active && e.isGM) ? (game.socket.emit(t, {
+			type: "collection",
+			moduleId: e,
+			requestId: n,
+			userId: game.user.id,
+			automatic: r
+		}), {
+			accepted: !0,
+			pending: !0
+		}) : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoGM")), !1);
+	}
+	static async handleCollectionRequest(t) {
+		try {
+			let e = game.users.get(t.userId), n = await this.enqueueCollection({
+				requestId: t.requestId,
+				user: e,
+				automatic: t.automatic === !0,
+				notifyResult: !1
+			});
+			V(t.userId, {
+				status: "success",
+				requestId: t.requestId,
+				machineId: n?.reservation?.machineId ?? "",
+				automatic: n?.automatic === !0
+			});
+		} catch (n) {
+			console.warn(`${e} | Collection failed`, n), await B(t.userId, "warn", n.message), V(t.userId, {
+				status: "failed",
+				requestId: t.requestId,
+				message: n.message
+			});
+		}
+	}
+	static async processPurchase({ requestId: t, machineId: n, lines: r, actor: i, user: a, context: o = {} }) {
+		let s = T.getPendingDispense(t);
+		if (s) return {
+			duplicate: !0,
+			reservation: s,
+			cart: {
+				itemCount: s.itemCount,
+				totalPrice: s.totalPrice,
+				lines: []
+			}
+		};
+		if (this.processedRequests.has(t) || T.hasProcessedRequest(t)) return { duplicate: !0 };
+		let c = z(i), l = c.label, u = T.getMachine(n), d = {
+			requestId: t,
+			machineId: n,
+			machineName: u?.name ?? "Unknown machine",
+			actorId: i?.id ?? "",
+			actorName: i?.name ?? "Unknown actor",
+			userId: a?.id ?? "",
+			userName: a?.name ?? "Unknown user",
+			currencyName: l
+		};
+		try {
+			if (!Ae(a, i)) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
+			u = T.getMachine(n);
+			let s = je({
+				machine: u,
+				actor: i,
+				user: a,
+				context: o
+			});
+			if (!s.allowed) throw Error(s.reason);
+			let d = f(u, r);
+			if (!d.lines.length) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.EmptyCart"));
+			if (d.totalPrice > 0 && c.kind === "invalid") throw Error(game.i18n.format("HOLOSUITEVENDING.Notifications.CurrencyPathInvalid", { path: T.getCurrencyPath() || "automatic detection" }));
+			if (d.totalPrice > 0 && c.value < d.totalPrice) throw Error(game.i18n.format("HOLOSUITEVENDING.Notifications.NoCurrency", { currency: l }));
+			let p = [];
+			for (let e of d.lines) p.push({
+				line: e,
+				itemData: await Me(e.entry)
+			});
+			let m = null, h = Object.fromEntries(d.lines.map((e) => [e.entryId, e.entry.stock])), g = !1, _ = null;
+			try {
+				m = await Ne(c, d.totalPrice);
+				let e = Object.fromEntries(d.lines.map((e) => [e.entryId, e.entry.stock - e.quantity]));
+				await T.updateEntryStocks(n, e), g = !0;
+				let r = d.lines.map((e) => `${e.quantity}× ${e.entry.displayName}`).join(", ");
+				_ = await T.addPendingDispense({
+					id: t,
+					requestId: t,
+					machineId: n,
+					machineName: u.name,
+					actorUuid: i.uuid,
+					actorId: i.id,
+					actorName: i.name,
+					userId: a.id,
+					userName: a.name,
+					currencyName: l,
+					itemSummary: r,
+					itemCount: d.itemCount,
+					totalPrice: d.totalPrice,
+					items: p.map((e) => ({
+						itemData: e.itemData,
+						quantity: e.line.quantity,
+						displayName: e.line.entry.displayName,
+						image: e.line.entry.image
+					})),
+					image: d.itemCount > 1 ? "icons/svg/item-bag.svg" : p[0]?.line?.entry?.image ?? "",
+					createdAt: Date.now(),
+					expiresAt: Date.now() + 10850,
+					status: "pending"
+				});
+			} catch (t) {
+				if (g) try {
+					await T.updateEntryStocks(n, h);
+				} catch (t) {
+					console.error(`${e} | Reserved-stock rollback failed`, t);
+				}
+				try {
+					await Pe(m);
+				} catch (t) {
+					console.error(`${e} | Currency rollback failed`, t);
+				}
+				throw t;
+			}
+			return this.processedRequests.add(t), this.processedRequests.size > 500 && this.processedRequests.delete(this.processedRequests.values().next().value), this.scheduleDispense(_), {
+				cart: d,
+				reservation: _
+			};
+		} catch (e) {
+			throw await ze({
+				...d,
+				status: "failed",
+				error: e.message
+			}), e;
+		}
+	}
+	static async finalizeDispense({ requestId: t, user: n = null, automatic: r = !1, notifyResult: i = !0 }) {
+		let a = T.getPendingDispense(t), o = be(a, n);
+		if (o === "missing") return {
+			duplicate: !0,
+			automatic: r
+		};
+		if (o === "forbidden") throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
+		if (o === "busy") throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.CollectionBusy"));
+		let s = await fromUuid(a.actorUuid);
+		if (!s) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
+		await T.updatePendingDispense(t, { status: "delivering" });
+		let l = [];
+		try {
+			for (let e of a.items) l.push(await Fe(s, e.itemData, e.quantity));
+			await T.removePendingDispense(t);
+		} catch (n) {
+			try {
+				await Ie(l);
+			} catch (t) {
+				console.error(`${e} | Collected-item rollback failed`, t);
+			}
+			throw await T.updatePendingDispense(t, { status: "pending" }), this.scheduleDispense({
+				...a,
+				expiresAt: Date.now() + 5e3
+			}), n;
+		}
+		let u = this.dispenseTimers.get(t);
+		u && window.clearTimeout(u), this.dispenseTimers.delete(t), await ze({
+			requestId: t,
+			machineId: a.machineId,
+			machineName: a.machineName,
+			actorId: a.actorId,
+			actorName: a.actorName,
+			userId: a.userId,
+			userName: a.userName,
+			currencyName: a.currencyName,
+			status: "success",
+			itemSummary: a.itemSummary,
+			itemCount: a.itemCount,
+			totalPrice: a.totalPrice
+		});
+		try {
+			await Re({
+				actor: s,
+				itemSummary: a.itemSummary,
+				totalPrice: a.totalPrice,
+				currencyName: a.currencyName
+			});
+		} catch (t) {
+			console.warn(`${e} | Could not create purchase chat message`, t);
+		}
+		return await B(a.userId, "info", game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
+			actor: a.actorName,
+			item: a.itemSummary,
+			price: c(a.totalPrice),
+			currency: a.currencyName
+		})), r && i && V(a.userId, {
+			status: "success",
+			requestId: t,
+			machineId: a.machineId,
+			automatic: !0
+		}), {
+			reservation: a,
+			automatic: r
+		};
+	}
+	static async purchase({ machineId: e, entryId: t, actor: n, user: r, context: i = {} }) {
+		return this.enqueue({
+			requestId: foundry?.utils?.randomID?.(16) ?? `${Date.now()}-${Math.random()}`,
+			machineId: e,
+			lines: [{
+				entryId: t,
+				quantity: 1
+			}],
+			actor: n,
+			user: r,
+			context: i
+		});
+	}
+}, Be = k(), U = /* @__PURE__ */ new Set();
+function Ve(e) {
+	return e || (canvas?.tokens?.controlled?.[0]?.actor ? canvas.tokens.controlled[0].actor : game.user.character ?? null);
 }
-function Gt() {
-  Pt(), window.setTimeout(() => P(), 250), Hooks.on("canvasReady", () => P()), Hooks.on(`${u}.machinesChanged`, () => P()), Hooks.on("createRegion", () => P()), Hooks.on("deleteRegion", () => P());
+function W(e) {
+	let t = document.createElement("div");
+	return t.innerHTML = String(e ?? ""), String(t.textContent ?? "").replace(/\s+/g, " ").trim();
 }
-function xt(i) {
-  return (i == null ? void 0 : i.document) ?? i;
+function He(e, t = 180) {
+	let n = W(e);
+	if (n.length <= t) return n;
+	let r = n.slice(0, Math.max(1, t - 1)), i = r.lastIndexOf(" "), a = i >= Math.floor(t * .65) ? i : r.length;
+	return `${r.slice(0, a).trimEnd()}…`;
 }
-function Vt(i) {
-  var e;
-  if ((e = foundry == null ? void 0 : foundry.utils) != null && e.escapeHTML) return foundry.utils.escapeHTML(String(i ?? ""));
-  const n = document.createElement("div");
-  return n.textContent = String(i ?? ""), n.innerHTML;
+function Ue(e) {
+	let t = document.createElement("div");
+	return t.textContent = String(e ?? ""), t.innerHTML;
 }
-async function zt(i, n = {}) {
-  const e = g.getMachine(i);
-  return e ? await Dialog.wait({
-    title: game.i18n.localize("HOLOSUITEVENDING.Region.PromptTitle"),
-    content: `
+async function We(t, n) {
+	if (!t) return null;
+	let r = globalThis.AudioHelper ?? globalThis.foundry?.audio?.AudioHelper;
+	if (r?.play) try {
+		return await r.play({
+			src: t,
+			volume: n,
+			loop: !1
+		}, !1);
+	} catch (t) {
+		console.warn(`${e} | AudioHelper playback failed`, t);
+	}
+	try {
+		let e = new Audio(t);
+		return e.volume = n, await e.play(), e;
+	} catch (t) {
+		return console.warn(`${e} | Browser audio playback failed`, t), null;
+	}
+}
+function Ge(t) {
+	try {
+		typeof t?.stop == "function" ? t.stop() : typeof t?.pause == "function" && t.pause();
+	} catch (t) {
+		console.warn(`${e} | Could not stop vending audio`, t);
+	}
+}
+var G = class extends Be {
+	machineId;
+	actor;
+	selectedEntryId;
+	context;
+	cart;
+	lastDispense;
+	pendingRequestId;
+	pendingDispense;
+	activeReservationId;
+	checkoutPending;
+	pendingFocusSelector;
+	dispenseTimers;
+	audioHandles;
+	viewportResizeHandler;
+	constructor(e, t = {}) {
+		super({
+			...t,
+			id: `holosuite-vending-machine-${e}`
+		}), this.machineId = e, this.actor = Ve(t.actor), this.selectedEntryId = t.selectedEntryId ?? null, this.context = t.context ?? {}, this.cart = /* @__PURE__ */ new Map(), this.lastDispense = null, this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = null, this.checkoutPending = !1, this.pendingFocusSelector = "", this.dispenseTimers = /* @__PURE__ */ new Set(), this.audioHandles = /* @__PURE__ */ new Map(), this.viewportResizeHandler = () => this.applyViewportScale(), window.addEventListener("resize", this.viewportResizeHandler), U.add(this);
+	}
+	static get defaultOptions() {
+		return foundry.utils.mergeObject(super.defaultOptions, {
+			id: "holosuite-vending-machine",
+			classes: ["holosuite-vending-window", "holosuite-vending-app"],
+			template: o.vending,
+			width: 1050,
+			height: "auto",
+			resizable: !1,
+			minimizable: !1,
+			title: "HoloSuite Vending Machine"
+		});
+	}
+	get title() {
+		return T.getMachine(this.machineId)?.name ?? "HoloSuite Vending Machine";
+	}
+	async close(e = {}) {
+		this.clearDispenseTimers();
+		for (let e of this.audioHandles.values()) Ge(e);
+		return this.audioHandles.clear(), window.removeEventListener("resize", this.viewportResizeHandler), U.delete(this), super.close(e);
+	}
+	get machine() {
+		return T.getMachine(this.machineId);
+	}
+	playAudio(e) {
+		let t = T.getAudioConfig(), n = t[e];
+		!t.enabled || !n || t.volume <= 0 || (Ge(this.audioHandles.get(e)), We(n, t.volume).then((t) => {
+			t && this.audioHandles.set(e, t);
+		}));
+	}
+	async openProductDetails(t) {
+		let n = this.machine?.inventory?.find((e) => e.id === t);
+		if (!n) return;
+		if (n.itemUuid) try {
+			let e = await fromUuid(n.itemUuid);
+			if (e?.sheet?.render) {
+				e.sheet.render(!0);
+				return;
+			}
+		} catch (t) {
+			console.warn(`${e} | Could not open source item ${n.itemUuid}`, t);
+		}
+		let r = W(n.description);
+		new Dialog({
+			title: n.displayName || "Product Details",
+			content: `<div class="hsv-product-dialog"><p>${Ue(r || "No product description supplied.")}</p></div>`,
+			buttons: { close: { label: "Close" } },
+			default: "close"
+		}).render(!0);
+	}
+	clearDispenseTimers() {
+		for (let e of this.dispenseTimers) window.clearTimeout(e);
+		this.dispenseTimers.clear();
+	}
+	scheduleDispense(e, t) {
+		let n = window.setTimeout(() => {
+			this.dispenseTimers.delete(n), e();
+		}, t);
+		this.dispenseTimers.add(n);
+	}
+	beginDispenseSequence(e, t = "", n = "") {
+		this.clearDispenseTimers(), this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = n, this.checkoutPending = !1, this.lastDispense = {
+			state: "dispensing",
+			message: "PLEASE STAND CLEAR",
+			image: t
+		}, this.playAudio("dispense"), this.render(!1), this.scheduleDispense(() => {
+			this.lastDispense = {
+				state: "ready",
+				message: `${e} ITEM${e === 1 ? "" : "S"}: CLICK TO RETRIEVE`,
+				image: t
+			}, this.render(!1);
+		}, 850);
+	}
+	async finishRetrieval(e = !1) {
+		if (this.lastDispense?.state !== "ready" || !this.activeReservationId) return;
+		let t = this.lastDispense.image ?? "";
+		this.lastDispense = {
+			state: "collecting",
+			message: e ? "AUTOMATIC TRANSFER" : "SECURING ITEM",
+			image: t
+		}, this.render(!1);
+		let n = await H.requestCollection({
+			requestId: this.activeReservationId,
+			automatic: e
+		});
+		if (!n) {
+			this.lastDispense = {
+				state: "ready",
+				message: "CLICK TO RETRY COLLECTION",
+				image: t
+			}, this.render(!1);
+			return;
+		}
+		n.pending || this.showCollectionComplete(n.result?.automatic === !0, t);
+	}
+	showCollectionComplete(e = !1, t = "") {
+		this.clearDispenseTimers(), this.playAudio("collect"), this.activeReservationId = null, this.lastDispense = {
+			state: e ? "automatic" : "collected",
+			message: game.i18n.localize(e ? "HOLOSUITEVENDING.Retrieval.Automatic" : "HOLOSUITEVENDING.Retrieval.Collected"),
+			image: t
+		}, this.render(!1), this.scheduleDispense(() => {
+			this.lastDispense = null, this.render(!1);
+		}, 2400);
+	}
+	showDispenseFailure(e = "AUTHORIZATION FAILED") {
+		this.clearDispenseTimers(), this.pendingRequestId = null, this.pendingDispense = null, this.checkoutPending = !1, this.playAudio("failure"), this.lastDispense = {
+			state: "failure",
+			message: e
+		}, this.render(!1), this.scheduleDispense(() => {
+			this.lastDispense = null, this.render(!1);
+		}, 3500);
+	}
+	handlePurchaseResult(e) {
+		if (e.machineId !== this.machineId || e.requestId !== this.pendingRequestId) return;
+		let t = this.pendingDispense ?? {
+			itemCount: Number(e.itemCount) || 1,
+			image: ""
+		};
+		if (e.status === "success") {
+			this.cart.clear(), this.beginDispenseSequence(Number(e.itemCount) || t.itemCount, e.image || t.image, e.reservationId || e.requestId);
+			return;
+		}
+		this.showDispenseFailure(e.message || "AUTHORIZATION FAILED");
+	}
+	handleCollectionResult(e) {
+		if (e.requestId !== this.activeReservationId) return;
+		let t = this.lastDispense?.image ?? "";
+		if (e.status === "success") {
+			this.showCollectionComplete(e.automatic === !0, t);
+			return;
+		}
+		this.lastDispense = {
+			state: "ready",
+			message: e.message || "CLICK TO RETRY COLLECTION",
+			image: t
+		}, this.render(!1);
+	}
+	pruneCart(e) {
+		let t = new Map(e.map((e) => [e.id, e]));
+		for (let [e, n] of this.cart) {
+			let r = t.get(e);
+			!r || r.stock <= 0 ? this.cart.delete(e) : this.cart.set(e, Math.min(n, r.stock));
+		}
+	}
+	renderWithFocus(e = "") {
+		this.pendingFocusSelector = e, this.render(!1);
+	}
+	applyViewportScale() {
+		let e = (this.element?.[0] ?? this.element)?.querySelector?.(".hsv-machine"), t = e?.querySelector?.(".hsv-machine-chassis");
+		if (!e || !t) return;
+		e.style.zoom = "1";
+		let n = t.getBoundingClientRect();
+		if (!n.width || !n.height) return;
+		let r = Math.max(320, window.innerWidth - 28), i = Math.max(320, window.innerHeight - 28), a = Math.max(.56, Math.min(1, r / n.width, i / n.height));
+		e.style.zoom = String(Math.floor(a * 100) / 100), e.dataset.viewportScale = String(Math.round(a * 100));
+	}
+	async getData() {
+		let e = this.machine, t = e?.inventory ?? [];
+		this.pruneCart(t);
+		let n = H.getCurrencyProfile(this.actor), r = n.balance;
+		!this.selectedEntryId && t.length && (this.selectedEntryId = l(t, r));
+		let i = t.find((e) => e.id === this.selectedEntryId) ?? t[0] ?? null;
+		this.selectedEntryId = i?.id ?? null;
+		let a = t.filter((e) => this.cart.has(e.id)).map((e) => {
+			let t = this.cart.get(e.id) ?? 0, n = e.price * t;
+			return {
+				...e,
+				quantity: t,
+				lineTotal: n,
+				lineTotalDisplay: c(n)
+			};
+		}), o = a.reduce((e, t) => e + t.quantity, 0), s = a.reduce((e, t) => e + t.lineTotal, 0), u = H.checkAccess({
+			machineId: this.machineId,
+			actor: this.actor,
+			context: this.context
+		}), d = T.getMachineState(e), f = t.map((e, t) => {
+			let n = e.maxStock > 0 ? e.stock / e.maxStock : 0, a = e.stock > 0 ? Math.max(1, Math.ceil(n * 10)) : 0, o = e.stock > 0 && e.stock <= Math.max(1, Math.ceil(e.maxStock * .25)), s = W(e.description);
+			return {
+				...e,
+				slotCode: `${String.fromCharCode(65 + Math.floor(t / 3))}${String(t % 3 + 1).padStart(2, "0")}`,
+				selected: i?.id === e.id,
+				soldOut: e.stock <= 0,
+				lowStock: o,
+				affordable: e.price <= r,
+				priceDisplay: c(e.price),
+				cartQuantity: this.cart.get(e.id) ?? 0,
+				descriptionPreview: He(e.description) || "No product profile supplied.",
+				descriptionCanOpen: !!(e.itemUuid || s),
+				stockSegments: Array.from({ length: 10 }, (e, t) => ({ active: t < a }))
+			};
+		}), p = Math.max(6, Math.ceil(f.length / 3) * 3), m = [
+			{
+				label: game.i18n.localize("HOLOSUITEVENDING.Player.EmptySlot"),
+				detail: game.i18n.localize("HOLOSUITEVENDING.Player.Unassigned"),
+				icon: "fa-box-open"
+			},
+			{
+				label: game.i18n.localize("HOLOSUITEVENDING.Player.Unassigned"),
+				detail: game.i18n.localize("HOLOSUITEVENDING.Player.NoProductData"),
+				icon: "fa-plug"
+			},
+			{
+				label: game.i18n.localize("HOLOSUITEVENDING.Player.OfflineSlot"),
+				detail: game.i18n.localize("HOLOSUITEVENDING.Player.ServiceRequired"),
+				icon: "fa-power-off"
+			},
+			{
+				label: game.i18n.localize("HOLOSUITEVENDING.Player.Maintenance"),
+				detail: game.i18n.localize("HOLOSUITEVENDING.Player.KeepClear"),
+				icon: "fa-wrench"
+			}
+		], h = Array.from({ length: p }, (e, t) => {
+			if (f[t]) return f[t];
+			let n = m[t % m.length];
+			return {
+				empty: !0,
+				slotCode: `${String.fromCharCode(65 + Math.floor(t / 3))}${String(t % 3 + 1).padStart(2, "0")}`,
+				emptyLabel: n.label,
+				emptyDetail: n.detail,
+				emptyIcon: n.icon,
+				emptyVariant: t % m.length
+			};
+		}), g = f.find((e) => e.id === i?.id) ?? null, _ = s > r, v = String(e?.id ?? this.machineId).replace(/[^a-z0-9]/gi, "").toUpperCase(), y = this.lastDispense ?? {
+			state: "standby",
+			message: d === "offline" ? "OUTPUT BAY LOCKED" : "AWAITING PURCHASE"
+		}, ee = {
+			standby: d === "offline" ? "LOCKED" : "READY",
+			authorizing: "AUTHORIZING",
+			dispensing: "DISPENSING",
+			ready: "COLLECT ITEM",
+			collecting: "TRANSFERRING",
+			collected: "ITEM COLLECTED",
+			automatic: "AUTO DISPENSED",
+			failure: "TRANSACTION FAILED"
+		}, b = e?.styleId ?? "industrial", x = b === "corporate-kiosk-white" ? "corporate-kiosk" : b === "neon" ? "industrial" : b;
+		return {
+			machine: e,
+			manufacturerName: e?.manufacturerName ?? "HoloSuite",
+			machineStyleId: b,
+			machineStyleBaseId: x,
+			machineDisplayImage: T.getMachineDisplayImage(e),
+			machineState: d,
+			machineOffline: d === "offline",
+			machineSoldOut: d === "sold-out",
+			displaySlots: h,
+			selected: g,
+			selectedSoldOut: !g || g.stock <= 0,
+			actorName: this.actor?.name ?? "",
+			currencyName: n.label,
+			currencyBalance: r,
+			currencyBalanceDisplay: c(r),
+			accessAllowed: u.allowed,
+			accessReason: u.reason,
+			cartLines: a,
+			cartCount: o,
+			cartTotal: s,
+			cartTotalDisplay: c(s),
+			insufficientBalance: _,
+			canCheckout: u.allowed && o > 0 && !_ && !this.checkoutPending && ![
+				"authorizing",
+				"dispensing",
+				"ready",
+				"collecting"
+			].includes(this.lastDispense?.state ?? ""),
+			checkoutPending: this.checkoutPending,
+			unitNumber: `HSV-${v.slice(-6).padStart(6, "0")}`,
+			systemStatus: d === "online" ? "NOMINAL" : d === "sold-out" ? "DEPLETED" : "OFFLINE",
+			telemetryTemperature: d === "offline" ? "--" : "04 C",
+			telemetryBus: d === "offline" ? "0 V" : "48 V",
+			connectionStatus: d === "offline" ? "DOWN" : "LINK",
+			retrievalState: y.state,
+			retrievalMessage: y.message,
+			retrievalLabel: ee[y.state] ?? "READY",
+			retrievalImage: y.image ?? "",
+			retrievalCanCollect: y.state === "ready"
+		};
+	}
+	activateListeners(e) {
+		super.activateListeners(e), e.find("[data-action='close-machine']").on("click", () => this.close()), e.find("[data-action='collect-dispensed']").on("click", () => this.finishRetrieval(!1)), e.find("[data-action='open-product-details']").on("click", async (e) => {
+			e.preventDefault(), await this.openProductDetails(e.currentTarget.dataset.entryId);
+		});
+		let t = e?.[0] ?? e, n = this.pendingFocusSelector;
+		this.pendingFocusSelector = "", window.requestAnimationFrame(() => {
+			this.applyViewportScale(), n && t?.querySelector?.(n)?.focus?.();
+		}), (t?.querySelector?.("[data-drag-handle]"))?.addEventListener("pointerdown", (e) => {
+			let n = e.target;
+			if (e.button !== 0 || n.closest("button, input, select, textarea, a")) return;
+			let r = this.element?.[0] ?? this.element ?? t.closest?.(".window-app, .application, .app");
+			if (!r?.getBoundingClientRect) return;
+			e.preventDefault();
+			let i = r.getBoundingClientRect(), a = e.clientX, o = e.clientY, s = (e) => {
+				let t = i.left + e.clientX - a, n = i.top + e.clientY - o, r = Math.min(window.innerWidth - 80, Math.max(80 - i.width, t)), s = Math.min(window.innerHeight - 40, Math.max(0, n));
+				this.setPosition?.({
+					left: Math.round(r),
+					top: Math.round(s)
+				});
+			}, c = () => {
+				document.removeEventListener("pointermove", s), document.removeEventListener("pointerup", c), document.removeEventListener("pointercancel", c);
+			};
+			document.addEventListener("pointermove", s), document.addEventListener("pointerup", c), document.addEventListener("pointercancel", c);
+		}), e.find("[data-action='select-entry']").on("click", (e) => {
+			this.selectedEntryId !== e.currentTarget.dataset.entryId && this.playAudio("select"), this.selectedEntryId = e.currentTarget.dataset.entryId;
+			let t = globalThis.CSS?.escape?.(this.selectedEntryId) ?? this.selectedEntryId;
+			this.renderWithFocus(`[data-action='select-entry'][data-entry-id='${t}']`);
+		}), e.find("[data-action='decrease-quantity'], [data-action='increase-quantity']").on("click", (t) => {
+			let n = e.find("[name='purchaseQuantity']"), r = Math.max(1, Number(n.attr("min")) || 1), i = Math.max(r, Number(n.attr("max")) || r), a = t.currentTarget.dataset.action === "increase-quantity" ? 1 : -1, o = Math.min(i, Math.max(r, (Number(n.val()) || r) + a));
+			n.val(o).trigger("change");
+		}), e.find("[data-action='add-to-cart']").on("click", () => {
+			let t = this.machine?.inventory?.find((e) => e.id === this.selectedEntryId);
+			if (!t || t.stock <= 0) return;
+			let n = Math.max(1, Math.floor(Number(e.find("[name='purchaseQuantity']").val()) || 1)), r = Math.min(t.stock, (this.cart.get(t.id) ?? 0) + n);
+			this.cart.set(t.id, r), this.renderWithFocus("[data-action='add-to-cart']");
+		}), e.find("[data-action='remove-from-cart']").on("click", (e) => {
+			this.cart.delete(e.currentTarget.dataset.entryId), this.renderWithFocus("[data-action='add-to-cart']");
+		}), e.find("[data-action='clear-cart']").on("click", () => {
+			this.cart.clear();
+			let e = globalThis.CSS?.escape?.(this.selectedEntryId ?? "") ?? this.selectedEntryId;
+			this.renderWithFocus(`[data-action='select-entry'][data-entry-id='${e}']`);
+		}), e.find("[data-action='checkout']").on("click", async () => {
+			if (!this.actor) {
+				ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
+				return;
+			}
+			let e = Array.from(this.cart, ([e, t]) => ({
+				entryId: e,
+				quantity: t
+			}));
+			if (!e.length) return;
+			let t = e.reduce((e, t) => e + t.quantity, 0), n = e.reduce((e, t) => e + (this.machine?.inventory?.find((e) => e.id === t.entryId)?.price ?? 0) * t.quantity, 0), r = t > 1 ? "icons/svg/item-bag.svg" : this.machine?.inventory?.find((t) => t.id === e[0].entryId)?.image ?? "";
+			if (!await Dialog.confirm({
+				title: game.i18n.localize("HOLOSUITEVENDING.Cart.Checkout"),
+				content: `<p>${game.i18n.format("HOLOSUITEVENDING.Cart.Confirm", {
+					count: t,
+					total: c(n),
+					currency: H.getCurrencyProfile(this.actor).label
+				})}</p>`
+			})) return;
+			this.checkoutPending = !0, this.lastDispense = {
+				state: "authorizing",
+				message: "PROCESSING PAYMENT"
+			}, this.render(!1), this.playAudio("purchase");
+			let i = await H.requestPurchase({
+				machineId: this.machineId,
+				lines: e,
+				actor: this.actor,
+				context: this.context
+			});
+			if (i) {
+				if (i.pending) {
+					this.clearDispenseTimers(), this.pendingRequestId = i.requestId, this.pendingDispense = {
+						itemCount: t,
+						image: r
+					}, this.lastDispense = {
+						state: "authorizing",
+						message: "AWAITING GM AUTHORIZATION"
+					}, this.render(!1);
+					let e = i.requestId;
+					this.scheduleDispense(() => {
+						this.pendingRequestId === e && this.showDispenseFailure("AUTHORIZATION TIMED OUT");
+					}, 15e3);
+				} else this.cart.clear(), this.beginDispenseSequence(i.result?.cart?.itemCount ?? t, i.result?.reservation?.image || r, i.result?.reservation?.requestId || i.requestId);
+			} else this.showDispenseFailure("AUTHORIZATION FAILED: CART PRESERVED");
+		});
+	}
+	static refreshMachine(e) {
+		for (let t of U) t.machineId === e && t.render(!1);
+	}
+	static refreshAll() {
+		for (let e of U) e.render(!1);
+	}
+	static handlePurchaseResult(e) {
+		for (let t of U) t.handlePurchaseResult(e);
+	}
+	static handleCollectionResult(e) {
+		for (let t of U) t.handleCollectionResult(e);
+	}
+}, Ke = k(), qe = ae();
+function Je(e) {
+	let t = {
+		machine: {},
+		entries: {}
+	};
+	for (let [n, r] of new FormData(e).entries()) {
+		let e = String(n), i = String(r ?? "");
+		if (e.startsWith("machine.")) {
+			t.machine[e.slice(8)] = i;
+			continue;
+		}
+		let a = e.match(/^entries\.([^.]+)\.([^.]+)$/);
+		if (!a) continue;
+		let [, o, s] = a;
+		t.entries[o] ??= {}, t.entries[o][s] = i;
+	}
+	return t;
+}
+function K(e, t = 0) {
+	let n = Number(e);
+	return Number.isFinite(n) ? n : t;
+}
+function Ye(e, t) {
+	let n = JSON.stringify(e, null, 2), r = globalThis.saveDataToFile;
+	if (typeof r == "function") {
+		r(n, "application/json", t);
+		return;
+	}
+	let i = URL.createObjectURL(new Blob([n], { type: "application/json" })), a = document.createElement("a");
+	a.href = i, a.download = t, a.click(), URL.revokeObjectURL(i);
+}
+async function Xe() {
+	return new Promise((e, t) => {
+		let n = document.createElement("input");
+		n.type = "file", n.accept = ".json,application/json", n.addEventListener("change", async () => {
+			try {
+				let t = n.files?.[0];
+				if (!t) return e(null);
+				e(JSON.parse(await t.text()));
+			} catch (e) {
+				t(e);
+			}
+		}, { once: !0 }), n.click();
+	});
+}
+function q(e = []) {
+	let t = new Set(e);
+	return Array.from(canvas?.scene?.regions?.contents ?? canvas?.scene?.regions ?? []).map((e) => ({
+		id: String(e.id ?? ""),
+		name: String(e.name || e.id || "Unnamed Region"),
+		selected: t.has(String(e.id ?? ""))
+	})).filter((e) => e.id);
+}
+async function Ze(e) {
+	let t = e.dataTransfer?.getData("text/plain");
+	if (!t) return null;
+	let n = JSON.parse(t), r = await Item.fromDropData(n);
+	if (!r) return null;
+	let i = r.toObject();
+	return T.createEntry({
+		itemUuid: r.uuid ?? n.uuid ?? "",
+		embeddedData: i,
+		displayName: r.name,
+		image: r.img,
+		description: i.system?.description?.value || "",
+		price: 0,
+		stock: 1,
+		maxStock: 1
+	});
+}
+var Qe = class extends qe {
+	machineChangeHook;
+	constructor(t = {}) {
+		super(t), this.machineChangeHook = Hooks.on(`${e}.machinesChanged`, () => this.render(!1));
+	}
+	async close(t = {}) {
+		return this.machineChangeHook !== void 0 && Hooks.off(`${e}.machinesChanged`, this.machineChangeHook), super.close(t);
+	}
+	static get defaultOptions() {
+		return foundry.utils.mergeObject(super.defaultOptions, {
+			id: "holosuite-vending-manager",
+			classes: ["holosuite-vending-window", "holosuite-vending-manager-app"],
+			template: o.manager,
+			width: 880,
+			height: 720,
+			resizable: !0,
+			title: "HoloSuite Vending Machines"
+		});
+	}
+	async getData() {
+		let e = T.getLedger().entries.slice(-25).reverse().map((e) => ({
+			...e,
+			totalPriceDisplay: c(e.totalPrice),
+			timeLabel: new Date(e.timestamp).toLocaleString(),
+			failed: e.status === "failed"
+		}));
+		return {
+			machines: T.getMachines().map((e) => ({
+				...e,
+				state: T.getMachineState(e),
+				stateLabel: T.getMachineState(e) === "sold-out" ? "Sold Out" : T.getMachineState(e) === "offline" ? "Offline" : "Online",
+				online: e.status !== "offline",
+				toggleLabel: e.status === "offline" ? "Bring Online" : "Take Offline",
+				styleLabel: r.find((t) => t.id === e.styleId)?.label ?? "Alien Market",
+				regionCount: e.regionIds.length,
+				totalStock: e.inventory.reduce((e, t) => e + t.stock, 0),
+				totalCapacity: e.inventory.reduce((e, t) => e + t.maxStock, 0)
+			})),
+			currencyName: T.getCurrencyName(),
+			currencySourceLabel: T.getCurrencySourceLabel(),
+			creditTransformer: T.getCreditTransformer(),
+			ledger: e,
+			hasLedger: e.length > 0
+		};
+	}
+	activateListeners(t) {
+		super.activateListeners(t), t.find("[name='creditTransformer']").on("change", async (e) => {
+			await T.setCreditTransformer(e.currentTarget.checked), this.render(!1);
+		}), t.find("[data-action='open-machine']").on("click", (e) => {
+			let t = e.currentTarget.dataset.machineId, n = canvas?.tokens?.controlled?.[0] ?? null, r = n?.actor ?? game.user?.character ?? null;
+			if (!r) {
+				ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
+				return;
+			}
+			new G(t, {
+				actor: r,
+				context: {
+					source: "gm-test",
+					sceneId: canvas?.scene?.id ?? "",
+					tokenId: n?.document?.id ?? n?.id ?? ""
+				}
+			}).render(!0);
+		}), t.find("[data-action='create-machine']").on("click", () => {
+			let e = T.createMachine();
+			new J(e.id, {
+				draft: e,
+				isNew: !0
+			}).render(!0);
+		}), t.find("[data-action='duplicate-machine']").on("click", async (e) => {
+			let t = T.getMachine(e.currentTarget.dataset.machineId);
+			if (!t) return;
+			let n = foundry.utils.deepClone(t);
+			delete n.id, n.name = `${t.name} Copy`;
+			let r = await T.upsertMachine(T.createMachine(n));
+			this.render(!1), new J(r.id).render(!0);
+		}), t.find("[data-action='toggle-machine']").on("click", async (e) => {
+			let t = T.getMachine(e.currentTarget.dataset.machineId);
+			t && (t.status = t.status === "offline" ? "online" : "offline", await T.upsertMachine(t), this.render(!1));
+		}), t.find("[data-action='restock-machine']").on("click", async (e) => {
+			await T.restockMachine(e.currentTarget.dataset.machineId), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Restocked")), this.render(!1);
+		}), t.find("[data-action='restock-all']").on("click", async () => {
+			await Dialog.confirm({
+				title: game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllTitle"),
+				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllConfirm")}</p>`
+			}) && (await T.restockAll(), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.RestockedAll")), this.render(!1));
+		}), t.find("[data-action='export-machines']").on("click", () => {
+			Ye(T.exportData(), "holosuite-vending-machines.json");
+		}), t.find("[data-action='import-machines']").on("click", async () => {
+			try {
+				let e = await Xe();
+				if (!e) return;
+				let t = await T.importData(e);
+				ui.notifications.info(game.i18n.format("HOLOSUITEVENDING.Notifications.Imported", { count: t })), this.render(!1);
+			} catch (t) {
+				console.error(`${e} | Import failed`, t), ui.notifications.error(t?.message || game.i18n.localize("HOLOSUITEVENDING.Notifications.ImportFailed"));
+			}
+		}), t.find("[data-action='export-ledger']").on("click", () => {
+			Ye(T.getLedger(), "holosuite-vending-ledger.json");
+		}), t.find("[data-action='clear-ledger']").on("click", async () => {
+			await Dialog.confirm({
+				title: game.i18n.localize("HOLOSUITEVENDING.Ledger.Clear"),
+				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Ledger.ClearConfirm")}</p>`
+			}) && (await T.clearLedger(), this.render(!1));
+		}), t.find("[data-action='edit-machine']").on("click", (e) => {
+			new J(e.currentTarget.dataset.machineId).render(!0);
+		}), t.find("[data-action='delete-machine']").on("click", async (e) => {
+			let t = e.currentTarget.dataset.machineId;
+			await Dialog.confirm({
+				title: "Delete Vending Machine",
+				content: "<p>Delete this vending machine? Linked Regions will no longer open it.</p>"
+			}) && await T.deleteMachine(t), this.render(!1);
+		});
+	}
+}, J = class extends Ke {
+	machineId;
+	draft;
+	isDirty;
+	pendingScrollEntryId;
+	pendingEditorScroll;
+	constructor(e, t = {}) {
+		super({
+			...t,
+			id: `holosuite-vending-editor-${e}`
+		}), this.machineId = e, this.draft = foundry.utils.deepClone(t.draft ?? T.getMachine(e) ?? T.createMachine({ id: e })), this.isDirty = t.isNew === !0, this.pendingScrollEntryId = null, this.pendingEditorScroll = null;
+	}
+	static get defaultOptions() {
+		return foundry.utils.mergeObject(super.defaultOptions, {
+			id: "holosuite-vending-editor",
+			classes: ["holosuite-vending-window", "holosuite-vending-editor-app"],
+			template: o.editor,
+			width: 940,
+			height: 760,
+			resizable: !0,
+			title: "Edit Vending Machine"
+		});
+	}
+	get title() {
+		return this.draft?.name ?? "Edit Vending Machine";
+	}
+	async close(e = {}) {
+		return this.isDirty && e.force !== !0 && !await Dialog.confirm({
+			title: game.i18n.localize("HOLOSUITEVENDING.Editor.UnsavedTitle"),
+			content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.UnsavedConfirm")}</p>`
+		}) ? this : super.close(e);
+	}
+	async getData() {
+		let e = this.draft;
+		return {
+			machine: e,
+			entries: e.inventory.map((t, n) => ({
+				...t,
+				slotCode: `${String.fromCharCode(65 + Math.floor(n / 3))}${String(n % 3 + 1).padStart(2, "0")}`,
+				isFirst: n === 0,
+				isLast: n === e.inventory.length - 1
+			})),
+			inventoryCount: e?.inventory.length ?? 0,
+			inventoryFull: (e?.inventory.length ?? 0) >= 6,
+			archivedProductCount: e?.overflowInventory?.length ?? 0,
+			hasArchivedProducts: (e?.overflowInventory?.length ?? 0) > 0,
+			maxProducts: 6,
+			isDirty: this.isDirty,
+			styleOptions: r.map((t) => ({
+				...t,
+				selected: e?.styleId === t.id
+			})),
+			machineOffline: e?.status === "offline",
+			regionOptions: q(e?.regionIds ?? []),
+			hasSceneRegions: q().length > 0,
+			sceneName: canvas?.scene?.name ?? "Current Scene",
+			currencyName: T.getCurrencyName()
+		};
+	}
+	markDirty(e) {
+		this.isDirty = !0, e?.find?.("[data-save-state]")?.text?.(game.i18n.localize("HOLOSUITEVENDING.Editor.DraftChanges"));
+	}
+	renderAtEntry(e) {
+		this.pendingScrollEntryId = e, this.render(!1);
+	}
+	renderPreservingScroll(e) {
+		let t = e?.closest?.("form"), n = t?.closest?.(".window-content") ?? e?.closest?.(".window-content");
+		this.pendingEditorScroll = {
+			form: Number(t?.scrollTop) || 0,
+			windowContent: Number(n?.scrollTop) || 0
+		}, this.render(!1);
+	}
+	restorePendingEditorScroll(e) {
+		let t = this.pendingEditorScroll;
+		if (!t) return;
+		let n = e?.[0] ?? e;
+		n?.querySelector && (typeof globalThis.requestAnimationFrame == "function" ? globalThis.requestAnimationFrame.bind(globalThis) : (e) => globalThis.setTimeout(e, 0))(() => {
+			let e = n.matches?.("form") ? n : n.querySelector("form"), r = n.matches?.(".window-content") ? n : n.closest?.(".window-content") ?? e?.closest?.(".window-content");
+			e && (e.scrollTop = t.form), r && (r.scrollTop = t.windowContent), this.pendingEditorScroll = null;
+		});
+	}
+	restorePendingEntryScroll(e) {
+		let t = this.pendingScrollEntryId;
+		if (!t) return;
+		let n = e?.[0] ?? e;
+		n?.querySelectorAll && (typeof globalThis.requestAnimationFrame == "function" ? globalThis.requestAnimationFrame.bind(globalThis) : (e) => globalThis.setTimeout(e, 0))(() => {
+			let e = Array.from(n.querySelectorAll(".holosuite-vending-entry-editor")).find((e) => e.dataset?.entryId === t);
+			if (!e) return;
+			let r = e.closest("form"), i = n.matches?.(".window-content") ? n : n.closest?.(".window-content") ?? r?.closest?.(".window-content");
+			for (let e of /* @__PURE__ */ new Set([r, i])) !e || e.scrollHeight <= e.clientHeight || (e.scrollTop = e.scrollHeight);
+			e.scrollIntoView?.({
+				block: "end",
+				inline: "nearest",
+				behavior: "auto"
+			}), this.pendingScrollEntryId = null;
+		});
+	}
+	syncDraftFromForm(e) {
+		if (!e) return this.draft;
+		let t = Je(e), n = this.draft, r = new Set(q().map((e) => e.id)), i = new FormData(e).getAll("machine.regionIds").map((e) => String(e)).filter(Boolean), a = [...(n.regionIds ?? []).filter((e) => !r.has(e)), ...i];
+		return this.draft = {
+			...n,
+			name: t.machine?.name || n.name,
+			manufacturerName: t.machine?.manufacturerName || n.manufacturerName,
+			styleId: t.machine?.styleId || n.styleId,
+			description: t.machine?.description || "",
+			image: t.machine?.image || "",
+			status: t.machine?.status === "offline" ? "offline" : "online",
+			regionIds: a,
+			access: { requireProximity: !!e.querySelector("[name='machine.requireProximity']")?.checked },
+			inventory: n.inventory.map((e) => {
+				let n = t.entries?.[e.id] ?? {};
+				return T.createEntry({
+					...e,
+					displayName: n.displayName || e.displayName,
+					image: n.image || e.image,
+					itemUuid: n.itemUuid || e.itemUuid,
+					price: K(n.price, e.price),
+					stock: K(n.stock, e.stock),
+					maxStock: K(n.maxStock, e.maxStock),
+					description: n.description ?? e.description
+				});
+			})
+		}, this.draft.id = this.machineId, this.draft;
+	}
+	activateListeners(t) {
+		super.activateListeners(t), t.find("form").on("submit", async (e) => {
+			e.preventDefault(), e.stopPropagation();
+		}), t.find("input, textarea, select").on("input change", () => this.markDirty(t)), t.find("[name='machine.styleId']").on("change", (e) => {
+			let n = e.currentTarget.selectedOptions?.[0];
+			t.find("[data-style-preview]").attr("data-machine-style", e.currentTarget.value), t.find("[data-style-description]").text(n?.dataset?.description || "");
+		}), t.find("[name='machine.name']").on("input", (e) => t.find("[data-preview-name]").text(e.currentTarget.value || "Vending Machine")), t.find("[name='machine.manufacturerName']").on("input", (e) => t.find("[data-preview-manufacturer]").text(e.currentTarget.value || "HoloSuite")), t.find("[data-action='save-machine'], [data-action='save-and-test']").on("click", async (n) => {
+			n.preventDefault(), n.stopPropagation();
+			let r = n.currentTarget.closest("form");
+			if (r) try {
+				if (await this.save(r), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Editor.Saved")), t.find("[data-save-state]").text(game.i18n.localize("HOLOSUITEVENDING.Editor.AllChangesSaved")), n.currentTarget.dataset.action === "save-and-test") {
+					let e = canvas?.tokens?.controlled?.[0] ?? null, t = e?.actor ?? game.user?.character ?? null;
+					if (!t) {
+						ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
+						return;
+					}
+					new G(this.machineId, {
+						actor: t,
+						context: {
+							source: "gm-test",
+							sceneId: canvas?.scene?.id ?? "",
+							tokenId: e?.document?.id ?? e?.id ?? ""
+						}
+					}).render(!0);
+				}
+			} catch (t) {
+				console.error(`${e} | Failed to save vending machine`, t), ui.notifications.error("Could not save vending machine. Check the console for details.");
+			}
+		}), t.find("[data-action='cancel-edit']").on("click", () => this.close()), t.find("[data-action='browse-machine-image']").on("click", (e) => {
+			e.preventDefault();
+			let t = e.currentTarget.dataset.target || "machine.image", n = e.currentTarget.closest(".holosuite-vending-path-row")?.querySelector(`[name='${t}']`);
+			if (!n || typeof FilePicker > "u") {
+				ui.notifications.warn("Foundry FilePicker is not available.");
+				return;
+			}
+			new FilePicker({
+				type: "image",
+				current: n.value,
+				callback: (e) => {
+					n.value = e, n.dispatchEvent(new Event("input", { bubbles: !0 }));
+				}
+			}).browse();
+		}), t.find("[data-action='add-entry']").on("click", (e) => {
+			if (this.syncDraftFromForm(e.currentTarget.closest("form")), this.draft.inventory.length >= 6) {
+				ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: 6 }));
+				return;
+			}
+			let t = T.createEntry();
+			this.draft.inventory.push(t), this.isDirty = !0, this.renderAtEntry(t.id);
+		}), t.find("[data-action='restore-archived']").on("click", (e) => {
+			if (this.syncDraftFromForm(e.currentTarget.closest("form")), this.draft.inventory.length >= 6 || !this.draft.overflowInventory?.length) return;
+			let t = this.draft.overflowInventory.shift();
+			this.draft.inventory.push(t), this.isDirty = !0, this.renderAtEntry(t.id);
+		}), t.find("[data-action='discard-archived']").on("click", async (e) => {
+			await Dialog.confirm({
+				title: game.i18n.localize("HOLOSUITEVENDING.Editor.DiscardArchivedTitle"),
+				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.DiscardArchivedConfirm")}</p>`
+			}) && (this.syncDraftFromForm(e.currentTarget.closest("form")), this.draft.overflowInventory = [], this.isDirty = !0, this.render(!1));
+		}), t.find("[data-action='remove-entry']").on("click", async (e) => {
+			await Dialog.confirm({
+				title: game.i18n.localize("HOLOSUITEVENDING.Editor.RemoveProductTitle"),
+				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Editor.RemoveProductConfirm")}</p>`
+			}) && (this.syncDraftFromForm(e.currentTarget.closest("form")), this.draft.inventory = this.draft.inventory.filter((t) => t.id !== e.currentTarget.dataset.entryId), this.isDirty = !0, this.render(!1));
+		}), t.find("[data-action='move-entry-up'], [data-action='move-entry-down']").on("click", (e) => {
+			this.syncDraftFromForm(e.currentTarget.closest("form"));
+			let t = this.draft.inventory.findIndex((t) => t.id === e.currentTarget.dataset.entryId), n = t + (e.currentTarget.dataset.action === "move-entry-up" ? -1 : 1);
+			t < 0 || n < 0 || n >= this.draft.inventory.length || ([this.draft.inventory[t], this.draft.inventory[n]] = [this.draft.inventory[n], this.draft.inventory[t]], this.isDirty = !0, this.renderPreservingScroll(e.currentTarget));
+		}), t.find(".holosuite-vending-entry-editor").on("dragstart", (e) => {
+			let t = e.originalEvent;
+			if (!t.target?.closest?.(".hsv-drag-handle")) {
+				e.preventDefault();
+				return;
+			}
+			t.dataTransfer.effectAllowed = "move", t.dataTransfer.setData("application/x-holosuite-vending-entry", e.currentTarget.dataset.entryId);
+		}), t.find(".holosuite-vending-entry-editor").on("dragover", (e) => {
+			Array.from(e.originalEvent.dataTransfer?.types ?? []).includes("application/x-holosuite-vending-entry") && e.preventDefault();
+		}), t.find(".holosuite-vending-entry-editor").on("drop", (e) => {
+			let t = e.originalEvent.dataTransfer?.getData("application/x-holosuite-vending-entry");
+			if (!t) return;
+			e.preventDefault(), e.stopPropagation(), this.syncDraftFromForm(e.currentTarget.closest("form"));
+			let n = this.draft.inventory.findIndex((e) => e.id === t), r = this.draft.inventory.findIndex((t) => t.id === e.currentTarget.dataset.entryId);
+			if (n < 0 || r < 0 || n === r) return;
+			let [i] = this.draft.inventory.splice(n, 1);
+			this.draft.inventory.splice(r, 0, i), this.isDirty = !0, this.renderPreservingScroll(e.currentTarget);
+		}), t.find(".holosuite-vending-drop-zone").on("dragover", (e) => e.preventDefault()), t.find(".holosuite-vending-drop-zone").on("drop", async (t) => {
+			t.preventDefault();
+			try {
+				if (t.originalEvent.dataTransfer?.getData("application/x-holosuite-vending-entry")) return;
+				if (this.syncDraftFromForm(t.currentTarget.closest("form")), this.draft.inventory.length >= 6) {
+					ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: 6 }));
+					return;
+				}
+				let e = await Ze(t.originalEvent);
+				if (!e) return;
+				this.draft.inventory.push(e), this.isDirty = !0, this.renderAtEntry(e.id);
+			} catch (t) {
+				console.warn(`${e} | Item drop failed`, t), ui.notifications.warn("Could not add that item to the vending machine.");
+			}
+		}), this.restorePendingEditorScroll(t), this.restorePendingEntryScroll(t);
+	}
+	async save(e) {
+		this.syncDraftFromForm(e), this.draft = foundry.utils.deepClone(await T.upsertMachine(this.draft)), this.isDirty = !1;
+	}
+}, Y = "executeScript", $e = /* @__PURE__ */ new Set(["holosuiteVending", `${e}.openMachine`]);
+function et() {
+	return Array.from(canvas?.scene?.regions?.contents ?? canvas?.scene?.regions ?? []);
+}
+function tt(e, t) {
+	return Array.from(e?.behaviors ?? []).find((e) => e?.type === Y && String(e?.flags?.["holosuite-vending-machines"]?.machineId ?? "") === t) ?? null;
+}
+function nt(e) {
+	return Array.from(e?.behaviors ?? []).filter((e) => e?.flags?.["holosuite-vending-machines"]?.machineId || $e.has(e?.type));
+}
+function rt(e) {
+	return T.getMachines().filter((t) => t.regionIds.includes(e)).map((e) => e.id);
+}
+function it(e) {
+	return `HoloSuite Vending Machines: ${e.name}`;
+}
+function X(e) {
+	return [
+		"const userId = event.user?.id;",
+		"if (!userId) return;",
+		`game.socket.emit("${t}", {`,
+		"  action: \"openVendingFromRegion\",",
+		`  machineId: ${JSON.stringify(e)},`,
+		"  userId,",
+		"  sceneId: scene?.id,",
+		"  regionId: region?.id,",
+		"  behaviorId: behavior?.id,",
+		"  tokenId: event.data?.token?.id",
+		"});",
+		"if (game.user?.id === userId && !game.user?.isGM) {",
+		`  await game.holosuiteVending?.promptMachineAccess?.(${JSON.stringify(e)}, {`,
+		"    actor: event.data?.token?.actor,",
+		"    context: { source: \"region-behavior\", sceneId: scene?.id, regionId: region?.id, behaviorId: behavior?.id, tokenId: event.data?.token?.id }",
+		"  });",
+		"}"
+	].join("\n");
+}
+function at(e) {
+	let t = game.scenes?.get?.(e.sceneId) ?? canvas?.scene;
+	return (t?.tokens?.get?.(e.tokenId) ?? Array.from(t?.tokens?.contents ?? t?.tokens ?? []).find((t) => t?.id === e.tokenId))?.actor ?? null;
+}
+function ot() {
+	game.socket?.on?.(t, async (e) => {
+		e?.action === "openVendingFromRegion" && (e.userId !== game.user?.id || game.user?.isGM || await game.holosuiteVending?.promptMachineAccess?.(String(e.machineId || ""), {
+			actor: at(e),
+			context: {
+				source: "region-socket",
+				sceneId: e.sceneId,
+				regionId: e.regionId,
+				behaviorId: e.behaviorId,
+				tokenId: e.tokenId
+			}
+		}));
+	});
+}
+async function Z() {
+	if (!game.user?.isGM || !canvas?.scene || !CONFIG.RegionBehavior?.dataModels?.[Y]) return;
+	let t = T.getMachines();
+	for (let n of et()) {
+		let r = String(n.id ?? ""), i = new Set(rt(r)), a = nt(n).filter((e) => !i.has(String(e.flags?.["holosuite-vending-machines"]?.machineId ?? ""))).map((e) => e.id);
+		a.length && await n.deleteEmbeddedDocuments("RegionBehavior", a);
+		let o = [], s = [];
+		for (let r of i) {
+			let i = t.find((e) => e.id === r);
+			if (!i) continue;
+			let a = tt(n, r), c = {
+				name: it(i),
+				disabled: !1,
+				"system.events": ["tokenEnter"],
+				"system.source": X(r),
+				[`flags.${e}.machineId`]: r
+			};
+			a ? s.push({
+				_id: a.id,
+				...c
+			}) : o.push({
+				name: it(i),
+				type: Y,
+				disabled: !1,
+				system: {
+					events: ["tokenEnter"],
+					source: X(r)
+				},
+				flags: { [e]: { machineId: r } }
+			});
+		}
+		s.length && await n.updateEmbeddedDocuments("RegionBehavior", s), o.length && await n.createEmbeddedDocuments("RegionBehavior", o);
+	}
+}
+function st() {
+	ot(), window.setTimeout(() => Z(), 250), Hooks.on("canvasReady", () => Z()), Hooks.on(`${e}.machinesChanged`, () => Z()), Hooks.on("createRegion", () => Z()), Hooks.on("deleteRegion", () => Z());
+}
+//#endregion
+//#region src/api.ts
+function ct(e) {
+	if (foundry?.utils?.escapeHTML) return foundry.utils.escapeHTML(String(e ?? ""));
+	let t = document.createElement("div");
+	return t.textContent = String(e ?? ""), t.innerHTML;
+}
+async function lt(e, t = {}) {
+	let n = T.getMachine(e);
+	return n ? await Dialog.wait({
+		title: game.i18n.localize("HOLOSUITEVENDING.Region.PromptTitle"),
+		content: `
       <form class="holosuite-vending-region-prompt">
         <p class="holosuite-vending-kicker">${game.i18n.localize("HOLOSUITEVENDING.Region.Kicker")}</p>
         <h3>${game.i18n.localize("HOLOSUITEVENDING.Region.PromptQuestion")}</h3>
-        <strong>${Vt(e.name)}</strong>
+        <strong>${ct(n.name)}</strong>
       </form>
     `,
-    buttons: {
-      yes: { icon: '<i class="fa-solid fa-store"></i>', label: game.i18n.localize("HOLOSUITEVENDING.Common.Yes"), callback: () => !0 },
-      no: { icon: '<i class="fa-solid fa-xmark"></i>', label: game.i18n.localize("HOLOSUITEVENDING.Common.No"), callback: () => !1 }
-    },
-    default: "yes",
-    close: () => !1
-  }, { width: 430, classes: ["holosuite-vending-window", "holosuite-vending-region-dialog"] }) ? game.holosuiteVending.openMachine(i, n.actor ?? null, n.context ?? {}) : null : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null);
+		buttons: {
+			yes: {
+				icon: "<i class=\"fa-solid fa-store\"></i>",
+				label: game.i18n.localize("HOLOSUITEVENDING.Common.Yes"),
+				callback: () => !0
+			},
+			no: {
+				icon: "<i class=\"fa-solid fa-xmark\"></i>",
+				label: game.i18n.localize("HOLOSUITEVENDING.Common.No"),
+				callback: () => !1
+			}
+		},
+		default: "yes",
+		close: () => !1
+	}, {
+		width: 430,
+		classes: ["holosuite-vending-window", "holosuite-vending-region-dialog"]
+	}) ? game.holosuiteVending.openMachine(e, t.actor ?? null, t.context ?? {}) : null : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null);
 }
-function Ft() {
-  const i = {
-    promptMachineAccess: zt,
-    openManager() {
-      if (!game.user.isGM)
-        return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.GMOnly")), null;
-      const e = new Le();
-      return e.render(!0), e;
-    },
-    openSceneMachines() {
-      const e = new tt();
-      return e.render(!0), e;
-    },
-    openMachine(e, t = null, r = {}) {
-      if (!g.getMachine(e))
-        return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null;
-      const a = new R(e, { actor: t, context: r });
-      return a.render(!0), a;
-    },
-    async attachMachineToTile(e, t) {
-      if (!game.user.isGM)
-        return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.GMOnly")), !1;
-      const r = xt(e);
-      if (!(r != null && r.setFlag)) return !1;
-      if (t) {
-        await r.setFlag(u, W, t);
-        const s = g.getMachineDisplayImage(t);
-        s && r.update && await r.update({ "texture.src": s });
-      } else
-        await r.unsetFlag(u, W);
-      return !0;
-    },
-    getMachines() {
-      return foundry.utils.deepClone(g.getMachines());
-    },
-    getLedger() {
-      return foundry.utils.deepClone(g.getLedger());
-    },
-    restockMachine(e) {
-      return game.user.isGM ? g.restockMachine(e) : !1;
-    },
-    exportMachines() {
-      return foundry.utils.deepClone(g.exportData());
-    },
-    async syncRegionLinks() {
-      return game.user.isGM ? (await P(), !0) : !1;
-    }
-  };
-  game.holosuiteVending = i;
-  const n = game.modules.get(u);
-  n && (n.api = i);
+function ut() {
+	let t = {
+		promptMachineAccess: lt,
+		openManager() {
+			if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.GMOnly")), null;
+			let e = new Qe();
+			return e.render(!0), e;
+		},
+		openSceneMachines() {
+			let e = new ve();
+			return e.render(!0), e;
+		},
+		openMachine(e, t = null, n = {}) {
+			if (!T.getMachine(e)) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null;
+			let r = H.checkAccess({
+				machineId: e,
+				actor: t,
+				context: n
+			});
+			if (!r.allowed && !game.user.isGM) return ui.notifications.warn(r.reason), null;
+			let i = new G(e, {
+				actor: t,
+				context: n
+			});
+			return i.render(!0), i;
+		},
+		getMachines() {
+			return foundry.utils.deepClone(T.getMachines());
+		},
+		getLedger() {
+			return foundry.utils.deepClone(T.getLedger());
+		},
+		restockMachine(e) {
+			return game.user.isGM ? T.restockMachine(e) : !1;
+		},
+		exportMachines() {
+			return foundry.utils.deepClone(T.exportData());
+		},
+		async syncRegionLinks() {
+			return game.user.isGM ? (await Z(), !0) : !1;
+		}
+	};
+	game.holosuiteVending = t;
+	let n = game.modules.get(e);
+	n && (n.api = t);
 }
-let Oe = !1;
-function $t() {
-  const i = game.modules.get("holosuite-core");
-  return (i != null && i.active ? i.api : null) ?? game.holosuite ?? globalThis.HoloSuiteCoreApi ?? null;
+//#endregion
+//#region src/main.ts
+var Q = !1;
+function dt() {
+	let e = game.modules.get("holosuite-core");
+	return (e?.active ? e.api : null) ?? game.holosuite ?? globalThis.HoloSuiteCoreApi ?? null;
 }
-function ne() {
-  if (Oe) return !0;
-  const i = $t();
-  if (!(i != null && i.registerApp)) return !1;
-  const n = {
-    id: u,
-    title: "Vending Machines",
-    icon: "fa-solid fa-store",
-    premium: !1,
-    playerVisible: !0,
-    description: "Create, stock, and link HoloSuite vending machines to Regions.",
-    open: () => {
-      var e, t, r, s, a;
-      return (e = game.user) != null && e.isGM ? (r = (t = game.holosuiteVending) == null ? void 0 : t.openManager) == null ? void 0 : r.call(t) : (a = (s = game.holosuiteVending) == null ? void 0 : s.openSceneMachines) == null ? void 0 : a.call(s);
-    }
-  };
-  return i.registerApp(n), Oe = !0, !0;
+function $() {
+	if (Q) return !0;
+	let t = dt();
+	if (!t?.registerApp) return !1;
+	let n = {
+		id: e,
+		title: "Vending Machines",
+		icon: "fa-solid fa-store",
+		premium: !1,
+		playerVisible: !0,
+		description: "Create, stock, and link HoloSuite vending machines to Regions.",
+		open: () => game.user?.isGM ? game.holosuiteVending?.openManager?.() : game.holosuiteVending?.openSceneMachines?.()
+	};
+	return t.registerApp(n), Q = !0, !0;
 }
-function qt() {
-  if (ne()) return;
-  let i = 0;
-  const n = () => {
-    i += 1, !(ne() || i >= 20) && window.setTimeout(n, 250);
-  };
-  Hooks.once("holosuite-core.apiReady", () => ne()), window.setTimeout(n, 250);
+function ft() {
+	if ($()) return;
+	let e = 0, t = () => {
+		e += 1, !($() || e >= 20) && window.setTimeout(t, 250);
+	};
+	Hooks.once("holosuite-core.apiReady", () => $()), window.setTimeout(t, 250);
 }
 Hooks.once("init", () => {
-  g.registerSettings(), game.settings.registerMenu(u, "machineManager", {
-    name: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Name"),
-    label: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Label"),
-    hint: "Create, configure, and link HoloSuite vending machines to scene Regions.",
-    icon: "fas fa-store",
-    type: Le,
-    restricted: !0
-  });
+	T.registerSettings(), game.settings.registerMenu(e, "machineManager", {
+		name: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Name"),
+		label: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Label"),
+		hint: "Create, configure, and link HoloSuite vending machines to scene Regions.",
+		icon: "fas fa-store",
+		type: Qe,
+		restricted: !0
+	});
+}), Hooks.once("ready", () => {
+	ut(), ft(), H.registerSocket(), H.resumePendingDispenses(), st(), Hooks.on(`${e}.machinesChanged`, () => G.refreshAll()), Hooks.on(`${e}.currencyChanged`, () => G.refreshAll()), Hooks.on(`${e}.purchaseResult`, (e) => G.handlePurchaseResult(e)), Hooks.on(`${e}.collectionResult`, (e) => G.handleCollectionResult(e)), Hooks.on("updateUser", () => H.resumePendingDispenses()), console.log(`${e} | Ready`);
 });
-Hooks.once("ready", () => {
-  Ft(), qt(), b.registerSocket(), b.resumePendingDispenses(), Gt(), Hooks.on(`${u}.machinesChanged`, () => R.refreshAll()), Hooks.on(`${u}.currencyChanged`, () => R.refreshAll()), Hooks.on(`${u}.purchaseResult`, (i) => R.handlePurchaseResult(i)), Hooks.on(`${u}.collectionResult`, (i) => R.handleCollectionResult(i)), Hooks.on("updateUser", () => b.resumePendingDispenses()), console.log(`${u} | Ready`);
-});
+//#endregion

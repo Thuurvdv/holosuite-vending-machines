@@ -1,21 +1,30 @@
 export const MODULE_ID = "holosuite-vending-machines";
 export const MODULE_TITLE = "HoloSuite Vending Machines";
-export const MACHINE_FLAG = "machineId";
 export const SOCKET_NAME = `module.${MODULE_ID}`;
 
 export const DEFAULT_MANUFACTURER_NAME = "HoloSuite";
 export const DEFAULT_MACHINE_STYLE = "industrial";
-export const MAX_MACHINE_PRODUCTS = 9;
+export const MAX_MACHINE_PRODUCTS = 6;
 export const MACHINE_STYLES = [
   {
     id: "industrial",
-    label: "Industrial Chassis",
-    description: "Armored panels, recessed product bays, and a heavy retrieval assembly."
+    label: "Alien Market",
+    description: "A colorful off-world market terminal with armored bays and custom vendor hardware."
   },
   {
     id: "corporate-kiosk",
+    label: "Executive Terminal",
+    description: "A dark blue executive terminal with rounded cards and restrained cyan accents."
+  },
+  {
+    id: "corporate-kiosk-white",
     label: "Corporate Kiosk",
-    description: "A clean freestanding kiosk with rounded cards and a simplified service bay."
+    description: "A warm ivory corporate kiosk with restrained retro-future detailing."
+  },
+  {
+    id: "neon",
+    label: "Neon",
+    description: "A black-violet market terminal charged with hot-pink neon and electric cyan details."
   }
 ] as const;
 

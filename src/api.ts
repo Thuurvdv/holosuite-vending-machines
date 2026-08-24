@@ -1,13 +1,10 @@
-import { MODULE_ID, MACHINE_FLAG } from "./constants.js";
+import { MODULE_ID } from "./constants.js";
 import { MachineStore } from "./machine-store.js";
 import { MachineBrowserApp } from "./machine-browser-app.js";
 import { MachineManagerApp } from "./machine-manager-app.js";
 import { VendingApp } from "./vending-app.js";
 import { syncRegionVendingBehaviors } from "./region/vending-region-handler.js";
-
-function resolveTileDocument(tile) {
-  return tile?.document ?? tile;
-}
+import { PurchaseService } from "./purchase-service.js";
 
 function escapeHtml(value: unknown): string {
   if (foundry?.utils?.escapeHTML) return foundry.utils.escapeHTML(String(value ?? ""));
@@ -70,27 +67,15 @@ export function registerApi() {
         return null;
       }
 
+      const access = PurchaseService.checkAccess({ machineId, actor, context });
+      if (!access.allowed && !game.user.isGM) {
+        ui.notifications.warn(access.reason);
+        return null;
+      }
+
       const app = new VendingApp(machineId, { actor, context });
       app.render(true);
       return app;
-    },
-
-    async attachMachineToTile(tile, machineId) {
-      if (!game.user.isGM) {
-        ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.GMOnly"));
-        return false;
-      }
-
-      const document = resolveTileDocument(tile);
-      if (!document?.setFlag) return false;
-      if (machineId) {
-        await document.setFlag(MODULE_ID, MACHINE_FLAG, machineId);
-        const image = MachineStore.getMachineDisplayImage(machineId);
-        if (image && document.update) await document.update({ "texture.src": image });
-      } else {
-        await document.unsetFlag(MODULE_ID, MACHINE_FLAG);
-      }
-      return true;
     },
 
     getMachines() {

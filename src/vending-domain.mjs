@@ -18,7 +18,7 @@ export function chooseInitialEntryId(entries = [], balance = 0) {
     ?? null;
 }
 
-export function partitionInventory(entries = [], maximum = 9, archivedEntries = []) {
+export function partitionInventory(entries = [], maximum = 6, archivedEntries = []) {
   const inventory = Array.isArray(entries) ? entries : [];
   const overflow = Array.isArray(archivedEntries) ? archivedEntries : [];
   const limit = Math.max(0, Math.floor(Number(maximum) || 0));
@@ -74,26 +74,5 @@ export function getMachineState(machine) {
 }
 
 export function getMachineDisplayImage(machine) {
-  const state = getMachineState(machine);
-  if (state === MACHINE_STATES.OFFLINE && machine?.offlineImage) return machine.offlineImage;
-  if (state === MACHINE_STATES.SOLD_OUT && machine?.soldOutImage) return machine.soldOutImage;
   return machine?.image || "icons/environment/settlement/stall.webp";
-}
-
-export function distanceInGridSpaces(token, tile, gridSize = 100) {
-  const size = Math.max(1, Number(gridSize) || 100);
-  const tokenCenter = {
-    x: Number(token?.x ?? 0) + Number(token?.width ?? 1) * size / 2,
-    y: Number(token?.y ?? 0) + Number(token?.height ?? 1) * size / 2
-  };
-  const tileCenter = {
-    x: Number(tile?.x ?? 0) + Number(tile?.width ?? size) / 2,
-    y: Number(tile?.y ?? 0) + Number(tile?.height ?? size) / 2
-  };
-  return Math.hypot(tokenCenter.x - tileCenter.x, tokenCenter.y - tileCenter.y) / size;
-}
-
-export function isWithinProximity(token, tile, gridSize, maximumDistance) {
-  if (!token || !tile) return false;
-  return distanceInGridSpaces(token, tile, gridSize) <= Math.max(0, Number(maximumDistance) || 0);
 }

@@ -13,13 +13,16 @@
     </div>
   </header>
 
-  <label class="holosuite-vending-credit-transformer">
-    <input type="checkbox" name="creditTransformer" {{#if creditTransformer}}checked{{/if}} />
-    <span>
-      <strong>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Name"}}</strong>
-      <small>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Hint"}}</small>
-    </span>
-  </label>
+  <div class="holosuite-vending-credit-transformer-row">
+    <label class="holosuite-vending-credit-transformer">
+      <input type="checkbox" name="creditTransformer" {{#if creditTransformer}}checked{{/if}} />
+      <span>
+        <strong>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Name"}}</strong>
+        <small>{{localize "HOLOSUITEVENDING.Settings.CreditTransformer.Hint"}}</small>
+      </span>
+    </label>
+    <i class="fas fa-circle-info hsv-field-info" tabindex="0" title="{{localize 'HOLOSUITEVENDING.Settings.CreditTransformer.ExperimentalHint'}}" aria-label="{{localize 'HOLOSUITEVENDING.Settings.CreditTransformer.ExperimentalHint'}}"></i>
+  </div>
 
   <div class="holosuite-vending-machine-list">
     {{#each machines}}

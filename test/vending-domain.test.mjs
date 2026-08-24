@@ -4,11 +4,9 @@ import test from "node:test";
 import {
   calculateCart,
   chooseInitialEntryId,
-  distanceInGridSpaces,
   formatCurrencyAmount,
   getMachineDisplayImage,
   getMachineState,
-  isWithinProximity,
   normalizePurchaseLines,
   partitionInventory
 } from "../src/vending-domain.mjs";
@@ -53,7 +51,7 @@ test("calculates multi-line cart totals and rejects unavailable stock", () => {
   assert.throws(() => calculateCart(machine, [{ entryId: "chips", quantity: 3 }]), /enough stock/);
 });
 
-test("derives visual machine states and state images", () => {
+test("derives visual machine states while keeping one machine image", () => {
   const machine = {
     status: "online",
     image: "online.webp",
@@ -62,26 +60,18 @@ test("derives visual machine states and state images", () => {
     inventory: [{ stock: 0 }]
   };
   assert.equal(getMachineState(machine), "sold-out");
-  assert.equal(getMachineDisplayImage(machine), "empty.webp");
+  assert.equal(getMachineDisplayImage(machine), "online.webp");
   machine.status = "offline";
   assert.equal(getMachineState(machine), "offline");
-  assert.equal(getMachineDisplayImage(machine), "offline.webp");
+  assert.equal(getMachineDisplayImage(machine), "online.webp");
 });
 
-test("measures token-to-machine proximity in grid spaces", () => {
-  const token = { x: 0, y: 0, width: 1, height: 1 };
-  const tile = { x: 200, y: 0, width: 100, height: 100 };
-  assert.equal(distanceInGridSpaces(token, tile, 100), 2);
-  assert.equal(isWithinProximity(token, tile, 100, 2), true);
-  assert.equal(isWithinProximity(token, tile, 100, 1), false);
-});
-
-test("keeps nine active products and preserves excess products in the archive", () => {
+test("keeps six active products and preserves excess products in the archive", () => {
   const products = Array.from({ length: 11 }, (_, index) => ({ id: `product-${index + 1}` }));
   const archived = [{ id: "previously-archived" }];
-  const result = partitionInventory(products, 9, archived);
+  const result = partitionInventory(products, 6, archived);
 
-  assert.deepEqual(result.active.map((entry) => entry.id), products.slice(0, 9).map((entry) => entry.id));
-  assert.deepEqual(result.overflow.map((entry) => entry.id), ["product-10", "product-11", "previously-archived"]);
+  assert.deepEqual(result.active.map((entry) => entry.id), products.slice(0, 6).map((entry) => entry.id));
+  assert.deepEqual(result.overflow.map((entry) => entry.id), ["product-7", "product-8", "product-9", "product-10", "product-11", "previously-archived"]);
   assert.equal(products.length, 11, "partitioning must not mutate the editor draft");
 });

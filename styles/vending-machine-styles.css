@@ -6,12 +6,2811 @@
  * treatment without coupling those choices to HoloSuite color themes.
  */
 
-/* Corporate Kiosk ------------------------------------------------------- */
+.hsv-machine-service-rail,
+.hsv-chamber-marquee,
+.hsv-tray-guide,
+.hsv-thanks-plate,
+.hsv-slot-mini-meter,
+.hsv-brand-block em {
+  display: none;
+}
+
+.hsv-terminal-section-heading {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.hsv-quantity-control > .hsv-terminal-subheader {
+  grid-column: 1 / -1;
+}
+
+.hsv-queue-line {
+  grid-template-columns: 28px minmax(0, 1fr) auto 25px;
+}
+
+.hsv-queue-line > img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+/* Playful retail appliance ------------------------------------------------
+ * The default industrial machine keeps the established layout and behavior,
+ * while exposing a semantic palette that future manufacturer skins can swap.
+ */
+
+.hsv-machine[data-machine-style="industrial"] {
+  --vendor-chassis: #101820;
+  --vendor-panel: #16232b;
+  --vendor-recess: #02070b;
+  --vendor-cyan: var(--hs-color-primary, #69e8ff);
+  --vendor-green: var(--hs-color-success, #62ffb6);
+  --vendor-amber: var(--hs-color-warning, #ffc85a);
+  --vendor-magenta: #ff4f93;
+  --vendor-red: var(--hs-color-danger, #ff4d7d);
+  --vendor-muted: #8296a0;
+  --vendor-primary: var(--vendor-cyan);
+  --vendor-secondary: var(--vendor-magenta);
+  --vendor-warning: var(--vendor-amber);
+  --vendor-frame-color: #445965;
+  --vendor-panel-color: var(--vendor-panel);
+  --vendor-highlight: var(--vendor-cyan);
+  --vendor-space-1: 4px;
+  --vendor-space-2: 8px;
+  --vendor-space-3: 12px;
+  --vendor-space-4: 16px;
+  --vendor-space-5: 24px;
+  --vendor-control-height: 36px;
+  --vendor-control-row-height: 52px;
+  --vendor-control-height-lg: 44px;
+  --vendor-panel-safe-x: 24px;
+  --vendor-panel-safe-y: 16px;
+}
+
+.hsv-machine[data-machine-style="industrial"]::after {
+  opacity: 0.1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis {
+  border-color: var(--vendor-frame-color);
+  background-color: #090e12;
+  background-image:
+    var(--hsv-asset-shell),
+    radial-gradient(circle at 16% 3%, rgba(255, 200, 90, 0.08), transparent 21%),
+    linear-gradient(145deg, #18242b 0%, #080d11 22%, #0c1318 72%, #1c2930 100%);
+  box-shadow:
+    0 24px 52px rgba(0, 0, 0, 0.72),
+    inset 0 0 0 3px #05080a,
+    inset 0 0 0 6px #263740,
+    inset 0 0 72px rgba(0, 0, 0, 0.76);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail {
+  position: absolute;
+  z-index: 3;
+  display: block;
+  width: 24px;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.88;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left {
+  top: 28%;
+  bottom: 23%;
+  left: 0;
+  background-image: var(--hsv-asset-vent);
+  background-size: 62px 92px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right {
+  top: 43%;
+  right: 0;
+  height: 174px;
+  background-image: var(--hsv-asset-service-panel);
+  background-size: 70px 104px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module {
+  border-color: #526773;
+  background-color: var(--vendor-panel);
+  background-image:
+    var(--hsv-asset-header),
+    linear-gradient(100deg, rgba(255, 200, 90, 0.06), transparent 25%),
+    linear-gradient(180deg, #15242c, #060c10);
+  box-shadow: inset 0 -16px 30px rgba(0, 0, 0, 0.5), 0 5px 0 #05080a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module::after {
+  right: auto;
+  bottom: 9px;
+  left: 35%;
+  width: 96px;
+  height: 4px;
+  background: var(--vendor-magenta);
+  box-shadow: none;
+  clip-path: polygon(0 0, 100% 0, 92% 100%, 8% 100%);
+  opacity: 0.76;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block,
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block {
+  border-right-color: rgba(255, 200, 90, 0.34);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-mark {
+  border: 2px solid #445963;
+  background:
+    radial-gradient(circle at 50% 60%, rgba(105, 232, 255, 0.17), transparent 64%),
+    #071016;
+  box-shadow: inset 0 0 0 4px #020507, 4px 5px 0 rgba(0, 0, 0, 0.32);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block strong {
+  color: #f4f8fa;
+  font-weight: 850;
+  letter-spacing: 0.035em;
+  transform: skewX(-2deg);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block b {
+  color: var(--vendor-amber);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-decal {
+  display: block;
+  margin-top: 5px;
+  color: var(--vendor-muted);
+  font-family: var(--hs-font-mono);
+  font-size: 7px;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block h2 {
+  color: #fff4df;
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  text-shadow: 2px 2px 0 #11191e;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip {
+  padding: 5px 7px;
+  border-left: 3px solid var(--vendor-cyan);
+  background: rgba(1, 6, 10, 0.46);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div,
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div:nth-child(3) {
+  border-left-color: #526a76;
+  background: linear-gradient(90deg, rgba(102, 127, 139, 0.11), transparent);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry .hsv-telemetry-primary {
+  border-left-color: var(--vendor-green);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-state-readout i {
+  animation: hsv-retail-led-breathe 2.5s ease-in-out infinite;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-deck {
+  grid-template-columns: minmax(0, 1.36fr) minmax(390px, 1fr);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-chamber,
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  border-color: #3c505b;
+  background-color: var(--vendor-panel);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-chamber {
+  position: relative;
+  padding-top: 37px;
+  background-image:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.025), transparent 12%, transparent 88%, rgba(255, 255, 255, 0.02)),
+    linear-gradient(180deg, #122129, #040a0e);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee {
+  position: absolute;
+  z-index: 3;
+  top: 8px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  height: 23px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 9px;
+  border-left: 4px solid var(--vendor-magenta);
+  background: #080f13;
+  color: #d7e1e5;
+  font-family: var(--hs-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee small {
+  color: var(--vendor-amber);
+  font-size: 8px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-grid {
+  height: 100%;
+  gap: 8px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot {
+  grid-template-rows: 34px minmax(0, 1fr) 62px;
+  border-color: #1b282f;
+  background-color: #080d10;
+  background-image:
+    var(--hsv-asset-slot),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.04), transparent 20%, transparent 78%, rgba(0, 0, 0, 0.58)),
+    linear-gradient(180deg, #162129, #05090c 23% 79%, #121c21);
+  box-shadow: inset 0 0 0 2px #020405, inset 0 0 0 4px #263740, 0 3px 4px rgba(0, 0, 0, 0.72);
+  transition: filter 130ms ease, transform 130ms ease, box-shadow 160ms ease;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] button.hsv-product-slot:hover {
+  filter: brightness(1.08);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] button.hsv-product-slot:focus-visible {
+  outline: 2px solid var(--vendor-cyan);
+  outline-offset: 3px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-selected {
+  box-shadow:
+    inset 0 0 0 2px #020405,
+    inset 0 0 0 4px var(--vendor-cyan),
+    0 0 14px rgba(105, 232, 255, 0.28);
+  animation: hsv-retail-selected-pulse 2.3s ease-in-out infinite;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code {
+  margin: 0 4px;
+  padding: 0 25px 0 11px;
+  justify-content: flex-start;
+  border: 1px solid #3e515b;
+  background: linear-gradient(180deg, #1e2a30, #0a1014);
+  color: #eaf1f4;
+  font-size: 13px;
+  text-shadow: none;
+  clip-path: polygon(6px 0, 100% 0, 100% 100%, 0 100%, 0 6px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code::before {
+  top: auto;
+  right: 34px;
+  bottom: 4px;
+  left: 11px;
+  width: 32px;
+  height: 3px;
+  background: var(--vendor-muted);
+  box-shadow: none;
+  transform: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code i {
+  top: 10px;
+  right: 9px;
+  width: 8px;
+  height: 8px;
+  background: var(--vendor-green);
+  color: var(--vendor-green);
+  box-shadow: 0 0 6px currentColor;
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-low-stock .hsv-slot-code i,
+.hsv-machine[data-machine-style="industrial"] .is-low-stock .hsv-slot-code::before {
+  background: var(--vendor-amber);
+  color: var(--vendor-amber);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-selected .hsv-slot-code i,
+.hsv-machine[data-machine-style="industrial"] .is-selected .hsv-slot-code::before {
+  background: var(--vendor-cyan);
+  color: var(--vendor-cyan);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-sold-out .hsv-slot-code i,
+.hsv-machine[data-machine-style="industrial"] .is-sold-out .hsv-slot-code::before {
+  background: var(--vendor-magenta);
+  color: var(--vendor-magenta);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-empty .hsv-slot-code i {
+  background: var(--vendor-muted);
+  box-shadow: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport {
+  margin: 0 7px;
+  border-color: rgba(85, 108, 120, 0.6);
+  background:
+    linear-gradient(90deg, rgba(91, 119, 132, 0.09), transparent 15%, transparent 85%, rgba(91, 119, 132, 0.08)),
+    radial-gradient(ellipse at 50% 84%, rgba(76, 116, 133, 0.26), transparent 51%),
+    linear-gradient(180deg, #071017, #010304 72%, #081117);
+  box-shadow: inset 14px 0 20px rgba(0, 0, 0, 0.76), inset -14px 0 20px rgba(0, 0, 0, 0.76), inset 0 16px 24px rgba(0, 0, 0, 0.88);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport::before {
+  position: absolute;
+  z-index: 0;
+  inset: 12% 13% 24px;
+  border-right: 1px solid rgba(112, 137, 148, 0.12);
+  border-left: 1px solid rgba(112, 137, 148, 0.12);
+  pointer-events: none;
+  content: "";
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport > img {
+  width: 68%;
+  height: 69%;
+  padding: 5px;
+  transform: translateY(-4px);
+  filter: drop-shadow(0 13px 7px rgba(0, 0, 0, 0.88)) drop-shadow(0 0 6px rgba(93, 132, 149, 0.28));
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-pedestal {
+  right: 13%;
+  bottom: 6px;
+  left: 13%;
+  height: 17px;
+  border-color: #354b56;
+  border-top-color: #718b97;
+  background: linear-gradient(180deg, #263740, #0c151a 45%, #020405);
+  box-shadow: 0 -4px 13px rgba(70, 106, 122, 0.26);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-selected .hsv-slot-pedestal {
+  border-top-color: var(--vendor-cyan);
+  box-shadow: 0 -4px 13px rgba(105, 232, 255, 0.26);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  gap: 3px 6px;
+  padding: 6px 8px 5px;
+  border-color: #43545d;
+  background: linear-gradient(180deg, #182229, #070b0e);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > strong {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+  color: #edf3f5;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-stock {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--vendor-green);
+  font-family: var(--hs-font-mono);
+  font-size: 8px;
+  letter-spacing: 0.05em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-stock i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-stock.is-low {
+  color: var(--vendor-amber);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > .hsv-slot-price {
+  grid-column: 2;
+  color: var(--vendor-amber);
+  text-align: right;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .is-unaffordable:not(.is-sold-out) .hsv-slot-price {
+  color: var(--vendor-magenta);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .is-unaffordable:not(.is-sold-out) .hsv-slot-price::before {
+  content: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-credit-lock {
+  position: absolute;
+  z-index: 5;
+  right: 6px;
+  bottom: 7px;
+  left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 4px;
+  border: 1px solid rgba(255, 79, 147, 0.55);
+  background: rgba(34, 5, 23, 0.88);
+  color: #ff91bd;
+  font-family: var(--hs-font-mono);
+  font-size: 7px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-sold-out {
+  background-image: var(--hsv-asset-slot), linear-gradient(180deg, #251016, #050506 70%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 11px, rgba(255, 79, 147, 0.13) 11px 20px),
+    rgba(38, 0, 15, 0.62);
+  color: #ff6ba7;
+  text-shadow: 0 0 5px rgba(255, 79, 147, 0.5);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay strong {
+  border-color: var(--vendor-magenta);
+  background: rgba(34, 0, 13, 0.88);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-empty {
+  background-image: var(--hsv-asset-slot), linear-gradient(180deg, #11191d, #030608 76%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-empty-1 { filter: saturate(0.72); }
+.hsv-machine[data-machine-style="industrial"] .is-empty-2 { filter: brightness(0.8) saturate(0.55); }
+.hsv-machine[data-machine-style="industrial"] .is-empty-3 .hsv-slot-code i { color: var(--vendor-amber); background: var(--vendor-amber); }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-empty-label {
+  bottom: 31px;
+  color: #8b9ba2;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  position: relative;
+  padding: 18px 30px 16px;
+  background-image: var(--hsv-asset-terminal), linear-gradient(180deg, #121e25, #04080b);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal::before {
+  position: absolute;
+  top: 140px;
+  right: 7px;
+  width: 16px;
+  height: 105px;
+  pointer-events: none;
+  background: var(--hsv-asset-vent) center / 42px 52px no-repeat;
+  content: "";
+  opacity: 0.7;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header {
+  min-height: 45px;
+  padding: 3px 5px 8px;
+  border-bottom: 3px solid #814a5f;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header strong {
+  margin-top: 2px;
+  color: #f6f0df;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header > i {
+  color: var(--vendor-magenta);
+  text-shadow: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console {
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 5px 12px;
+  padding-top: 6px;
+  border-bottom-color: rgba(113, 137, 148, 0.34);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-section-heading {
+  display: flex;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 18px;
+  color: var(--vendor-muted);
+  font-family: var(--hs-font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-section-heading i {
+  width: 42%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #526873);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image {
+  height: 190px;
+  min-height: 190px;
+  max-height: 190px;
+  border: 0;
+  background-color: var(--vendor-recess);
+  background-image:
+    linear-gradient(rgba(105, 232, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(105, 232, 255, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 78%, rgba(105, 232, 255, 0.16), transparent 52%);
+  background-size: 14px 14px, 14px 14px, auto;
+  box-shadow: inset 0 13px 24px rgba(0, 0, 0, 0.72);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-scanner-lines {
+  position: absolute;
+  z-index: 1;
+  inset: 12%;
+  pointer-events: none;
+  background: repeating-linear-gradient(90deg, transparent 0 16px, rgba(105, 232, 255, 0.035) 16px 17px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-hologram-ring {
+  border-color: var(--vendor-cyan);
+  box-shadow: 0 0 7px rgba(105, 232, 255, 0.55), inset 0 0 7px rgba(105, 232, 255, 0.42);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-subheader {
+  color: var(--vendor-muted);
+  font-family: var(--hs-font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information {
+  grid-template-rows: auto auto minmax(45px, auto) auto auto auto;
+  gap: 5px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information h3 {
+  border-bottom-color: rgba(255, 79, 147, 0.48);
+  color: #fff5e8;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-description {
+  max-height: 62px;
+  color: #d2dde2;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-stock-meter i.is-active {
+  border-color: var(--vendor-green);
+  background: var(--vendor-green);
+  box-shadow: 0 0 4px rgba(98, 255, 182, 0.42);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console:has(.hsv-selected-warning.is-low) .hsv-stock-meter i.is-active {
+  border-color: var(--vendor-amber);
+  background: var(--vendor-amber);
+  box-shadow: 0 0 4px rgba(255, 200, 90, 0.42);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-selected-warning {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 4px 6px;
+  border-left: 3px solid currentColor;
+  background: rgba(0, 0, 0, 0.28);
+  font-family: var(--hs-font-mono);
+  font-size: 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-selected-warning.is-low { color: var(--vendor-amber); }
+.hsv-machine[data-machine-style="industrial"] .hsv-selected-warning.is-credit { color: #ff8ab9; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control {
+  grid-template-columns: 54px 112px minmax(0, 1fr);
+  gap: 5px 7px;
+  border-bottom-color: rgba(113, 137, 148, 0.34);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control > .hsv-terminal-subheader {
+  grid-column: 1 / -1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-stepper button {
+  border-color: #546873;
+  background: linear-gradient(180deg, #25343c, #0b1216);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-stepper button:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.6);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control .hsv-add-queue {
+  border-color: #4b6673;
+  background: linear-gradient(180deg, #174555, #09202a);
+  color: #a8f3ff;
+  box-shadow: inset 0 0 0 2px rgba(105, 232, 255, 0.05), 0 3px 0 #030709;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control .hsv-add-queue:active {
+  transform: translateY(2px);
+  box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.54);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue {
+  padding: 8px 2px 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue > header {
+  padding-left: 7px;
+  border-left: 3px solid var(--vendor-cyan);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-lines {
+  border-color: #3c515c;
+  background: #03080b;
+  box-shadow: inset 0 8px 14px rgba(0, 0, 0, 0.48);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line {
+  border-left-color: var(--vendor-green);
+  background: #0c151a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-transaction-footer {
+  display: grid;
+  gap: 5px;
+  padding-top: 5px;
+  border-top: 1px solid rgba(113, 137, 148, 0.34);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total {
+  padding: 4px 4px 2px;
+  border-top: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total > span { color: var(--vendor-muted); }
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total > strong { color: var(--vendor-amber); }
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button {
+  position: relative;
+  min-height: 58px;
+  border: 2px solid #ffe29a;
+  background:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.25), transparent 24%),
+    linear-gradient(180deg, #ffd768 0%, #eaa538 58%, #a65d1f 100%);
+  color: #241606;
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+  text-shadow: 0 1px rgba(255, 247, 211, 0.58);
+  box-shadow: inset 0 0 0 3px rgba(92, 48, 10, 0.2), 0 5px 0 #5d3515, 0 7px 12px rgba(0, 0, 0, 0.42);
+  clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:not(:disabled):hover,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:focus-visible {
+  border-color: #fff0b8;
+  background: linear-gradient(180deg, #ffe58a, #f4b443 58%, #bc6b25);
+  color: #190f04;
+  outline: 2px solid var(--vendor-cyan);
+  outline-offset: 3px;
+  box-shadow: inset 0 0 0 3px rgba(92, 48, 10, 0.16), 0 5px 0 #6a3b16, 0 0 16px rgba(255, 200, 90, 0.35);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow: inset 0 4px 8px rgba(91, 47, 6, 0.42), 0 1px 0 #5d3515;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+  border-color: #5a5142;
+  background: linear-gradient(180deg, #5c5547, #302c26);
+  color: #aaa08d;
+  text-shadow: none;
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.16), 0 3px 0 #171411;
+  opacity: 0.82;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+  border-color: #465b66;
+  background-color: var(--vendor-panel);
+  background-image: var(--hsv-asset-tray), linear-gradient(180deg, #17242b, #05090c 34%, #0b1216);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate {
+  background-color: #101619;
+  background-image: var(--hsv-asset-warning);
+  background-size: 100% 100%;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity {
+  position: relative;
+  border-color: #263942;
+  background:
+    linear-gradient(90deg, rgba(105, 232, 255, 0.07), transparent 12%, transparent 88%, rgba(105, 232, 255, 0.07)),
+    radial-gradient(ellipse at 50% 115%, rgba(105, 232, 255, 0.14), transparent 54%),
+    linear-gradient(180deg, #010203 0%, #03070a 58%, #0e1b22 100%);
+  box-shadow: inset 0 17px 30px rgba(0, 0, 0, 0.95), inset 15px 0 20px rgba(0, 0, 0, 0.58), inset -15px 0 20px rgba(0, 0, 0, 0.58), inset 0 -6px 0 #152830, 0 0 0 2px #020405;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity::after {
+  position: absolute;
+  z-index: 1;
+  right: 13%;
+  bottom: 7px;
+  left: 13%;
+  height: 8px;
+  pointer-events: none;
+  border-top: 2px solid #50717f;
+  background: linear-gradient(180deg, #16272f, #030608);
+  content: "";
+  clip-path: polygon(7% 0, 93% 0, 100% 100%, 0 100%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide {
+  position: absolute;
+  z-index: 2;
+  display: block;
+  top: 18px;
+  bottom: 18px;
+  width: 4px;
+  pointer-events: none;
+  background: var(--vendor-cyan);
+  box-shadow: 0 0 6px rgba(105, 232, 255, 0.48);
+  opacity: 0.42;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide-left { left: 16px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide-right { right: 16px; }
+
+.hsv-machine[data-machine-style="industrial"][data-retrieval-state="ready"] .hsv-tray-guide {
+  background: var(--vendor-green);
+  box-shadow: 0 0 8px rgba(98, 255, 182, 0.56);
+  opacity: 0.82;
+}
+
+.hsv-machine[data-machine-style="industrial"][data-retrieval-state="failure"] .hsv-tray-guide {
+  background: var(--vendor-red);
+  box-shadow: 0 0 8px rgba(255, 77, 125, 0.54);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate {
+  background-image: var(--hsv-asset-service-panel);
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+/* Commercial arcade pass: bolder bezels, ads, meters, and side hardware. */
+@container hsv-window (min-width: 821px) {
+  .hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis {
+    grid-template-rows: 150px minmax(0, 1fr) 150px;
+    /* A little taller than the concept-style composition so six shelves and
+       the full checkout terminal fit without internal scrolling. */
+    aspect-ratio: 1.09;
+  }
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis {
+  gap: 9px;
+  padding: 16px 34px 18px;
+  border-width: 3px;
+  border-color: #607987;
+  background-image:
+    var(--hsv-asset-shell),
+    linear-gradient(90deg, #263945 0 28px, transparent 28px calc(100% - 28px), #263945 calc(100% - 28px)),
+    linear-gradient(180deg, #22333e, #080d11 18% 82%, #1b2a32);
+  box-shadow:
+    0 26px 56px rgba(0, 0, 0, 0.78),
+    inset 0 0 0 4px #05080a,
+    inset 0 0 0 8px #2b424e,
+    inset 0 0 80px rgba(0, 0, 0, 0.7);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis::before {
+  inset: 7px;
+  border-color: rgba(159, 193, 207, 0.42);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail {
+  width: 30px;
+  overflow: visible;
+  background-image: none;
+  opacity: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left {
+  top: 26%;
+  bottom: 19%;
+  left: 3px;
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr 32px;
+  gap: 8px;
+  padding: 9px 5px;
+  border: 2px solid #405761;
+  background: linear-gradient(180deg, #1b2931, #091015);
+  box-shadow: inset 0 0 0 2px #040709;
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left i {
+  display: block;
+  border: 1px solid #704d7a;
+  background:
+    repeating-linear-gradient(180deg, #ff62d4 0 5px, transparent 5px 10px),
+    #140d18;
+  box-shadow: inset 0 0 8px #050307, 0 0 5px rgba(255, 98, 212, 0.25);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left span {
+  display: block;
+  background: linear-gradient(135deg, transparent 30%, var(--vendor-amber) 31% 46%, transparent 47% 55%, var(--vendor-amber) 56% 71%, transparent 72%);
+  clip-path: polygon(50% 100%, 0 34%, 25% 34%, 25% 0, 75% 0, 75% 34%, 100% 34%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right {
+  top: 28%;
+  right: 1px;
+  display: block;
+  width: 34px;
+  height: 54%;
+  background: var(--hsv-asset-conduit) center / 34px 100% no-repeat;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right i,
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right span {
+  position: absolute;
+  right: 6px;
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #0d1317;
+  border-radius: 50%;
+  background: var(--vendor-amber);
+  box-shadow: 0 0 7px rgba(255, 200, 90, 0.6);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right i:first-child { top: 4px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right i:nth-child(2) { top: 24px; background: #ff7e3d; }
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right span { bottom: 2px; background: var(--vendor-cyan); }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module {
+  grid-template-columns: 258px minmax(0, 1fr) 245px;
+  gap: 14px;
+  justify-self: stretch;
+  width: calc(100% + 60px);
+  min-width: 0;
+  margin-left: -30px;
+  min-height: 150px;
+  padding: 15px 78px 14px 48px;
+  border: 3px solid #506b78;
+  background-image: linear-gradient(180deg, #10222c, #040a0e);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  background-origin: border-box;
+  background-clip: border-box;
+  box-shadow: inset 0 0 0 3px #020609, inset 0 0 0 5px rgba(72, 102, 116, 0.45), 0 5px 0 #05080a;
+  isolation: isolate;
+}
+
+.hsv-status-frame-art,
+.hsv-slot-frame-art,
+.hsv-product-display-frame-art,
+.hsv-retrieval-frame-art {
+  display: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module > :not(.hsv-status-frame-art) {
+  z-index: 1;
+}
+
+/* Structural artwork is rendered as a real image layer. Foundry v12 applies an
+   !important background shorthand to buttons, which otherwise removes the slot
+   frame, and an image gives the header exact, deterministic bleed dimensions. */
+.hsv-machine[data-machine-style="industrial"] .hsv-status-frame-art {
+  position: absolute;
+  z-index: 0;
+  inset: -3px;
+  display: block;
+  width: calc(100% + 6px) !important;
+  max-width: none !important;
+  height: calc(100% + 6px) !important;
+  border: 0;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-frame-art {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  display: block;
+  width: 100% !important;
+  max-width: none !important;
+  height: 100% !important;
+  border: 0;
+  object-fit: fill;
+  pointer-events: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot > :not(.hsv-slot-frame-art) {
+  position: relative;
+  z-index: 1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image {
+  isolation: isolate;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image .hsv-product-display-frame-art {
+  position: absolute;
+  z-index: 0;
+  inset: -1px;
+  display: block;
+  width: calc(100% + 2px) !important;
+  max-width: none !important;
+  height: calc(100% + 2px) !important;
+  max-height: none !important;
+  border: 0;
+  object-fit: fill;
+  filter: none !important;
+  pointer-events: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image .hsv-preview-product-art {
+  border: 0 !important;
+  border-radius: 0;
+  outline: 0;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+  position: relative;
+  isolation: isolate;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay .hsv-retrieval-frame-art {
+  position: absolute;
+  z-index: 0;
+  inset: -3px;
+  display: block;
+  width: calc(100% + 6px) !important;
+  max-width: none !important;
+  height: calc(100% + 6px) !important;
+  max-height: none !important;
+  border: 0;
+  object-fit: fill;
+  filter: none !important;
+  pointer-events: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay > :not(.hsv-retrieval-frame-art) {
+  z-index: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block {
+  position: relative;
+  grid-template-columns: 82px minmax(0, 1fr);
+  gap: 9px;
+  padding: 10px 12px;
+  border: 2px solid var(--vendor-cyan);
+  background:
+    radial-gradient(circle at 28% 46%, color-mix(in srgb, var(--vendor-cyan) 18%, transparent), transparent 31%),
+    linear-gradient(145deg, #092b31, #051318 72%);
+  box-shadow:
+    inset 0 0 0 3px #02080b,
+    inset 0 0 0 4px color-mix(in srgb, var(--vendor-cyan) 22%, transparent),
+    0 0 10px color-mix(in srgb, var(--vendor-cyan) 12%, transparent);
+  clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block::before,
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block::after {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-color: var(--vendor-cyan);
+  pointer-events: none;
+  content: "";
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block::before { top: 5px; left: 5px; border-top: 2px solid; border-left: 2px solid; }
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block::after { right: 5px; bottom: 5px; border-right: 2px solid; border-bottom: 2px solid; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-mark {
+  width: 78px;
+  height: 78px;
+  border-color: var(--vendor-cyan);
+  background: radial-gradient(circle, color-mix(in srgb, var(--vendor-cyan) 25%, transparent), transparent 68%), #07161b;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block .hsv-brand-mark img {
+  width: 68px;
+  height: 68px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block strong {
+  color: var(--vendor-cyan);
+  font-size: 22px;
+  line-height: 0.95;
+  text-shadow: 2px 2px 0 #062225;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block b {
+  margin-top: 4px;
+  color: #8bff82;
+  font-size: 11px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block em {
+  display: block;
+  margin-top: 5px;
+  color: #ff739f;
+  font-family: var(--hs-font-mono);
+  font-size: 7px;
+  font-style: normal;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-decal {
+  color: #85bbb9;
+  font-size: 6px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block {
+  position: relative;
+  padding: 8px 20px 7px;
+  border: 2px solid #3f5b68;
+  background: linear-gradient(180deg, rgba(8, 24, 32, 0.86), rgba(2, 10, 15, 0.88));
+  box-shadow: inset 0 0 0 2px #020507;
+  clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block h2 {
+  margin: 2px 0 4px;
+  color: var(--vendor-cyan);
+  font-size: clamp(25px, 2.7cqw, 34px);
+  line-height: 0.94;
+  letter-spacing: 0.055em;
+  text-transform: uppercase;
+  text-shadow: 0 4px 0 #08333a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block::after {
+  position: absolute;
+  right: 18px;
+  bottom: 32px;
+  left: 18px;
+  height: 1px;
+  background: #395563;
+  content: "";
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip {
+  position: relative;
+  z-index: 1;
+  margin-top: auto;
+  padding: 5px 8px 1px;
+  border-left: 0;
+  background: transparent;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip span:first-child b { color: var(--vendor-cyan); }
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip span:last-child b { color: var(--vendor-amber); }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry {
+  gap: 0;
+  padding: 5px 10px;
+  border: 2px solid #3b5a66;
+  background: #031016;
+  box-shadow: inset 0 0 0 2px #010507;
+  clip-path: polygon(9px 0, 100% 0, 100% calc(100% - 9px), calc(100% - 9px) 100%, 0 100%, 0 9px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div,
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div:nth-child(3) {
+  min-height: 24px;
+  padding: 2px;
+  border-left: 0;
+  border-bottom: 1px solid #25414c;
+  background: transparent;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div:last-child { border-bottom: 0; }
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry span { color: var(--vendor-cyan); }
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry strong { color: #6aff76; font-size: 11px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div:not(.hsv-telemetry-primary) strong { color: var(--vendor-cyan); }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry-link strong {
+  display: flex;
+  align-items: end;
+  gap: 2px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry-link strong i {
+  display: block;
+  width: 3px;
+  height: 4px;
+  background: #77ee55;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry-link strong i:nth-child(2) { height: 7px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry-link strong i:nth-child(3) { height: 10px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry-link strong i:nth-child(4) { height: 13px; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-deck {
+  grid-template-columns: minmax(0, 1.28fr) minmax(410px, 1fr);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-chamber {
+  padding: 46px 12px 12px;
+  border-width: 3px;
+  border-color: #4a626e;
+  background-image: linear-gradient(180deg, #102029, #03080b);
+  box-shadow: inset 0 0 0 3px #020507, inset 0 0 0 5px rgba(67, 91, 103, 0.38), inset 0 0 30px rgba(0, 0, 0, 0.72);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee {
+  top: 10px;
+  height: 31px;
+  padding: 0 11px;
+  border: 1px solid #3d5b67;
+  border-left: 4px solid var(--vendor-cyan);
+  background: #061117;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee > span {
+  display: grid;
+  gap: 1px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee strong {
+  color: #48d9e4;
+  font-size: 11px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee em {
+  color: #7d96a2;
+  font-size: 7px;
+  font-style: normal;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee small {
+  color: #84f05e;
+  font-size: 8px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot {
+  grid-template-rows: 34px minmax(0, 1fr) 67px;
+  aspect-ratio: 0.67;
+  border-width: 2px;
+  border-color: #3a4e58;
+  background-image: var(--hsv-asset-slot), linear-gradient(180deg, #18262d, #04080b 78%);
+  box-shadow: inset 0 0 0 3px #020405, inset 0 0 0 5px #263a43, 0 4px 5px rgba(0, 0, 0, 0.72);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-selected {
+  border-color: var(--vendor-cyan);
+  box-shadow: inset 0 0 0 3px #020405, inset 0 0 0 5px var(--vendor-cyan), 0 0 12px rgba(105, 232, 255, 0.46);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-low-stock:not(.is-selected) {
+  border-color: #77613a;
+  box-shadow: inset 0 0 0 3px #020405, inset 0 0 0 5px #594a2e, 0 3px 5px rgba(0, 0, 0, 0.72);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-sold-out {
+  border-color: #7b394f;
+  box-shadow: inset 0 0 0 3px #050204, inset 0 0 0 5px #572535, 0 3px 5px rgba(0, 0, 0, 0.72);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code {
+  margin: 0 5px;
+  justify-content: center;
+  padding: 0 25px;
+  border-color: #536873;
+  background: linear-gradient(180deg, #26363e, #0a1014);
+  color: #55d9e5;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code::before {
+  right: auto;
+  bottom: 2px;
+  left: 50%;
+  width: 44px;
+  transform: translateX(-50%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport {
+  margin: 0 6px;
+  border-width: 2px;
+  border-color: #2c414b;
+  background:
+    linear-gradient(90deg, rgba(65, 111, 127, 0.1), transparent 14%, transparent 86%, rgba(65, 111, 127, 0.09)),
+    radial-gradient(ellipse at 50% 86%, rgba(31, 171, 160, 0.22), transparent 48%),
+    linear-gradient(180deg, #071017, #010305 75%, #092029);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport > img {
+  width: 80%;
+  height: 80%;
+  max-width: 80%;
+  max-height: 80%;
+  padding: 6px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-pedestal {
+  right: 8%;
+  left: 8%;
+  height: 20px;
+  border-top-width: 4px;
+  border-top-color: #42c98d;
+  background: linear-gradient(180deg, #225d55, #0b201f 42%, #020405);
+  box-shadow: 0 -5px 14px rgba(61, 224, 163, 0.27);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-low-stock .hsv-slot-pedestal { border-top-color: var(--vendor-amber); box-shadow: 0 -5px 14px rgba(255, 200, 90, 0.24); }
+.hsv-machine[data-machine-style="industrial"] .is-sold-out .hsv-slot-pedestal { border-top-color: var(--vendor-magenta); box-shadow: none; }
+.hsv-machine[data-machine-style="industrial"] .is-selected .hsv-slot-pedestal { border-top-color: var(--vendor-cyan); box-shadow: 0 -5px 14px rgba(105, 232, 255, 0.34); }
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto auto;
+  gap: 2px 5px;
+  margin: 0 5px;
+  padding: 5px 7px;
+  border-color: #4b606a;
+  background: linear-gradient(180deg, #102029, #04090c);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > strong {
+  font-size: 10px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > .hsv-slot-price {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: start;
+  color: #ffc33e;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-stock {
+  grid-column: 1;
+  grid-row: 3;
+  color: #7fa1ae;
+  font-size: 7px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-mini-meter {
+  display: grid;
+  grid-column: 2;
+  grid-row: 3;
+  grid-template-columns: repeat(10, 3px);
+  gap: 1px;
+  align-items: end;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-mini-meter i {
+  display: block;
+  height: 8px;
+  border: 1px solid #243740;
+  background: #071014;
+  transform: skewX(-5deg);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-mini-meter i.is-active {
+  border-color: #30dce9;
+  background: #30dce9;
+  box-shadow: 0 0 3px rgba(48, 220, 233, 0.5);
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-low-stock .hsv-slot-mini-meter i.is-active { border-color: var(--vendor-amber); background: var(--vendor-amber); }
+.hsv-machine[data-machine-style="industrial"] .is-sold-out .hsv-slot-mini-meter i { border-color: #4c2532; background: #16070c; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  grid-template-rows: 37px auto auto minmax(0, 1fr);
+  align-content: stretch;
+  padding: 15px 27px 14px;
+  border: 4px solid #7a62a3;
+  background-image: var(--hsv-asset-terminal), linear-gradient(180deg, #151c2a, #05080c);
+  box-shadow:
+    inset 0 0 0 3px #171021,
+    inset 0 0 0 6px #a48ac9,
+    inset 0 0 28px rgba(0, 0, 0, 0.75),
+    0 0 0 2px #332a43;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header {
+  min-height: 37px;
+  padding: 1px 4px 6px;
+  border-bottom: 1px solid #3f6472;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header strong {
+  color: #55dbe5;
+  font-size: 13px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header > i {
+  color: #a88be3;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console {
+  gap: 4px 13px;
+  padding: 5px 1px 7px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image {
+  height: 165px;
+  min-height: 165px;
+  max-height: 165px;
+  border: 1px solid var(--vendor-cyan);
+  box-shadow: inset 0 10px 22px rgba(0, 0, 0, 0.72), 0 0 0 3px #07141a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image img {
+  inset: 8%;
+  width: 84%;
+  height: 84%;
+  max-width: 84%;
+  max-height: 84%;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information {
+  grid-template-rows: auto auto minmax(38px, auto) auto auto auto;
+  gap: 3px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information h3 {
+  padding-bottom: 5px;
+  border-bottom-color: #566777;
+  color: #55dbe5;
+  font-size: 17px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-description {
+  max-height: 49px;
+  font-size: 10px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout {
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 5px 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout > div {
+  border-right: 1px solid #28424e;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout > div:last-child { border-right: 0; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-selected-warning {
+  padding: 3px 5px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control {
+  grid-template-columns: 52px 112px minmax(0, 1fr);
+  padding: 7px 0;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control .hsv-add-queue {
+  min-height: 34px;
+  border-color: #41e6ec;
+  background: linear-gradient(180deg, #18aebb, #087781);
+  color: #e9ffff;
+  font-weight: 800;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.09), 0 3px 0 #03434a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue {
+  grid-template-rows: auto minmax(50px, 1fr) auto;
+  gap: 5px;
+  min-height: 0;
+  padding-top: 6px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue h3 {
+  color: #54dbe7;
+  font-size: 14px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-lines {
+  min-height: 50px;
+  max-height: none;
+  padding: 3px;
+  border-color: #178a95;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-empty {
+  min-height: 0;
+  height: 100%;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-stock-meter i.is-active {
+  border-color: var(--vendor-cyan);
+  background: var(--vendor-cyan);
+  box-shadow: 0 0 4px rgba(105, 232, 255, 0.48);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console:has(.hsv-selected-warning.is-low) .hsv-stock-meter i.is-active {
+  border-color: var(--vendor-amber);
+  background: var(--vendor-amber);
+  box-shadow: 0 0 4px rgba(255, 200, 90, 0.45);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line {
+  grid-template-columns: 30px minmax(0, 1fr) auto 24px;
+  min-height: 38px;
+  padding: 3px 4px;
+  border: 1px solid #284954;
+  border-left: 3px solid var(--vendor-cyan);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line > img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border: 1px solid #29444f;
+  background: #020609;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-transaction-footer {
+  gap: 3px;
+  padding-top: 3px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total {
+  padding: 2px 4px 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total > strong {
+  color: #ffc43d;
+  font-size: 17px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button {
+  min-height: 52px;
+  border: 2px solid #6c5984;
+  background: linear-gradient(180deg, #403552, #21192c);
+  color: #e6d9f4;
+  font-weight: 700;
+  box-shadow: inset 0 0 0 2px #17101d, 0 3px 0 #0e0a12;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button {
+  min-height: 52px;
+  border-color: #fff0a0;
+  background: linear-gradient(180deg, #ffd848 0%, #efa817 58%, #bd6f0e 100%);
+  color: #1d1707;
+  box-shadow: inset 0 0 0 3px rgba(106, 57, 4, 0.25), 0 5px 0 #6f3d09, 0 0 12px rgba(255, 190, 37, 0.28);
+}
+
+  .holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+    -webkit-appearance: none !important;
+    appearance: none !important;
+    border-color: #d6a52f !important;
+    background-color: #bd8527 !important;
+    background-image: linear-gradient(180deg, #e8bf55 0%, #bd8527 60%, #77501a 100%) !important;
+    color: #241b08 !important;
+    filter: none !important;
+    opacity: 0.9 !important;
+    text-shadow: 0 1px rgba(255, 236, 164, 0.42) !important;
+    box-shadow: inset 0 0 0 3px rgba(82, 49, 8, 0.28), 0 3px 0 #4d2e09 !important;
+  }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+  grid-template-columns: 145px minmax(0, 1fr) 112px 150px;
+  gap: 9px;
+  min-height: 150px;
+  padding: 15px 17px;
+  border-width: 3px;
+  background-image: var(--hsv-asset-tray), linear-gradient(180deg, #1b2a32, #060a0d);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-service-plate {
+  min-height: 112px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate {
+  padding: 12px 10px 8px;
+  border: 3px solid #e5a91e;
+  background: linear-gradient(145deg, #ffc535, #b56e12);
+  color: #171004;
+  box-shadow: inset 0 0 0 3px #5d3507, 0 3px 0 #3a230b;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate strong {
+  color: #211504;
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate span,
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate small {
+  color: #2a1b07;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate > i {
+  background: repeating-linear-gradient(135deg, #15120b 0 8px, #e8aa1e 8px 16px);
+  opacity: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity {
+  min-height: 112px;
+  border: 5px solid #314852;
+  background:
+    linear-gradient(90deg, rgba(105, 232, 255, 0.1), transparent 10%, transparent 90%, rgba(105, 232, 255, 0.1)),
+    radial-gradient(ellipse at 50% 115%, rgba(105, 232, 255, 0.2), transparent 56%),
+    linear-gradient(180deg, #010304 0%, #020609 58%, #0d222a 100%);
+  box-shadow: inset 0 20px 34px rgba(0, 0, 0, 0.96), inset 18px 0 20px rgba(0, 0, 0, 0.62), inset -18px 0 20px rgba(0, 0, 0, 0.62), inset 0 -8px 0 #16313a, 0 0 0 2px #020405;
+}
+
+.hsv-machine[data-machine-style="industrial"] button.hsv-tray-cavity:disabled {
+  filter: none;
+  opacity: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > strong {
+  color: #61e77a;
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > i { color: #61e77a; }
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > small { color: #44d7e2; font-size: 9px; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate {
+  display: grid;
+  gap: 2px;
+  justify-items: center;
+  align-content: center;
+  padding: 8px;
+  border: 2px solid #9a5b9f;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 105, 204, 0.24), transparent 40%),
+    linear-gradient(145deg, #55305c, #23172b);
+  color: #ff7ccc;
+  text-align: center;
+  box-shadow: inset 0 0 0 3px #160e1b, 0 3px 0 #0d0910;
+  clip-path: polygon(8px 0, calc(100% - 8px) 0, 100% 8px, 100% calc(100% - 8px), calc(100% - 8px) 100%, 8px 100%, 0 calc(100% - 8px), 0 8px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate > i {
+  color: #9cff63;
+  font-size: 31px;
+  text-shadow: 0 0 7px rgba(156, 255, 99, 0.34);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate strong {
+  color: #ff8ed2;
+  font-size: 12px;
+  transform: rotate(-2deg);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate span {
+  color: #ffcc6d;
+  font-size: 7px;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate {
+  border-color: #48616d;
+  background-color: #081116;
+  background-image: linear-gradient(180deg, rgba(23, 49, 60, 0.9), rgba(4, 10, 14, 0.96));
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate strong {
+  color: #43d5e3;
+  font-size: 14px;
+}
+
+/* Final appliance-art pass: larger silhouettes and fewer diagnostic marks. */
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis,
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module,
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal,
+.hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot {
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block strong {
+  font-size: 20px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block h2 {
+  font-weight: 900;
+  letter-spacing: 0.065em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry span {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left {
+  border-width: 3px;
+  box-shadow: inset 0 0 0 3px #040709, 3px 4px 0 rgba(0, 0, 0, 0.48);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-left i {
+  border-width: 2px;
+  box-shadow: inset 0 0 0 2px #09050b;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  position: relative;
+  border-width: 4px;
+  border-color: #594a6b;
+  box-shadow:
+    inset 0 0 0 4px #171021,
+    inset 0 0 0 6px #725d88,
+    inset 0 0 30px rgba(0, 0, 0, 0.78),
+    4px 5px 0 #05070a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal::after {
+  position: absolute;
+  top: 22px;
+  right: 11px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  border: 4px solid #17141f;
+  border-radius: 50%;
+  background: var(--vendor-green);
+  box-shadow: 0 0 0 2px #8063a2, 0 0 7px rgba(98, 255, 182, 0.42);
+  content: "";
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header {
+  padding-right: 36px;
+  border-bottom-width: 2px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header strong {
+  font-size: 15px;
+  letter-spacing: 0.045em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console {
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 7px 14px;
+  padding-top: 10px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-preview-code {
+  padding-left: 4px;
+  color: #68dce5;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information {
+  grid-template-rows: auto minmax(38px, auto) auto auto auto;
+  gap: 5px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information h3 {
+  color: #f4f0e5;
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: 0.035em;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout {
+  border-top: 2px solid #2b4651;
+  border-bottom: 2px solid #2b4651;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control {
+  border-top: 2px solid #263e49;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue > header {
+  min-height: 30px;
+  border-left-color: #76578f;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue h3 {
+  color: #e9e2ef;
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport {
+  border-right-width: 3px;
+  border-left-width: 3px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-pedestal {
+  right: 8%;
+  bottom: 4px;
+  left: 8%;
+  height: 23px;
+  clip-path: polygon(8% 0, 92% 0, 100% 100%, 0 100%);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay {
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(135deg, rgba(255, 57, 121, 0.17) 0 13px, rgba(30, 1, 12, 0.3) 13px 26px),
+    rgba(43, 0, 15, 0.72);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay::before,
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay::after {
+  position: absolute;
+  right: -9%;
+  left: -9%;
+  height: 11px;
+  pointer-events: none;
+  border: 2px solid #16050b;
+  background: #783047;
+  content: "";
+  transform: rotate(-5deg);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay::before { top: 24%; }
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay::after { bottom: 23%; }
+
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate {
+  padding: 12px 9px 9px 33px;
+  border-color: #211606;
+  background-color: #e79a18;
+  background-image: var(--hsv-asset-warning);
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: 0 4px 0 #3a230b;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate > i {
+  background: transparent;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate {
+  position: relative;
+  align-content: end;
+  padding: 67px 8px 8px;
+  border: 0;
+  background-color: #3b2145;
+  background-image:
+    linear-gradient(180deg, transparent 50%, rgba(25, 10, 31, 0.78) 78%),
+    var(--hsv-asset-mascot);
+  background-position: center;
+  background-size: 100% 100%;
+  box-shadow: 0 4px 0 #0d0910;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate > i {
+  display: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate span {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 0 #1b081d;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity::before {
+  position: absolute;
+  z-index: 1;
+  right: 8%;
+  bottom: 6px;
+  left: 8%;
+  height: 30px;
+  pointer-events: none;
+  border-top: 3px solid #315d69;
+  background: linear-gradient(180deg, #102832, #061015);
+  clip-path: polygon(5% 0, 95% 0, 100% 100%, 0 100%);
+  content: "";
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide {
+  width: 7px;
+  border: 2px solid #071014;
+  background: var(--vendor-cyan);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide-left { left: 12px; }
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide-right { right: 12px; }
+
+/* Mechanical layout normalization ---------------------------------------
+ * HTML owns every content track. SVGs remain stretched decorative shells.
+ */
+.hsv-machine[data-machine-style="industrial"] *,
+.hsv-machine[data-machine-style="industrial"] *::before,
+.hsv-machine[data-machine-style="industrial"] *::after {
+  box-sizing: border-box;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module {
+  grid-template-columns: minmax(220px, 258px) minmax(0, 1fr) minmax(220px, 245px);
+  gap: 0;
+  align-items: stretch;
+  padding: var(--vendor-space-4) 78px var(--vendor-space-4) calc(var(--vendor-space-5) + 30px);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block,
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block,
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block {
+  grid-column: 1;
+  grid-row: 1;
+  grid-template-columns: 78px minmax(0, 1fr);
+  gap: var(--vendor-space-3);
+  padding: var(--vendor-space-3) var(--vendor-space-4);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block > div:last-child {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block b,
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block em,
+.hsv-machine[data-machine-style="industrial"] .hsv-brand-block small {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block {
+  display: grid;
+  grid-column: 2;
+  grid-row: 1;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  align-items: center;
+  padding: var(--vendor-space-3) var(--vendor-space-4);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block .hsv-eyebrow,
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block h2 {
+  min-width: 0;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block h2 {
+  align-self: center;
+  line-height: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-identity-block::after {
+  content: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip {
+  display: grid;
+  grid-template-columns: minmax(0, auto) minmax(0, auto);
+  justify-content: start;
+  align-items: baseline;
+  gap: var(--vendor-space-4);
+  min-width: 0;
+  margin: 0;
+  padding: var(--vendor-space-2) 0 0;
+  border-top: 1px solid #395563;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip span {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-customer-strip b {
+  margin-left: var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry {
+  display: grid;
+  grid-column: 3;
+  grid-row: 1;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  align-content: stretch;
+  padding: var(--vendor-space-2) 48px var(--vendor-space-2) var(--vendor-space-3);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div,
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry > div:nth-child(3) {
+  display: grid;
+  grid-column: auto;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 0;
+  padding: 0 var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry span,
+.hsv-machine[data-machine-style="industrial"] .hsv-telemetry strong {
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-machine-close {
+  position: relative;
+  top: auto;
+  right: auto;
+  grid-column: 3;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  margin: var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-deck {
+  grid-template-columns: minmax(0, 1.28fr) minmax(410px, 1fr);
+  gap: var(--vendor-space-3);
+  align-items: stretch;
+  min-width: 0;
+  min-height: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-deck:has(> .hsv-access-warning) {
+  grid-template-rows: auto minmax(0, 1fr);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-access-warning {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  padding: var(--vendor-space-2) var(--vendor-space-3);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-chamber {
+  position: relative;
+  display: grid;
+  grid-template-rows: 32px minmax(0, 1fr);
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 0;
+  padding: var(--vendor-space-3);
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-chamber-marquee {
+  position: static;
+  inset: auto;
+  width: 100%;
+  height: 32px;
+  min-height: 32px;
+  padding: 0 var(--vendor-space-3);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--vendor-space-3);
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  padding: 0;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot {
+  grid-template-rows: 36px minmax(0, 1fr) 72px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+  padding: var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code {
+  min-width: 0;
+  height: 36px;
+  margin: 0 var(--vendor-space-1);
+  padding: 0 var(--vendor-space-3);
+  line-height: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code > span,
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-code > strong {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport {
+  min-width: 0;
+  min-height: 0;
+  margin: 0 var(--vendor-space-1);
+  padding: var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-viewport > img {
+  position: relative;
+  inset: auto;
+  width: 86%;
+  height: 86%;
+  max-width: 86%;
+  max-height: 86%;
+  padding: var(--vendor-space-1);
+  object-fit: contain;
+  transform: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .is-empty .hsv-slot-viewport {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-empty-label {
+  position: static;
+  inset: auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer {
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: minmax(0, 1fr) 16px 12px;
+  gap: var(--vendor-space-1) var(--vendor-space-2);
+  min-width: 0;
+  height: 72px;
+  margin: 0 var(--vendor-space-1);
+  padding: var(--vendor-space-2);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > strong {
+  display: -webkit-box;
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  align-self: center;
+  max-height: 2.2em;
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-slot-footer > .hsv-slot-price {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  min-width: 0;
+  overflow: hidden;
+  align-self: center;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-stock,
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-mini-meter {
+  grid-row: 3;
+  align-self: center;
+  min-width: 0;
+  line-height: 1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .is-empty .hsv-slot-footer > small {
+  grid-column: 1 / -1;
+  grid-row: 2 / 4;
+  min-width: 0;
+  overflow: hidden;
+  align-self: center;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  display: grid;
+  grid-template-rows: 40px auto auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: 0;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--vendor-panel-safe-y) 32px calc(var(--vendor-panel-safe-y) + var(--vendor-space-3));
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal:not(:has(.hsv-product-console)) {
+  grid-template-rows: 40px minmax(0, 1fr) minmax(0, 1fr);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header {
+  min-width: 0;
+  min-height: 40px;
+  height: 40px;
+  margin: 0;
+  padding: 0 40px 0 var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-header strong {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console {
+  grid-template-columns: minmax(140px, 40%) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: var(--vendor-space-2) var(--vendor-space-4);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: var(--vendor-space-2) 0;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-preview-code {
+  grid-column: 1 / -1;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  height: 148px;
+  min-height: 148px;
+  max-height: 148px;
+  margin: 0;
+  padding: var(--vendor-space-3);
+  place-items: center;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-console .hsv-preview-image img {
+  position: relative;
+  inset: auto;
+  width: 84%;
+  height: 84%;
+  max-width: 84%;
+  max-height: 84%;
+  object-fit: contain;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information {
+  display: grid;
+  grid-template-rows: auto minmax(40px, auto) auto auto auto;
+  align-content: start;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information h3 {
+  display: -webkit-box;
+  min-width: 0;
+  min-height: 38px;
+  max-height: 38px;
+  margin: 0;
+  padding: 0 0 var(--vendor-space-1);
+  overflow: hidden;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-description,
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information button.hsv-product-description {
+  min-width: 0;
+  min-height: 40px;
+  max-height: 40px;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
+  -webkit-line-clamp: 3;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--vendor-space-1) 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-information .hsv-product-readout > div {
+  min-width: 0;
+  padding: 0 var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-product-readout dt,
+.hsv-machine[data-machine-style="industrial"] .hsv-product-readout dd {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-stock-meter {
+  min-width: 0;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-stock-meter > div {
+  min-width: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control {
+  grid-template-columns: 56px 112px minmax(0, 1fr);
+  gap: var(--vendor-space-2);
+  align-items: center;
+  min-width: 0;
+  min-height: var(--vendor-control-row-height);
+  margin: 0;
+  padding: var(--vendor-space-2) 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-quantity-control label {
+  min-width: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-stepper {
+  grid-template-columns: 36px 40px 36px;
+  width: 112px;
+  min-width: 112px;
+  height: var(--vendor-control-height);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-stepper button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-stepper input,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control .hsv-add-queue {
+  height: var(--vendor-control-height);
+  min-height: var(--vendor-control-height);
+  margin: 0;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control .hsv-add-queue {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1.1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-add-queue span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue {
+  display: grid;
+  grid-template-rows: minmax(56px, 1fr) auto;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: var(--vendor-space-2) 0 42px;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue > header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 32px;
+  margin: 0;
+  padding: 0 0 0 var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue > header > div,
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue h3 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue > header > strong {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-lines {
+  display: grid;
+  align-content: start;
+  gap: var(--vendor-space-1);
+  min-width: 0;
+  min-height: 56px;
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: var(--vendor-space-1);
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-empty {
+  display: grid;
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+  margin: 0;
+  padding: var(--vendor-space-2);
+  place-items: center;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line {
+  grid-template-columns: 28px minmax(0, 1fr) minmax(64px, auto) 28px;
+  gap: var(--vendor-space-2);
+  align-items: center;
+  min-width: 0;
+  min-height: 36px;
+  padding: var(--vendor-space-1) var(--vendor-space-2);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line > span,
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line > strong {
+  min-width: 0;
+  overflow: hidden;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-line > strong {
+  max-width: 120px;
+  text-align: right;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-queue-line button {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  margin: 0;
+  padding: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-transaction-footer {
+  display: grid;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: var(--vendor-space-3) 0 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: 28px;
+  margin: 0;
+  padding: var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total span,
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total strong {
+  min-width: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-queue-total strong {
+  overflow: hidden;
+  max-width: 72%;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-funds-warning {
+  min-width: 0;
+  margin: 0;
+  padding: var(--vendor-space-2);
+  overflow-wrap: anywhere;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions {
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: var(--vendor-space-2);
+  min-width: 0;
+  min-height: var(--vendor-control-height-lg);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions button {
+  min-width: 0;
+  height: var(--vendor-control-height-lg);
+  min-height: var(--vendor-control-height-lg);
+  margin: 0;
+  padding: var(--vendor-space-2);
+  overflow: hidden;
+  line-height: 1.1;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions button span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+  grid-template-columns: 152px minmax(0, 1fr) 120px 152px;
+  gap: var(--vendor-space-3);
+  align-items: stretch;
+  min-width: 0;
+  min-height: 150px;
+  padding: var(--vendor-space-4) var(--vendor-space-5);
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-service-plate,
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-service-plate {
+  padding: var(--vendor-space-3);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate {
+  grid-template-rows: auto auto auto minmax(0, 1fr);
+  align-content: stretch;
+  gap: var(--vendor-space-1);
+  padding: var(--vendor-space-3) var(--vendor-space-2) var(--vendor-space-3) 40px;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate span,
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate small {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-caution-plate > i {
+  align-self: end;
+  width: 100%;
+  height: 16px;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate {
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto;
+  align-content: stretch;
+  padding: var(--vendor-space-3);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-copy {
+  display: grid;
+  grid-row: 2;
+  justify-items: center;
+  gap: var(--vendor-space-1);
+  min-width: 0;
+  padding: var(--vendor-space-1);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-copy strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-thanks-copy span {
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.1;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate {
+  grid-template-rows: auto auto 14px auto;
+  align-content: center;
+  gap: var(--vendor-space-1);
+  border: 2px solid #5d7782;
+  background-image: linear-gradient(180deg, rgba(25, 52, 62, 0.96), rgba(3, 10, 14, 0.99));
+  box-shadow: inset 0 0 0 2px #020608, inset 0 0 16px rgba(57, 190, 204, 0.08), 0 3px 0 #020507;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate > span,
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate > strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate > small {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate > i {
+  width: 100%;
+  height: 14px;
+  margin: 0;
+  opacity: 0.78;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate > strong {
+  color: #62e9f0;
+  text-shadow: 0 0 6px rgba(67, 213, 227, 0.25);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-serial-plate .hsv-retrieval-status b {
+  background: #73ecf2;
+  box-shadow: 0 0 6px rgba(83, 224, 233, 0.58);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity {
+  grid-template-columns: auto minmax(0, max-content) auto;
+  grid-template-rows: 32px 16px;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  gap: var(--vendor-space-1) var(--vendor-space-3);
+  padding: var(--vendor-space-4) var(--vendor-space-5);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > i,
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > strong,
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > small {
+  min-width: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > strong {
+  overflow: visible;
+  max-width: none;
+  font-size: clamp(18px, 2cqw, 23px);
+  text-align: center;
+  text-overflow: clip;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > small {
+  grid-column: 1 / -1;
+  min-height: 16px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail,
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-light,
+.hsv-machine[data-machine-style="industrial"] .hsv-slot-pedestal,
+.hsv-machine[data-machine-style="industrial"] .hsv-scanner-lines,
+.hsv-machine[data-machine-style="industrial"] .hsv-hologram-ring,
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-guide,
+.hsv-machine[data-machine-style="industrial"] .hsv-tray-scanline,
+.hsv-machine[data-machine-style="industrial"] .hsv-dispensed-item,
+.hsv-machine[data-machine-style="industrial"] .hsv-sold-out-overlay,
+.hsv-machine[data-machine-style="industrial"] .hsv-credit-lock,
+.hsv-machine[data-machine-style="industrial"] .hsv-queued-badge {
+  pointer-events: none;
+}
+
+.hsv-machine[data-machine-style="industrial"].hsv-debug-layout .hsv-status-module > *,
+.hsv-machine[data-machine-style="industrial"].hsv-debug-layout .hsv-machine-deck > *,
+.hsv-machine[data-machine-style="industrial"].hsv-debug-layout .hsv-product-slot > *,
+.hsv-machine[data-machine-style="industrial"].hsv-debug-layout .hsv-control-terminal > *,
+.hsv-machine[data-machine-style="industrial"].hsv-debug-layout .hsv-retrieval-bay > * {
+  outline: 1px solid rgba(255, 82, 177, 0.5);
+  outline-offset: -1px;
+}
+
+@container hsv-window (max-width: 820px) {
+  .hsv-machine[data-machine-style="industrial"] .hsv-machine-deck {
+    grid-template-columns: 1fr;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: 40px auto auto minmax(0, 1fr);
+    gap: 0;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-product-console,
+  .hsv-machine[data-machine-style="industrial"] .hsv-quantity-control,
+  .hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-dispense-queue {
+    padding-left: 0;
+    border-left: 0;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-tray-cavity > strong {
+    font-size: 16px;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+    grid-template-columns: 136px minmax(0, 1fr) 96px 136px;
+    gap: var(--vendor-space-2);
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-service-plate {
+    padding: var(--vendor-space-2);
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-caution-plate {
+    padding: var(--vendor-space-2) var(--vendor-space-2) var(--vendor-space-2) 36px;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-caution-plate strong {
+    font-size: 15px;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate strong {
+    font-size: 10px;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-status-module {
+    grid-template-columns: 235px minmax(0, 1fr);
+    min-height: 0;
+  }
+
+  .holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-machine-close {
+    grid-column: 2;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-telemetry {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 1fr);
+  }
+}
+
+@container hsv-window (max-width: 580px) {
+  .hsv-machine[data-machine-style="industrial"] .hsv-machine-chassis {
+    padding: 14px 20px;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-status-module {
+    grid-template-columns: 1fr;
+    width: calc(100% + 32px);
+    margin-left: -16px;
+    padding-right: 61px;
+    padding-left: calc(var(--vendor-space-5) + 16px);
+  }
+
+  .holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-machine-close {
+    grid-column: 1;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-brand-block {
+    display: none;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-identity-block {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-telemetry {
+    grid-column: 1;
+    grid-row: 2;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-retrieval-bay {
+    grid-template-columns: 1fr;
+  }
+
+  .hsv-machine[data-machine-style="industrial"] .hsv-thanks-plate {
+    display: none;
+  }
+}
+
+@keyframes hsv-retail-selected-pulse {
+  0%, 100% { filter: brightness(0.98); }
+  50% { filter: brightness(1.045); }
+}
+
+@keyframes hsv-retail-led-breathe {
+  0%, 100% { opacity: 0.72; }
+  50% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hsv-machine[data-machine-style="industrial"] .hsv-state-readout i,
+  .holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-product-slot.is-selected {
+    animation: none !important;
+  }
+}
+
+/* Executive Terminal ---------------------------------------------------- */
 
 .hsv-machine[data-machine-style="corporate-kiosk"] {
   --hsv-kiosk-line: rgba(138, 170, 183, 0.34);
   --hsv-kiosk-panel: rgba(9, 20, 27, 0.96);
   --hsv-kiosk-panel-raised: rgba(15, 31, 40, 0.97);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-telemetry-link {
+  display: none;
 }
 
 .hsv-machine[data-machine-style="corporate-kiosk"]::after {
@@ -166,14 +2965,18 @@
 }
 
 .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-grid {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
   gap: 12px;
   padding-right: 2px;
+  overflow-y: hidden;
   scrollbar-color: #52717e transparent;
 }
 
 .holosuite-vending-app .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-slot {
   grid-template-rows: 34px minmax(0, 1fr) 58px;
-  aspect-ratio: 0.79;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
   padding: 9px;
   border: 1px solid rgba(124, 157, 170, 0.3);
   border-radius: 15px;
@@ -236,6 +3039,10 @@
 .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-code i {
   top: 12px;
   right: 8px;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-credit-lock {
+  display: none;
 }
 
 .hsv-machine[data-machine-style="corporate-kiosk"] .hsv-slot-viewport {
@@ -388,3 +3195,769 @@
   }
 }
 
+/* Keep the transaction controls visually solid when Foundry changes their state. */
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: 2px solid #fff0a0 !important;
+  background-color: #efa817 !important;
+  background-image:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.28), transparent 24%),
+    linear-gradient(180deg, #ffd848 0%, #efa817 58%, #bd6f0e 100%) !important;
+  color: #1d1707 !important;
+  filter: none !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px rgba(255, 240, 160, 0.55) !important;
+  box-shadow:
+    inset 0 0 0 3px rgba(106, 57, 4, 0.25),
+    inset 0 2px rgba(255, 244, 173, 0.44),
+    0 5px 0 #6f3d09,
+    0 7px 10px rgba(0, 0, 0, 0.4) !important;
+  animation: none !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:not(:disabled):hover,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:focus-visible {
+  border-color: #fff7ca !important;
+  background-color: #f4b522 !important;
+  background-image:
+    linear-gradient(105deg, rgba(255, 255, 255, 0.34), transparent 26%),
+    linear-gradient(180deg, #ffe46a 0%, #f4b522 58%, #c97911 100%) !important;
+  box-shadow:
+    inset 0 0 0 3px rgba(106, 57, 4, 0.22),
+    inset 0 2px rgba(255, 249, 194, 0.52),
+    0 5px 0 #754109,
+    0 0 13px rgba(255, 190, 37, 0.28) !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:not(:disabled):active {
+  transform: translateY(4px);
+  box-shadow: inset 0 4px 8px rgba(91, 47, 6, 0.45), 0 1px 0 #5d3515 !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:disabled {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  border: 2px solid #78678a !important;
+  background-color: #32283f !important;
+  background-image:
+    linear-gradient(110deg, rgba(255, 255, 255, 0.09), transparent 28%),
+    linear-gradient(180deg, #493b5a 0%, #30263d 62%, #1c1624 100%) !important;
+  color: #eee6f4 !important;
+  filter: none !important;
+  opacity: 1 !important;
+  text-shadow: 0 1px #100b15 !important;
+  box-shadow:
+    inset 0 0 0 2px #17101d,
+    inset 0 2px rgba(231, 215, 246, 0.11),
+    0 4px 0 #0e0a12,
+    0 6px 8px rgba(0, 0, 0, 0.34) !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:not(:disabled):hover,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:focus-visible {
+  border-color: #9984ae !important;
+  background-color: #40334f !important;
+  background-image: linear-gradient(180deg, #5a486c 0%, #3a2d48 62%, #211829 100%) !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:not(:disabled):active {
+  transform: translateY(3px);
+  box-shadow: inset 0 4px 7px rgba(7, 4, 9, 0.68), 0 1px 0 #0e0a12 !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:disabled,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:disabled {
+  cursor: not-allowed;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions {
+  grid-template-columns: 64px minmax(0, 1fr);
+  gap: 7px;
+  min-height: 36px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button {
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 5px 8px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button {
+  margin-left: 5px;
+}
+
+/* Final industrial detail pass. Keep these overrides last so Foundry's button
+   states and the earlier mechanical theme cannot restore the old accents. */
+.hsv-machine[data-machine-style="industrial"] .hsv-status-frame-art {
+  filter: brightness(0.78) saturate(0.72) contrast(1.06);
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-status-module::before {
+  position: absolute;
+  z-index: 2;
+  inset: -3px;
+  border: 3px solid #172126;
+  box-shadow:
+    inset 0 0 0 1px #7b898f,
+    0 4px 0 #05080a;
+  content: "";
+  pointer-events: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal {
+  border-color: #596970;
+  box-shadow:
+    inset 0 0 0 4px #11181c,
+    inset 0 0 0 6px #75838a,
+    inset 0 0 30px rgba(0, 0, 0, 0.78),
+    4px 5px 0 #11171a;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-control-terminal::after {
+  display: none;
+  content: none;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right > i,
+.hsv-machine[data-machine-style="industrial"] .hsv-machine-service-rail-right > span {
+  display: none;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-clear-button:disabled {
+  font-size: 9px;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button,
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+  border-radius: 999px !important;
+  clip-path: none !important;
+  font-size: 12px;
+  box-shadow:
+    inset 0 0 0 2px rgba(106, 57, 4, 0.25),
+    inset 0 2px rgba(255, 244, 173, 0.44),
+    0 3px 0 #6f3d09,
+    0 5px 8px rgba(0, 0, 0, 0.34) !important;
+}
+
+.hsv-machine[data-machine-style="industrial"] .hsv-terminal-actions {
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+/* Kiosk terminal containment. Product details stay fixed, the cart lines own
+   the shrinking/scrolling row, and totals/actions remain visible. */
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-control-terminal {
+  grid-template-rows: 40px auto minmax(0, 1fr);
+  align-content: stretch;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-control-terminal:not(:has(.hsv-product-console)) {
+  grid-template-rows: 40px minmax(0, 1fr) minmax(120px, auto);
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-product-console {
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-dispense-queue {
+  display: grid;
+  grid-template-rows: minmax(52px, 1fr) auto;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-queue-lines {
+  min-height: 0;
+  max-height: none;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.hsv-machine[data-machine-style="corporate-kiosk"] .hsv-transaction-footer {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  align-self: end;
+}
+
+/* Corporate Kiosk: warm ivory variant of the Executive Terminal layout. */
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] {
+  --hsv-kiosk-line: rgba(91, 78, 62, 0.34);
+  --hsv-kiosk-panel: rgba(242, 236, 224, 0.99);
+  --hsv-kiosk-panel-raised: rgba(250, 246, 237, 0.99);
+  --hs-bg-deep: #d8d0c1;
+  --hs-panel: #eee7da;
+  --hs-panel-strong: #fbf7ef;
+  --hs-surface-control: #e6ded1;
+  --hs-surface-control-hover: #d8cebf;
+  --hs-field: #f7f2e9;
+  --hs-border-subtle: #aaa092;
+  --hs-border-strong: #71675a;
+  --hs-text-primary: #342f29;
+  --hs-text-secondary: #514a41;
+  --hs-text-tertiary: #766e63;
+  --hs-color-primary: #a45f3d;
+  --hs-color-success: #3f7b67;
+  --hs-color-warning: #98631e;
+  --hsv-steel: #686158;
+  color: var(--hs-text-primary);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-status-module,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-control-terminal,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-retrieval-bay {
+  --hs-text-secondary: #514a41;
+  --hs-text-tertiary: #766e63;
+  --hsv-steel: #686158;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-machine-chassis {
+  border-color: #978d7e;
+  background-color: #e4dccf;
+  background-image:
+    radial-gradient(circle at 50% -20%, rgba(181, 122, 73, 0.13), transparent 46%),
+    linear-gradient(135deg, #f9f4ea 0%, #ded5c7 20%, #f1eadf 74%, #cbc2b4 100%);
+  box-shadow:
+    0 24px 55px rgba(0, 0, 0, 0.34),
+    inset 0 0 0 6px #c4baab,
+    inset 0 0 0 7px rgba(255, 252, 245, 0.88),
+    inset 0 0 38px rgba(77, 64, 48, 0.12);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-machine-chassis::before {
+  border-color: rgba(86, 73, 57, 0.34);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-status-module {
+  border-color: #aaa091;
+  background-color: #f8f3e9;
+  background-image:
+    radial-gradient(circle at 10% 0%, rgba(176, 102, 62, 0.1), transparent 34%),
+    linear-gradient(180deg, #fbf7ee, #e6ded1);
+  box-shadow: inset 0 1px #fffdf8, 0 8px 20px rgba(78, 64, 49, 0.17);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-status-module::after {
+  background: #a45f3d;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-brand-block {
+  border-right-color: #afa494;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-brand-mark {
+  border-color: #9d9385;
+  background: linear-gradient(145deg, #fbf7ef, #d8cfc1);
+  box-shadow: inset 0 0 14px rgba(82, 67, 51, 0.14);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-identity-block h2,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-brand-block strong {
+  color: #393229;
+  text-shadow: none;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-brand-block strong {
+  font-weight: 650;
+  letter-spacing: 0.12em;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-identity-block h2 {
+  font-weight: 600;
+  letter-spacing: 0.045em;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-telemetry {
+  border-color: #aea394;
+  background: rgba(230, 222, 209, 0.78);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-telemetry > div,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-telemetry > div:nth-child(3) {
+  border-bottom-color: rgba(91, 78, 62, 0.2);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-chamber,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-control-terminal {
+  border-color: #aaa091;
+  background-color: #eee7da;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(164, 95, 61, 0.08), transparent 42%),
+    linear-gradient(180deg, #f8f3ea, #dfd6c8);
+  box-shadow: inset 0 1px #fffdf8, 0 10px 22px rgba(78, 64, 49, 0.15);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-slot {
+  border-color: #a79d8f !important;
+  background-color: #eee7dc !important;
+  background-image: linear-gradient(180deg, #f8f4eb, #e1d9cd 78%, #d3cabc) !important;
+  color: #39332c !important;
+  box-shadow: inset 0 1px #fffdf8, 0 5px 12px rgba(78, 64, 49, 0.15) !important;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-slot.is-sold-out {
+  background-image:
+    linear-gradient(145deg, rgba(166, 35, 58, 0.12), transparent 52%),
+    linear-gradient(180deg, #fff5f6, #eadde0 72%) !important;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-slot-code,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-slot-footer {
+  color: #554d43;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-slot-footer {
+  border-top-color: #b3aa9d;
+  background: rgba(248, 244, 235, 0.92);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-slot-viewport {
+  border-color: #97968f;
+  background:
+    radial-gradient(ellipse at 50% 76%, rgba(75, 116, 108, 0.14), transparent 54%),
+    linear-gradient(180deg, #dedfd9, #bdc0bd 76%);
+  box-shadow: inset 0 10px 22px rgba(69, 64, 56, 0.2);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-console .hsv-preview-image {
+  border-color: #96958d;
+  background:
+    linear-gradient(rgba(83, 78, 69, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(83, 78, 69, 0.045) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 72%, rgba(72, 119, 109, 0.15), transparent 56%),
+    linear-gradient(180deg, #dedfd9, #bfc2bf);
+  background-size: 16px 16px, 16px 16px, auto, auto;
+  box-shadow: inset 0 10px 22px rgba(69, 64, 56, 0.2);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-control-terminal::before {
+  background: #a45f3d;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-information h3,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-readout,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-quantity-control {
+  border-color: #afa596;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-product-information button.hsv-product-description,
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-queue-lines {
+  border-color: #aaa092 !important;
+  background: rgba(248, 244, 235, 0.84) !important;
+  color: #514a41 !important;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-queue-line {
+  border-left-color: #a45f3d;
+  background: #ece5d9;
+  color: #443d35;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-queue-empty {
+  border-color: #aaa092;
+  color: #766e63;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-queue-total {
+  border-top-color: #aca293;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-terminal-actions .hsv-clear-button,
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-terminal-actions .hsv-clear-button:disabled {
+  border-color: #92887a !important;
+  background: linear-gradient(180deg, #faf6ed, #ded5c8) !important;
+  color: #4d463d !important;
+  opacity: 1 !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-terminal-actions .hsv-dispense-button,
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+  border-color: #6b5141 !important;
+  background: linear-gradient(180deg, #b8724e, #8f4d31) !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 1px rgba(255, 248, 238, 0.38), 0 3px 8px rgba(87, 53, 36, 0.26) !important;
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-retrieval-bay {
+  border-color: #aaa091;
+  background-color: #eee7da;
+  background-image: linear-gradient(180deg, #f8f3ea, #ded5c7);
+  box-shadow: inset 0 1px #fffdf8, 0 -5px 16px rgba(78, 64, 49, 0.11);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-tray-cavity {
+  border-color: #8f8b80;
+  background:
+    radial-gradient(ellipse at 50% 100%, rgba(90, 137, 126, 0.18), transparent 56%),
+    linear-gradient(180deg, #4c504c, #222724);
+}
+
+.hsv-machine[data-machine-style-variant="corporate-kiosk-white"] .hsv-service-plate {
+  border-color: #aca293;
+  background: rgba(248, 244, 235, 0.75);
+}
+
+/* Neon -------------------------------------------------------------------
+ * Color-only Alien Market derivative. Structural selectors continue to use
+ * data-machine-style="industrial", preserving every SVG layer and placement.
+ */
+.hsv-machine[data-machine-style-variant="neon"] {
+  --vendor-chassis: #0d0716;
+  --vendor-panel: #150b21;
+  --vendor-recess: #020104;
+  --vendor-cyan: #ff2bc7;
+  --vendor-green: #77ff9a;
+  --vendor-amber: #ffd15c;
+  --vendor-magenta: #ff2bc7;
+  --vendor-muted: #9f87b2;
+  --vendor-primary: var(--vendor-cyan);
+  --vendor-secondary: #8b5cff;
+  --vendor-frame-color: #51356a;
+  --vendor-panel-color: var(--vendor-panel);
+  --vendor-highlight: var(--vendor-cyan);
+  --hs-color-primary: #ff2bc7;
+  --hs-border-subtle: #69467f;
+  --hs-border-strong: #b12ac2;
+  --hs-text-primary: #fff2fc;
+  --hs-text-secondary: #d7c7df;
+  --hs-text-tertiary: #9f87b2;
+  color: var(--hs-text-primary);
+}
+
+.hsv-machine[data-machine-style-variant="neon"]::after {
+  opacity: 0.16;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-machine-chassis {
+  border-color: #5f3678;
+  background-color: #09040f;
+  background-image:
+    var(--hsv-asset-shell),
+    radial-gradient(circle at 82% 8%, rgba(121, 69, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 18% 22%, rgba(255, 43, 199, 0.15), transparent 28%),
+    linear-gradient(145deg, #1a0d29 0%, #050208 24%, #090311 72%, #231034 100%);
+  background-blend-mode: luminosity, screen, screen, normal;
+  box-shadow:
+    0 24px 58px rgba(0, 0, 0, 0.78),
+    inset 0 0 0 3px #030105,
+    inset 0 0 0 6px #3a224c,
+    inset 0 0 72px rgba(47, 10, 67, 0.76),
+    0 0 28px rgba(255, 43, 199, 0.18);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-status-frame-art,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-slot-frame-art,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-product-display-frame-art,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-retrieval-frame-art {
+  filter:
+    brightness(0.74)
+    sepia(0.48)
+    saturate(2.7)
+    hue-rotate(255deg)
+    contrast(1.08)
+    drop-shadow(0 0 4px rgba(255, 43, 199, 0.32));
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-status-module {
+  border-color: #70408b;
+  background-color: #0c0613;
+  background-image:
+    radial-gradient(circle at 38% 30%, rgba(255, 43, 199, 0.12), transparent 32%),
+    linear-gradient(180deg, #190d26, #040207);
+  box-shadow:
+    inset 0 0 0 3px #020103,
+    inset 0 0 0 5px rgba(153, 71, 192, 0.38),
+    0 5px 0 #030105,
+    0 0 16px rgba(255, 43, 199, 0.17);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-status-module::before {
+  border-color: #24142f;
+  box-shadow: inset 0 0 0 1px #8d4eab, 0 4px 0 #030105;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-status-module::after {
+  background: var(--vendor-cyan);
+  box-shadow: 0 0 11px rgba(255, 43, 199, 0.8);
+  opacity: 1;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-block {
+  border-color: var(--vendor-cyan);
+  background:
+    radial-gradient(circle at 28% 46%, rgba(255, 43, 199, 0.2), transparent 34%),
+    linear-gradient(145deg, #210b2d, #08030d 72%);
+  box-shadow:
+    inset 0 0 0 3px #030105,
+    inset 0 0 0 4px rgba(255, 43, 199, 0.2),
+    0 0 13px rgba(255, 43, 199, 0.34);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-block::before,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-block::after,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-mark {
+  border-color: var(--vendor-cyan);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-mark {
+  background: radial-gradient(circle, rgba(255, 43, 199, 0.28), transparent 68%), #0b0411;
+  box-shadow: inset 0 0 15px rgba(255, 43, 199, 0.25), 0 0 9px rgba(255, 43, 199, 0.24);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-brand-block strong,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-identity-block h2,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-telemetry span,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-telemetry > div:not(.hsv-telemetry-primary) strong {
+  color: var(--vendor-cyan);
+  text-shadow: 0 0 8px rgba(255, 43, 199, 0.68);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-identity-block,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-telemetry {
+  border-color: #67427d;
+  background: linear-gradient(180deg, rgba(20, 8, 29, 0.92), rgba(3, 2, 6, 0.94));
+  box-shadow: inset 0 0 0 2px #020103, inset 0 0 14px rgba(120, 55, 156, 0.13);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-customer-strip {
+  border-top-color: #58306b;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-product-chamber {
+  border-color: #5c3b70;
+  background-image:
+    radial-gradient(circle at 50% 0%, rgba(255, 43, 199, 0.09), transparent 43%),
+    linear-gradient(180deg, #160a21, #030105);
+  box-shadow:
+    inset 0 0 0 3px #020103,
+    inset 0 0 0 5px rgba(93, 49, 119, 0.42),
+    inset 0 0 34px rgba(0, 0, 0, 0.78);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-chamber-marquee {
+  border-color: #653679;
+  border-left-color: var(--vendor-cyan);
+  background: #08030d;
+  box-shadow: inset 0 0 12px rgba(255, 43, 199, 0.08);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-chamber-marquee strong,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-chamber-marquee small {
+  color: var(--vendor-cyan);
+  text-shadow: 0 0 7px rgba(255, 43, 199, 0.62);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-product-slot {
+  border-color: #59376e;
+  background-color: #07020b;
+  background-image:
+    var(--hsv-asset-slot),
+    radial-gradient(ellipse at 50% 62%, rgba(255, 43, 199, 0.08), transparent 56%),
+    linear-gradient(180deg, #190b25, #030105 78%);
+  box-shadow: inset 0 0 0 3px #020103, inset 0 0 0 5px #342042, 0 4px 6px rgba(0, 0, 0, 0.76);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-product-slot.is-selected {
+  border-color: var(--vendor-cyan);
+  box-shadow:
+    inset 0 0 0 3px #020103,
+    inset 0 0 0 5px var(--vendor-cyan),
+    0 0 18px rgba(255, 43, 199, 0.58);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-slot-code {
+  border-color: #75458b;
+  background: linear-gradient(180deg, #241131, #08030c);
+  color: var(--vendor-cyan);
+  text-shadow: 0 0 7px rgba(255, 43, 199, 0.65);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-slot-viewport {
+  border-color: #513064;
+  background:
+    linear-gradient(90deg, rgba(255, 43, 199, 0.06), transparent 15%, transparent 85%, rgba(121, 80, 255, 0.07)),
+    radial-gradient(ellipse at 50% 84%, rgba(255, 43, 199, 0.18), transparent 52%),
+    linear-gradient(180deg, #09030f, #010102 72%, #100518);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-slot-pedestal,
+.hsv-machine[data-machine-style-variant="neon"] .is-selected .hsv-slot-pedestal {
+  border-top-color: var(--vendor-cyan);
+  background: linear-gradient(180deg, #70205f, #26091f 44%, #020103);
+  box-shadow: 0 -5px 15px rgba(255, 43, 199, 0.42);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-slot-footer {
+  border-color: #5e3a72;
+  background: linear-gradient(180deg, #160a21, #040106);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-slot-mini-meter i.is-active,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-stock-meter i.is-active {
+  border-color: var(--vendor-cyan);
+  background: var(--vendor-cyan);
+  box-shadow: 0 0 6px rgba(255, 43, 199, 0.68);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-control-terminal {
+  border-color: #9a36b7;
+  background-color: #08030d;
+  background-image:
+    var(--hsv-asset-terminal),
+    radial-gradient(circle at 50% 0%, rgba(120, 71, 255, 0.15), transparent 44%),
+    linear-gradient(180deg, #180a25, #030105);
+  background-blend-mode: luminosity, screen, normal;
+  box-shadow:
+    inset 0 0 0 4px #050208,
+    inset 0 0 0 6px #6e3188,
+    inset 0 0 32px rgba(0, 0, 0, 0.82),
+    0 0 18px rgba(255, 43, 199, 0.25);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-product-console .hsv-preview-image {
+  border-color: var(--vendor-cyan);
+  background:
+    linear-gradient(rgba(255, 43, 199, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 43, 199, 0.035) 1px, transparent 1px),
+    radial-gradient(ellipse at 50% 76%, rgba(121, 80, 255, 0.2), transparent 54%),
+    #030105;
+  background-size: 14px 14px, 14px 14px, auto, auto;
+  box-shadow: inset 0 10px 24px rgba(0, 0, 0, 0.8), 0 0 9px rgba(255, 43, 199, 0.32);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-product-information h3,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-dispense-queue h3 {
+  color: var(--vendor-cyan);
+  text-shadow: 0 0 7px rgba(255, 43, 199, 0.55);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-quantity-control .hsv-add-queue {
+  border-color: #ff6bdd;
+  background: linear-gradient(180deg, #a92591, #651257);
+  color: #fff3fd;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08), 0 3px 0 #37072f, 0 0 9px rgba(255, 43, 199, 0.32);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-queue-lines {
+  border-color: #8c2794;
+  background: #030105;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-queue-line {
+  border-color: #593268;
+  border-left-color: var(--vendor-cyan);
+  background: linear-gradient(90deg, rgba(255, 43, 199, 0.11), rgba(8, 3, 12, 0.94) 28%);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-terminal-actions .hsv-clear-button,
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-terminal-actions .hsv-clear-button:disabled {
+  border-color: #8c50a3 !important;
+  background: linear-gradient(180deg, #32183f, #16091d) !important;
+  color: #f5dff4 !important;
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-terminal-actions .hsv-dispense-button,
+.holosuite-vending-app .hsv-machine[data-machine-style-variant="neon"] .hsv-terminal-actions .hsv-dispense-button:disabled {
+  border-color: #ff8ce7 !important;
+  background: linear-gradient(180deg, #ff43ce 0%, #d20da7 58%, #85086d 100%) !important;
+  color: #fff6fd !important;
+  text-shadow: 0 1px 0 #5b064c;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 214, 247, 0.22),
+    inset 0 2px rgba(255, 236, 251, 0.32),
+    0 3px 0 #5b064c,
+    0 0 15px rgba(255, 43, 199, 0.56) !important;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-retrieval-bay {
+  border-color: #633b77;
+  background-color: #09040e;
+  background-image:
+    var(--hsv-asset-tray),
+    radial-gradient(ellipse at 50% 100%, rgba(255, 43, 199, 0.12), transparent 58%),
+    linear-gradient(180deg, #190d24, #040206);
+  background-blend-mode: luminosity, screen, normal;
+  box-shadow: inset 0 0 0 3px #030105, inset 0 0 0 5px #3e244b, 0 0 14px rgba(255, 43, 199, 0.17);
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-tray-cavity {
+  border-color: #653779;
+  background:
+    linear-gradient(90deg, rgba(255, 43, 199, 0.08), transparent 12%, transparent 88%, rgba(121, 80, 255, 0.08)),
+    radial-gradient(ellipse at 50% 115%, rgba(255, 43, 199, 0.18), transparent 56%),
+    linear-gradient(180deg, #010102 0%, #040107 58%, #16071d 100%);
+  box-shadow: inset 0 20px 34px rgba(0, 0, 0, 0.96), inset 0 -8px 0 #2c1037, 0 0 0 2px #020103;
+}
+
+.hsv-machine[data-machine-style-variant="neon"] .hsv-tray-cavity > small,
+.hsv-machine[data-machine-style-variant="neon"] .hsv-serial-plate strong {
+  color: var(--vendor-cyan);
+  text-shadow: 0 0 7px rgba(255, 43, 199, 0.55);
+}
+
+/* Keep the application control above the decorative header artwork in every Foundry generation. */
+.holosuite-vending-app .hsv-machine .hsv-machine-close {
+  z-index: 30;
+  display: grid !important;
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.holosuite-vending-app .hsv-machine .hsv-machine-close > span {
+  position: relative;
+  display: block;
+  width: 14px;
+  height: 14px;
+  overflow: hidden;
+  font-size: 0;
+  pointer-events: none;
+}
+
+.holosuite-vending-app .hsv-machine .hsv-machine-close > span::before,
+.holosuite-vending-app .hsv-machine .hsv-machine-close > span::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 16px;
+  height: 2px;
+  border-radius: 1px;
+  background: currentColor;
+  content: "";
+  transform-origin: center;
+}
+
+.holosuite-vending-app .hsv-machine .hsv-machine-close > span::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.holosuite-vending-app .hsv-machine .hsv-machine-close > span::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.holosuite-vending-app .hsv-machine[data-machine-style="industrial"] .hsv-machine-close {
+  position: absolute !important;
+  top: 20px !important;
+  right: 44px !important;
+  grid-column: auto;
+  grid-row: auto;
+  align-self: auto;
+  justify-self: auto;
+  margin: 0;
+}
+
+.hsv-machine[data-machine-style="industrial"][data-machine-state="offline"] .hsv-telemetry-link strong i {
+  background: var(--hs-color-danger);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--hs-color-danger) 62%, transparent);
+  opacity: 0.62;
+}

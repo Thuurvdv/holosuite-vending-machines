@@ -82,7 +82,7 @@ export class VendingApp extends BaseApplication {
   viewportResizeHandler: () => void;
 
   constructor(machineId: string, options: any = {}) {
-    super(options);
+    super({ ...options, id: `holosuite-vending-machine-${machineId}` });
     this.machineId = machineId;
     this.actor = getDefaultActor(options.actor);
     this.selectedEntryId = options.selectedEntryId ?? null;
@@ -98,7 +98,6 @@ export class VendingApp extends BaseApplication {
     this.audioHandles = new Map();
     this.viewportResizeHandler = () => this.applyViewportScale();
     window.addEventListener("resize", this.viewportResizeHandler);
-    (this as any).options.id = `holosuite-vending-machine-${machineId}`;
     openApps.add(this);
   }
 
@@ -186,13 +185,13 @@ export class VendingApp extends BaseApplication {
     this.pendingDispense = null;
     this.activeReservationId = reservationId;
     this.checkoutPending = false;
-    this.lastDispense = { state: "dispensing", message: "ITEM TRANSFER IN PROGRESS", image };
+    this.lastDispense = { state: "dispensing", message: "PLEASE STAND CLEAR", image };
     this.playAudio("dispense");
     this.render(false);
     this.scheduleDispense(() => {
       this.lastDispense = {
         state: "ready",
-        message: `${itemCount} ITEM${itemCount === 1 ? "" : "S"} — CLICK TO RETRIEVE`,
+        message: `${itemCount} ITEM${itemCount === 1 ? "" : "S"}: CLICK TO RETRIEVE`,
         image
       };
       this.render(false);
@@ -326,12 +325,14 @@ export class VendingApp extends BaseApplication {
     const viewEntries = entries.map((entry, index) => {
       const stockRatio = entry.maxStock > 0 ? entry.stock / entry.maxStock : 0;
       const activeSegments = entry.stock > 0 ? Math.max(1, Math.ceil(stockRatio * 10)) : 0;
+      const lowStock = entry.stock > 0 && entry.stock <= Math.max(1, Math.ceil(entry.maxStock * 0.25));
       const normalizedDescription = normalizeDescription(entry.description);
       return {
         ...entry,
         slotCode: `${String.fromCharCode(65 + Math.floor(index / 3))}${String((index % 3) + 1).padStart(2, "0")}`,
         selected: selectedEntry?.id === entry.id,
         soldOut: entry.stock <= 0,
+        lowStock,
         affordable: entry.price <= currencyBalance,
         priceDisplay: formatCurrencyAmount(entry.price),
         cartQuantity: this.cart.get(entry.id) ?? 0,
@@ -341,11 +342,22 @@ export class VendingApp extends BaseApplication {
       };
     });
     const slotCount = Math.max(6, Math.ceil(viewEntries.length / 3) * 3);
+    const inactiveSlotVariants = [
+      { label: game.i18n.localize("HOLOSUITEVENDING.Player.EmptySlot"), detail: game.i18n.localize("HOLOSUITEVENDING.Player.Unassigned"), icon: "fa-box-open" },
+      { label: game.i18n.localize("HOLOSUITEVENDING.Player.Unassigned"), detail: game.i18n.localize("HOLOSUITEVENDING.Player.NoProductData"), icon: "fa-plug" },
+      { label: game.i18n.localize("HOLOSUITEVENDING.Player.OfflineSlot"), detail: game.i18n.localize("HOLOSUITEVENDING.Player.ServiceRequired"), icon: "fa-power-off" },
+      { label: game.i18n.localize("HOLOSUITEVENDING.Player.Maintenance"), detail: game.i18n.localize("HOLOSUITEVENDING.Player.KeepClear"), icon: "fa-wrench" }
+    ];
     const displaySlots = Array.from({ length: slotCount }, (_, index) => {
       if (viewEntries[index]) return viewEntries[index];
+      const variant = inactiveSlotVariants[index % inactiveSlotVariants.length];
       return {
         empty: true,
-        slotCode: `${String.fromCharCode(65 + Math.floor(index / 3))}${String((index % 3) + 1).padStart(2, "0")}`
+        slotCode: `${String.fromCharCode(65 + Math.floor(index / 3))}${String((index % 3) + 1).padStart(2, "0")}`,
+        emptyLabel: variant.label,
+        emptyDetail: variant.detail,
+        emptyIcon: variant.icon,
+        emptyVariant: index % inactiveSlotVariants.length
       };
     });
     const selected = viewEntries.find((entry) => entry.id === selectedEntry?.id) ?? null;
@@ -366,10 +378,18 @@ export class VendingApp extends BaseApplication {
       failure: "TRANSACTION FAILED"
     };
 
+    const machineStyleId = machine?.styleId ?? "industrial";
+    const machineStyleBaseId = machineStyleId === "corporate-kiosk-white"
+      ? "corporate-kiosk"
+      : machineStyleId === "neon"
+        ? "industrial"
+        : machineStyleId;
+
     return {
       machine,
       manufacturerName: machine?.manufacturerName ?? "HoloSuite",
-      machineStyleId: machine?.styleId ?? "industrial",
+      machineStyleId,
+      machineStyleBaseId,
       machineDisplayImage: MachineStore.getMachineDisplayImage(machine),
       machineState,
       machineOffline: machineState === "offline",
@@ -398,6 +418,7 @@ export class VendingApp extends BaseApplication {
       systemStatus: machineState === "online" ? "NOMINAL" : machineState === "sold-out" ? "DEPLETED" : "OFFLINE",
       telemetryTemperature: machineState === "offline" ? "--" : "04 C",
       telemetryBus: machineState === "offline" ? "0 V" : "48 V",
+      connectionStatus: machineState === "offline" ? "DOWN" : "LINK",
       retrievalState: retrieval.state,
       retrievalMessage: retrieval.message,
       retrievalLabel: retrievalLabels[retrieval.state] ?? "READY",
@@ -518,7 +539,7 @@ export class VendingApp extends BaseApplication {
       });
       if (!confirmed) return;
       this.checkoutPending = true;
-      this.lastDispense = { state: "authorizing", message: "SUBMITTING PURCHASE" };
+      this.lastDispense = { state: "authorizing", message: "PROCESSING PAYMENT" };
       this.render(false);
       this.playAudio("purchase");
       const purchase = await PurchaseService.requestPurchase({
@@ -547,7 +568,7 @@ export class VendingApp extends BaseApplication {
           );
         }
       } else {
-        this.showDispenseFailure("AUTHORIZATION FAILED — CART PRESERVED");
+        this.showDispenseFailure("AUTHORIZATION FAILED: CART PRESERVED");
       }
     });
   }

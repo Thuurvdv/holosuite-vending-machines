@@ -2,7 +2,6 @@ import {
   DEFAULT_AUDIO_PATHS,
   DEFAULT_MACHINE_STYLE,
   DEFAULT_MANUFACTURER_NAME,
-  MACHINE_FLAG,
   MACHINE_STYLES,
   MAX_MACHINE_PRODUCTS,
   MODULE_ID,
@@ -30,11 +29,6 @@ function asBoolean(value, fallback = false) {
 function asNonNegativeInteger(value, fallback = 0) {
   const number = Number(value);
   return Number.isFinite(number) ? Math.max(0, Math.floor(number)) : fallback;
-}
-
-function asPositiveNumber(value, fallback = 1) {
-  const number = Number(value);
-  return Number.isFinite(number) ? Math.max(1, number) : fallback;
 }
 
 function normalizeIds(value) {
@@ -77,14 +71,10 @@ function normalizeMachine(machine: any = {}) {
     styleId: normalizeMachineStyle(machine.styleId),
     description: machine.description || "",
     image: machine.image || machine.icon || "icons/environment/settlement/stall.webp",
-    offlineImage: machine.offlineImage || "",
-    soldOutImage: machine.soldOutImage || "",
     status,
     regionIds: normalizeIds(machine.regionIds),
     access: {
-      requireProximity: asBoolean(machine.access?.requireProximity ?? machine.requireProximity, false),
-      proximityDistance: asPositiveNumber(machine.access?.proximityDistance ?? machine.proximityDistance, 2),
-      requiredItemName: String(machine.access?.requiredItemName ?? machine.requiredItemName ?? "").trim()
+      requireProximity: asBoolean(machine.access?.requireProximity ?? machine.requireProximity, true)
     },
     inventory: partitioned.active,
     overflowInventory: partitioned.overflow
@@ -330,11 +320,6 @@ export class MachineStore {
     if (index >= 0) state.machines[index] = normalized;
     else state.machines.push(normalized);
     await this.setState(state);
-    try {
-      await this.syncMachineTiles(normalized.id);
-    } catch (error) {
-      console.warn(`${MODULE_ID} | Could not synchronize vending tile art`, error);
-    }
     return normalized;
   }
 
@@ -353,11 +338,6 @@ export class MachineStore {
       entry.stock = Math.max(0, Math.floor(Number(stockByEntryId[entry.id]) || 0));
     }
     await this.setState(state);
-    try {
-      await this.syncMachineTiles(machineId);
-    } catch (error) {
-      console.warn(`${MODULE_ID} | Could not synchronize vending tile art`, error);
-    }
     return normalizeMachine(machine);
   }
 
@@ -378,7 +358,6 @@ export class MachineStore {
       for (const entry of machine.inventory) entry.stock = entry.maxStock;
     }
     await this.setState(state);
-    await Promise.allSettled(state.machines.map((machine) => this.syncMachineTiles(machine.id)));
     return state.machines;
   }
 
@@ -497,23 +476,7 @@ export class MachineStore {
       else state.machines.push(machine);
     }
     await this.setState(state);
-    await Promise.allSettled(imported.map((machine) => this.syncMachineTiles(machine.id)));
     return imported.length;
-  }
-
-  static async syncMachineTiles(machineId) {
-    if (!game.user?.isGM) return;
-    const machine = this.getMachine(machineId);
-    if (!machine) return;
-    const image = getMachineDisplayImage(machine);
-    const scenes = Array.from(game.scenes?.contents ?? game.scenes ?? []) as any[];
-    for (const scene of scenes) {
-      const tiles = Array.from(scene?.tiles?.contents ?? scene?.tiles ?? []) as any[];
-      const updates = tiles
-        .filter((tile) => tile?.getFlag?.(MODULE_ID, MACHINE_FLAG) === machineId && tile?.texture?.src !== image)
-        .map((tile) => ({ _id: tile.id, "texture.src": image }));
-      if (updates.length) await scene.updateEmbeddedDocuments("Tile", updates);
-    }
   }
 
   static createMachine(seed = {}) {

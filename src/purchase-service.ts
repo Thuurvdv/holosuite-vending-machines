@@ -1,6 +1,6 @@
 import { MODULE_ID, SOCKET_NAME } from "./constants.js";
 import { MachineStore } from "./machine-store.js";
-import { calculateCart, formatCurrencyAmount, isWithinProximity, MACHINE_STATES, normalizePurchaseLines } from "./vending-domain.mjs";
+import { calculateCart, formatCurrencyAmount, MACHINE_STATES, normalizePurchaseLines } from "./vending-domain.mjs";
 import {
   allocateCurrencyRemainder,
   calculateCurrencyTotal,
@@ -8,6 +8,7 @@ import {
   getCollectionDecision,
   getDispenseDelay
 } from "./purchase-domain.mjs";
+import { findMachineRegionPresence, getCollectionEntry } from "./region-access.mjs";
 
 const QUANTITY_PATHS = [
   "system.quantity",
@@ -121,19 +122,6 @@ function canUserOwnActor(user, actor) {
   return actor.testUserPermission?.(user, "OWNER") ?? false;
 }
 
-function getCollectionEntry(collection, id) {
-  if (!collection || !id) return null;
-  const entries = Array.from(collection.contents ?? collection);
-  return collection.get?.(id) ?? entries.find((entry: any) => entry?.id === id) ?? null;
-}
-
-function findActorToken(scene, actor, tokenId = "") {
-  const tokens = Array.from(scene?.tokens?.contents ?? scene?.tokens ?? []) as any[];
-  const requested = tokenId ? getCollectionEntry(scene?.tokens, tokenId) : null;
-  if (requested?.actorId === actor?.id || requested?.actor?.id === actor?.id) return requested;
-  return tokens.find((token) => token?.actorId === actor?.id || token?.actor?.id === actor?.id) ?? null;
-}
-
 function checkMachineAccess({ machine, actor, user, context = {} }: any) {
   if (!machine) return { allowed: false, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine") };
   if (MachineStore.getMachineState(machine) === MACHINE_STATES.OFFLINE) {
@@ -141,38 +129,10 @@ function checkMachineAccess({ machine, actor, user, context = {} }: any) {
   }
   if (user?.isGM) return { allowed: true, reason: "" };
 
-  const requiredItemName = String(machine.access?.requiredItemName ?? "").trim();
-  if (requiredItemName) {
-    const required = actorItems(actor).find((item) => {
-      return String(item?.name ?? "").trim().toLocaleLowerCase() === requiredItemName.toLocaleLowerCase()
-        && getQuantity(item).value > 0;
-    });
-    if (!required) {
-      return {
-        allowed: false,
-        reason: game.i18n.format("HOLOSUITEVENDING.Notifications.RequiredItem", { item: requiredItemName })
-      };
-    }
-  }
-
   if (machine.access?.requireProximity) {
     const scene = getCollectionEntry(game.scenes, context.sceneId) ?? canvas?.scene;
-    const token = findActorToken(scene, actor, context.tokenId);
-    if (context.regionId) {
-      const region = getCollectionEntry(scene?.regions, context.regionId);
-      const regionSource = context.source === "region-behavior" || context.source === "region-socket";
-      const linked = machine.regionIds?.includes?.(String(context.regionId));
-      if (!regionSource || !region || !linked || !token) {
-        return { allowed: false, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
-      }
-    } else {
-      const tile = getCollectionEntry(scene?.tiles, context.tileId);
-      const gridSize = scene?.grid?.size ?? canvas?.grid?.size ?? 100;
-      if (!isWithinProximity(token, tile, gridSize, machine.access.proximityDistance)) {
-        return { allowed: false, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
-      }
-    }
-    if (!token) {
+    const presence = findMachineRegionPresence({ scene, machine, actor, tokenId: context.tokenId });
+    if (!presence) {
       return { allowed: false, reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.TooFar") };
     }
   }

@@ -1,8 +1,13 @@
-<section class="hsv-machine hsv-machine-style-{{machineStyleId}}" data-machine-style="{{machineStyleId}}" data-machine-state="{{machineState}}" data-retrieval-state="{{retrievalState}}" aria-busy="{{checkoutPending}}">
+<section class="hsv-machine hsv-machine-style-{{machineStyleId}}" data-machine-style="{{machineStyleBaseId}}" data-machine-style-variant="{{machineStyleId}}" data-machine-state="{{machineState}}" data-retrieval-state="{{retrievalState}}" aria-busy="{{checkoutPending}}">
   <div class="hsv-machine-chassis">
+    <div class="hsv-machine-service-rail hsv-machine-service-rail-left" aria-hidden="true"><i></i><i></i><i></i><span></span></div>
+    <div class="hsv-machine-service-rail hsv-machine-service-rail-right" aria-hidden="true"></div>
     <header class="hsv-status-module" data-drag-handle>
+      <svg class="hsv-status-frame-art" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+        <image href="modules/holosuite-vending-machines/assets/vendor/machine-header-frame.svg?v=20260821-art4" width="1" height="1" preserveAspectRatio="none" />
+      </svg>
       <button class="hsv-machine-close" type="button" data-action="close-machine" title="{{localize "HOLOSUITEVENDING.Player.Close"}}" aria-label="{{localize "HOLOSUITEVENDING.Player.Close"}}">
-        <i class="fas fa-times"></i>
+        <span aria-hidden="true">&times;</span>
       </button>
       <div class="hsv-brand-block">
         <div class="hsv-brand-mark"><img src="{{machineDisplayImage}}" alt="" /></div>
@@ -10,6 +15,8 @@
           <span class="hsv-eyebrow">{{manufacturerName}}</span>
           <strong>{{localize "HOLOSUITEVENDING.Player.Vendor"}}</strong>
           <b>{{unitNumber}}</b>
+          <em>{{localize "HOLOSUITEVENDING.Player.BrandTagline"}}</em>
+          <small class="hsv-brand-decal">{{localize "HOLOSUITEVENDING.Player.RetailUnit"}}</small>
         </div>
       </div>
       <div class="hsv-identity-block">
@@ -24,47 +31,60 @@
         <div class="hsv-telemetry-primary"><span>{{localize "HOLOSUITEVENDING.Player.System"}}</span><strong class="hsv-state-readout"><i></i>{{systemStatus}}</strong></div>
         <div><span>{{localize "HOLOSUITEVENDING.Player.Thermal"}}</span><strong>{{telemetryTemperature}}</strong></div>
         <div><span>{{localize "HOLOSUITEVENDING.Player.PowerBus"}}</span><strong>{{telemetryBus}}</strong></div>
+        <div class="hsv-telemetry-link"><span>{{localize "HOLOSUITEVENDING.Player.Connection"}}</span><strong class="hsv-connection-indicator" title="{{connectionStatus}}" aria-label="{{connectionStatus}}"><i></i><i></i><i></i><i></i></strong></div>
       </div>
     </header>
 
-    {{#unless accessAllowed}}
-      <div class="holosuite-vending-access-warning hsv-access-warning"><i class="fas fa-lock"></i><span>{{localize "HOLOSUITEVENDING.Player.AccessInterlock"}}</span>{{accessReason}}</div>
-    {{/unless}}
-
     <div class="hsv-machine-deck">
+      {{#unless accessAllowed}}
+        <div class="holosuite-vending-access-warning hsv-access-warning"><i class="fas fa-lock"></i><span>{{localize "HOLOSUITEVENDING.Player.AccessInterlock"}}</span>{{accessReason}}</div>
+      {{/unless}}
       <section class="hsv-product-chamber" aria-label="Product compartments">
+        <div class="hsv-chamber-marquee" aria-hidden="true">
+          <span><strong>{{localize "HOLOSUITEVENDING.Player.ProductChamber"}}</strong><em>{{localize "HOLOSUITEVENDING.Player.SelectSlot"}}</em></span>
+          <small>{{systemStatus}} / 6 SLOTS</small>
+        </div>
         <div class="hsv-slot-grid">
           {{#each displaySlots}}
             {{#if empty}}
-              <div class="hsv-product-slot is-empty" aria-label="Empty slot {{slotCode}}">
+              <div class="hsv-product-slot is-empty is-empty-{{emptyVariant}}" aria-label="{{emptyLabel}} {{slotCode}}">
+                <svg class="hsv-slot-frame-art" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+                  <image href="modules/holosuite-vending-machines/assets/vendor/slot-frame.svg?v=20260821-art4" width="1" height="1" preserveAspectRatio="none" />
+                </svg>
                 <div class="hsv-slot-code"><span>{{slotCode}}</span><i></i></div>
                 <div class="hsv-slot-viewport">
                   <span class="hsv-slot-light"></span>
-                  <i class="fas fa-ban hsv-empty-glyph"></i>
-                  <span class="hsv-empty-label">{{localize "HOLOSUITEVENDING.Player.Unassigned"}}</span>
+                  <i class="fas {{emptyIcon}} hsv-empty-glyph"></i>
+                  <span class="hsv-empty-label">{{emptyLabel}}</span>
                   <span class="hsv-slot-pedestal"></span>
                 </div>
-                <div class="hsv-slot-footer"><strong>{{localize "HOLOSUITEVENDING.Player.EmptySlot"}}</strong><small>--</small></div>
+                <div class="hsv-slot-footer"><strong>{{emptyLabel}}</strong><small>{{emptyDetail}}</small></div>
               </div>
             {{else}}
               <button
                 type="button"
-                class="hsv-product-slot {{#if selected}}is-selected{{/if}} {{#if soldOut}}is-sold-out{{/if}} {{#unless affordable}}is-unaffordable{{/unless}}"
+                class="hsv-product-slot {{#if selected}}is-selected{{/if}} {{#if soldOut}}is-sold-out{{/if}} {{#if lowStock}}is-low-stock{{/if}} {{#unless affordable}}is-unaffordable{{/unless}}"
                 data-action="select-entry"
                 data-entry-id="{{id}}"
                 aria-label="Select {{displayName}}, slot {{slotCode}}{{#unless affordable}}, insufficient balance{{/unless}}"
                 {{#if ../machineOffline}}disabled{{/if}}
               >
+                <svg class="hsv-slot-frame-art" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+                  <image href="modules/holosuite-vending-machines/assets/vendor/slot-frame.svg?v=20260821-art4" width="1" height="1" preserveAspectRatio="none" />
+                </svg>
                 <span class="hsv-slot-code"><strong>{{slotCode}}</strong><i></i></span>
                 <span class="hsv-slot-viewport">
                   <span class="hsv-slot-light"></span>
                   <img src="{{image}}" alt="{{displayName}}" />
                   <span class="hsv-slot-pedestal"></span>
                   {{#if soldOut}}<span class="hsv-sold-out-overlay"><i class="fas fa-triangle-exclamation"></i><strong>{{localize "HOLOSUITEVENDING.Player.SoldOut"}}</strong></span>{{/if}}
+                  {{#unless affordable}}{{#unless soldOut}}<span class="hsv-credit-lock"><i class="fas fa-coins"></i>{{localize "HOLOSUITEVENDING.Player.InsufficientCredits"}}</span>{{/unless}}{{/unless}}
                   {{#if cartQuantity}}<span class="hsv-queued-badge">{{cartQuantity}} QUEUED</span>{{/if}}
                 </span>
                 <span class="hsv-slot-footer">
                   <strong>{{displayName}}</strong>
+                  <span class="hsv-slot-stock {{#if lowStock}}is-low{{/if}}"><i></i>{{stock}} LEFT</span>
+                  <span class="hsv-slot-mini-meter" aria-hidden="true">{{#each stockSegments}}<i class="{{#if active}}is-active{{/if}}"></i>{{/each}}</span>
                   <small class="hsv-slot-price">{{priceDisplay}} {{../currencyName}}</small>
                 </span>
               </button>
@@ -74,12 +94,17 @@
       </section>
 
       <aside class="hsv-control-terminal" aria-label="Vending controls">
+        <div class="hsv-terminal-header" aria-hidden="true"></div>
         {{#if selected}}
           <section class="hsv-product-console">
             <span class="hsv-preview-code">SLOT {{selected.slotCode}}</span>
             <div class="hsv-preview-image">
+              <svg class="hsv-product-display-frame-art" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+                <image href="modules/holosuite-vending-machines/assets/vendor/product-display-frame.svg?v=20260821-art4" width="1" height="1" preserveAspectRatio="none" />
+              </svg>
+              <span class="hsv-scanner-lines" aria-hidden="true"></span>
               <span class="hsv-hologram-ring"></span>
-              <img src="{{selected.image}}" alt="{{selected.displayName}}" />
+              <img class="hsv-preview-product-art" src="{{selected.image}}" alt="{{selected.displayName}}" />
             </div>
             <div class="hsv-product-information">
               <h3>{{selected.displayName}}</h3>
@@ -98,6 +123,8 @@
                 <div>{{#each selected.stockSegments}}<i class="{{#if active}}is-active{{/if}}"></i>{{/each}}</div>
                 <span>{{selected.stock}} / {{selected.maxStock}}</span>
               </div>
+              {{#if selected.lowStock}}<p class="hsv-selected-warning is-low"><i class="fas fa-triangle-exclamation"></i>{{localize "HOLOSUITEVENDING.Player.LowStock"}}</p>{{/if}}
+              {{#unless selected.affordable}}<p class="hsv-selected-warning is-credit"><i class="fas fa-coins"></i>{{localize "HOLOSUITEVENDING.Player.InsufficientCredits"}}</p>{{/unless}}
             </div>
           </section>
 
@@ -117,10 +144,10 @@
         {{/if}}
 
         <section class="hsv-dispense-queue">
-          <header><div><span>{{localize "HOLOSUITEVENDING.Player.OrderBuffer"}}</span><h3>{{localize "HOLOSUITEVENDING.Player.DispenseQueue"}}</h3></div><strong>{{cartCount}}</strong></header>
           <div class="hsv-queue-lines">
             {{#each cartLines}}
               <div class="hsv-queue-line">
+                <img src="{{image}}" alt="" />
                 <span><b>{{quantity}} &times;</b> {{displayName}}</span>
                 <strong>{{lineTotalDisplay}} {{../currencyName}}</strong>
                 <button type="button" data-action="remove-from-cart" data-entry-id="{{id}}" title="Remove {{displayName}}"><i class="fas fa-times"></i></button>
@@ -129,22 +156,27 @@
               <p class="hsv-queue-empty">{{localize "HOLOSUITEVENDING.Player.QueueEmpty"}}</p>
             {{/each}}
           </div>
-          <footer class="hsv-queue-total">
-            <span>{{localize "HOLOSUITEVENDING.Player.Total"}}</span>
-            <strong>{{cartTotalDisplay}} {{currencyName}}</strong>
-          </footer>
-          {{#if insufficientBalance}}<p class="hsv-funds-warning"><i class="fas fa-triangle-exclamation"></i> {{localize "HOLOSUITEVENDING.Player.InsufficientBalance"}}</p>{{/if}}
-          <div class="hsv-terminal-actions">
-            <button class="hsv-clear-button" type="button" data-action="clear-cart" {{#unless cartCount}}disabled{{/unless}}>{{localize "HOLOSUITEVENDING.Player.Clear"}}</button>
-            <button class="hsv-dispense-button" type="button" data-action="checkout" {{#unless canCheckout}}disabled{{/unless}}>
-              <i class="fas {{#if checkoutPending}}fa-spinner fa-spin{{else}}fa-cube{{/if}}"></i><span>{{#if checkoutPending}}{{localize "HOLOSUITEVENDING.Player.Authorizing"}}{{else}}{{localize "HOLOSUITEVENDING.Player.PurchaseDispense"}}{{/if}}</span>
-            </button>
+          <div class="hsv-transaction-footer">
+            <footer class="hsv-queue-total">
+              <span>{{localize "HOLOSUITEVENDING.Player.Total"}}</span>
+              <strong>{{cartTotalDisplay}} {{currencyName}}</strong>
+            </footer>
+            {{#if insufficientBalance}}<p class="hsv-funds-warning"><i class="fas fa-triangle-exclamation"></i> {{localize "HOLOSUITEVENDING.Player.InsufficientBalance"}}</p>{{/if}}
+            <div class="hsv-terminal-actions">
+              <button class="hsv-clear-button" type="button" data-action="clear-cart" {{#unless cartCount}}disabled{{/unless}}>{{localize "HOLOSUITEVENDING.Player.Clear"}}</button>
+              <button class="hsv-dispense-button" type="button" data-action="checkout" {{#unless canCheckout}}disabled{{/unless}}>
+                {{#if checkoutPending}}<i class="fas fa-spinner fa-spin"></i><span>{{localize "HOLOSUITEVENDING.Player.Authorizing"}}</span>{{else}}<span>{{localize "HOLOSUITEVENDING.Player.Buy"}}</span>{{/if}}
+              </button>
+            </div>
           </div>
         </section>
       </aside>
     </div>
 
     <section class="hsv-retrieval-bay" aria-live="polite">
+      <svg class="hsv-retrieval-frame-art" viewBox="0 0 1 1" preserveAspectRatio="none" aria-hidden="true">
+        <image href="modules/holosuite-vending-machines/assets/vendor/retrieval-bay.svg?v=20260821-art4" width="1" height="1" preserveAspectRatio="none" />
+      </svg>
       <div class="hsv-service-plate hsv-caution-plate">
         <strong>{{localize "HOLOSUITEVENDING.Player.Caution"}}</strong><span>{{localize "HOLOSUITEVENDING.Player.AutomatedSystem"}}</span><small>{{localize "HOLOSUITEVENDING.Player.KeepClear"}}</small><i></i>
       </div>
@@ -155,6 +187,8 @@
         aria-label="{{#if retrievalCanCollect}}Collect dispensed item{{else}}{{retrievalLabel}}{{/if}}"
         {{#unless retrievalCanCollect}}disabled{{/unless}}
       >
+        <span class="hsv-tray-guide hsv-tray-guide-left" aria-hidden="true"></span>
+        <span class="hsv-tray-guide hsv-tray-guide-right" aria-hidden="true"></span>
         <span class="hsv-tray-scanline"></span>
         {{#if retrievalImage}}<img class="hsv-dispensed-item" src="{{retrievalImage}}" alt="" />{{/if}}
         <i class="fas fa-chevron-right"></i>
@@ -162,6 +196,13 @@
         <i class="fas fa-chevron-left"></i>
         <small>{{retrievalMessage}}</small>
       </button>
+      <div class="hsv-service-plate hsv-thanks-plate" aria-hidden="true">
+        <i class="fas fa-smile"></i>
+        <div class="hsv-thanks-copy">
+          <strong>{{localize "HOLOSUITEVENDING.Player.ThankYou"}}</strong>
+          <span>{{localize "HOLOSUITEVENDING.Player.ComeAgain"}}</span>
+        </div>
+      </div>
       <div class="hsv-service-plate hsv-serial-plate">
         <span>{{manufacturerName}}</span><strong>{{unitNumber}}</strong><i></i><small class="hsv-retrieval-status"><b></b>{{retrievalState}}</small>
       </div>

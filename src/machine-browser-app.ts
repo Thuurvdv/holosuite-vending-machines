@@ -1,6 +1,7 @@
-import { MODULE_ID, MACHINE_FLAG, TEMPLATES } from "./constants.js";
+import { TEMPLATES } from "./constants.js";
 import { MachineStore } from "./machine-store.js";
 import { getApplicationBase } from "./application-base.js";
+import { findMachineRegionPresence } from "./region-access.mjs";
 
 const BaseApplication = getApplicationBase();
 
@@ -8,16 +9,24 @@ function getActorForUser(): any {
   return canvas?.tokens?.controlled?.[0]?.actor ?? game.user.character ?? null;
 }
 
-function getSceneMachineLinks(): any[] {
+function getSceneMachineLinks(actor): any[] {
   const links: any[] = [];
-  const linkedMachineIds = new Set<string>();
-  const regions = Array.from(canvas?.scene?.regions?.contents ?? canvas?.scene?.regions ?? []) as any[];
+  const scene = canvas?.scene;
+  const regions = Array.from(scene?.regions?.contents ?? scene?.regions ?? []) as any[];
   for (const machine of MachineStore.getMachines()) {
-    const region = regions.find((candidate) => machine.regionIds?.includes?.(String(candidate.id)));
+    const linkedRegion = regions.find((candidate) => machine.regionIds?.includes?.(String(candidate.id)));
+    if (!linkedRegion) continue;
+    const requiresLivePresence = machine.access?.requireProximity && !game.user?.isGM;
+    const presence = requiresLivePresence
+      ? findMachineRegionPresence({ scene, machine, actor, tokenId: canvas?.tokens?.controlled?.[0]?.document?.id ?? "" })
+      : null;
+    if (requiresLivePresence && !presence) continue;
+    const region = presence?.region ?? linkedRegion;
+    const tokenId = presence?.token?.id ?? canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
     if (!region) continue;
-    linkedMachineIds.add(machine.id);
     links.push({
       regionId: region.id,
+      tokenId,
       machineId: machine.id,
       name: machine.name,
       description: machine.description,
@@ -30,30 +39,7 @@ function getSceneMachineLinks(): any[] {
       linkLabel: `Region: ${region.name || region.id}`
     });
   }
-
-  // Keep old tile-linked worlds usable while Region links replace tile placement.
-  const tiles = canvas?.scene?.tiles?.contents ?? canvas?.scene?.tiles ?? [];
-  const legacyLinks = Array.from(tiles)
-    .map((tile: any) => {
-      const machineId = tile?.getFlag?.(MODULE_ID, MACHINE_FLAG);
-      const machine = machineId ? MachineStore.getMachine(machineId) : null;
-      if (!machine || linkedMachineIds.has(machineId)) return null;
-      return {
-        tileId: tile.id,
-        machineId,
-        name: machine.name,
-        description: machine.description,
-        image: MachineStore.getMachineDisplayImage(machine),
-        inventoryCount: machine.inventory?.length ?? 0,
-        availableProducts: machine.inventory?.filter((entry) => entry.stock > 0).length ?? 0,
-        totalStock: machine.inventory?.reduce((total, entry) => total + entry.stock, 0) ?? 0,
-        state: MachineStore.getMachineState(machine),
-        offline: MachineStore.getMachineState(machine) === "offline",
-        linkLabel: "Legacy Tile"
-      };
-    })
-    .filter(Boolean);
-  return [...links, ...legacyLinks];
+  return links;
 }
 
 export class MachineBrowserApp extends BaseApplication {
@@ -72,7 +58,7 @@ export class MachineBrowserApp extends BaseApplication {
   async getData() {
     const actor = getActorForUser();
     return {
-      machines: getSceneMachineLinks(),
+      machines: getSceneMachineLinks(actor),
       actorName: actor?.name ?? "",
       sceneName: canvas?.scene?.name ?? "Current Scene"
     };
@@ -82,13 +68,11 @@ export class MachineBrowserApp extends BaseApplication {
     super.activateListeners(html);
     html.find("[data-action='open-machine']").on("click", (event) => {
       const machineId = event.currentTarget.dataset.machineId;
-      const tileId = event.currentTarget.dataset.tileId;
       const regionId = event.currentTarget.dataset.regionId;
-      const tokenId = canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
+      const tokenId = event.currentTarget.dataset.tokenId ?? "";
       game.holosuiteVending.openMachine(machineId, getActorForUser(), {
-        source: regionId ? "region-browser" : "legacy-tile-browser",
+        source: "region-browser",
         sceneId: canvas?.scene?.id ?? "",
-        tileId,
         regionId,
         tokenId
       });

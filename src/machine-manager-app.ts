@@ -141,7 +141,7 @@ export class MachineManagerApp extends SettingsMenuApplication {
           : MachineStore.getMachineState(machine) === "offline" ? "Offline" : "Online",
         online: machine.status !== "offline",
         toggleLabel: machine.status === "offline" ? "Bring Online" : "Take Offline",
-        styleLabel: MACHINE_STYLES.find((style) => style.id === machine.styleId)?.label ?? "Industrial Chassis",
+        styleLabel: MACHINE_STYLES.find((style) => style.id === machine.styleId)?.label ?? "Alien Market",
         regionCount: machine.regionIds.length,
         totalStock: machine.inventory.reduce((total, entry) => total + entry.stock, 0),
         totalCapacity: machine.inventory.reduce((total, entry) => total + entry.maxStock, 0)
@@ -260,7 +260,7 @@ export class MachineManagerApp extends SettingsMenuApplication {
       const machineId = event.currentTarget.dataset.machineId;
       const confirmed = await Dialog.confirm({
         title: "Delete Vending Machine",
-        content: "<p>Delete this vending machine? Linked Regions and legacy Tiles will no longer open it.</p>"
+        content: "<p>Delete this vending machine? Linked Regions will no longer open it.</p>"
       });
       if (confirmed) await MachineStore.deleteMachine(machineId);
       this.render(false);
@@ -272,13 +272,16 @@ export class MachineEditApp extends BaseApplication {
   machineId: string;
   draft: any;
   isDirty: boolean;
+  pendingScrollEntryId: string | null;
+  pendingEditorScroll: { form: number; windowContent: number } | null;
 
   constructor(machineId: string, options: any = {}) {
-    super(options);
+    super({ ...options, id: `holosuite-vending-editor-${machineId}` });
     this.machineId = machineId;
     this.draft = foundry.utils.deepClone(options.draft ?? MachineStore.getMachine(machineId) ?? MachineStore.createMachine({ id: machineId }));
     this.isDirty = options.isNew === true;
-    (this as any).options.id = `holosuite-vending-editor-${machineId}`;
+    this.pendingScrollEntryId = null;
+    this.pendingEditorScroll = null;
   }
 
   static get defaultOptions() {
@@ -341,6 +344,68 @@ export class MachineEditApp extends BaseApplication {
     html?.find?.("[data-save-state]")?.text?.(game.i18n.localize("HOLOSUITEVENDING.Editor.DraftChanges"));
   }
 
+  renderAtEntry(entryId: string) {
+    this.pendingScrollEntryId = entryId;
+    this.render(false);
+  }
+
+  renderPreservingScroll(sourceElement: HTMLElement) {
+    const form = sourceElement?.closest?.("form");
+    const windowContent = form?.closest?.(".window-content") ?? sourceElement?.closest?.(".window-content");
+    this.pendingEditorScroll = {
+      form: Number(form?.scrollTop) || 0,
+      windowContent: Number(windowContent?.scrollTop) || 0
+    };
+    this.render(false);
+  }
+
+  restorePendingEditorScroll(html) {
+    const pending = this.pendingEditorScroll;
+    if (!pending) return;
+    const root = html?.[0] ?? html;
+    if (!root?.querySelector) return;
+    const schedule = typeof globalThis.requestAnimationFrame === "function"
+      ? globalThis.requestAnimationFrame.bind(globalThis)
+      : (callback) => globalThis.setTimeout(callback, 0);
+
+    schedule(() => {
+      const form = root.matches?.("form") ? root : root.querySelector("form");
+      const windowContent = root.matches?.(".window-content")
+        ? root
+        : root.closest?.(".window-content") ?? form?.closest?.(".window-content");
+      if (form) form.scrollTop = pending.form;
+      if (windowContent) windowContent.scrollTop = pending.windowContent;
+      this.pendingEditorScroll = null;
+    });
+  }
+
+  restorePendingEntryScroll(html) {
+    const entryId = this.pendingScrollEntryId;
+    if (!entryId) return;
+    const root = html?.[0] ?? html;
+    if (!root?.querySelectorAll) return;
+    const schedule = typeof globalThis.requestAnimationFrame === "function"
+      ? globalThis.requestAnimationFrame.bind(globalThis)
+      : (callback) => globalThis.setTimeout(callback, 0);
+
+    schedule(() => {
+      const entry = Array.from(root.querySelectorAll(".holosuite-vending-entry-editor"))
+        .find((element: any) => element.dataset?.entryId === entryId) as HTMLElement | undefined;
+      if (!entry) return;
+
+      const form = entry.closest("form");
+      const windowContent = root.matches?.(".window-content")
+        ? root
+        : root.closest?.(".window-content") ?? form?.closest?.(".window-content");
+      for (const container of new Set([form, windowContent])) {
+        if (!container || container.scrollHeight <= container.clientHeight) continue;
+        container.scrollTop = container.scrollHeight;
+      }
+      entry.scrollIntoView?.({ block: "end", inline: "nearest", behavior: "auto" });
+      this.pendingScrollEntryId = null;
+    });
+  }
+
   syncDraftFromForm(form) {
     if (!form) return this.draft;
     const formData = readForm(form);
@@ -358,14 +423,10 @@ export class MachineEditApp extends BaseApplication {
       styleId: formData.machine?.styleId || source.styleId,
       description: formData.machine?.description || "",
       image: formData.machine?.image || "",
-      offlineImage: formData.machine?.offlineImage || "",
-      soldOutImage: formData.machine?.soldOutImage || "",
       status: formData.machine?.status === "offline" ? "offline" : "online",
       regionIds,
       access: {
-        requireProximity: Boolean(form.querySelector("[name='machine.requireProximity']")?.checked),
-        proximityDistance: Math.max(1, asNumber(formData.machine?.proximityDistance, source.access?.proximityDistance ?? 2)),
-        requiredItemName: formData.machine?.requiredItemName || ""
+        requireProximity: Boolean(form.querySelector("[name='machine.requireProximity']")?.checked)
       },
       inventory: source.inventory.map((entry) => {
         const updates = formData.entries?.[entry.id] ?? {};
@@ -457,17 +518,19 @@ export class MachineEditApp extends BaseApplication {
         ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: MAX_MACHINE_PRODUCTS }));
         return;
       }
-      this.draft.inventory.push(MachineStore.createEntry());
+      const entry = MachineStore.createEntry();
+      this.draft.inventory.push(entry);
       this.isDirty = true;
-      this.render(false);
+      this.renderAtEntry(entry.id);
     });
 
     html.find("[data-action='restore-archived']").on("click", (event) => {
       this.syncDraftFromForm(event.currentTarget.closest("form"));
       if (this.draft.inventory.length >= MAX_MACHINE_PRODUCTS || !this.draft.overflowInventory?.length) return;
-      this.draft.inventory.push(this.draft.overflowInventory.shift());
+      const entry = this.draft.overflowInventory.shift();
+      this.draft.inventory.push(entry);
       this.isDirty = true;
-      this.render(false);
+      this.renderAtEntry(entry.id);
     });
 
     html.find("[data-action='discard-archived']").on("click", async (event) => {
@@ -502,7 +565,7 @@ export class MachineEditApp extends BaseApplication {
       if (index < 0 || target < 0 || target >= this.draft.inventory.length) return;
       [this.draft.inventory[index], this.draft.inventory[target]] = [this.draft.inventory[target], this.draft.inventory[index]];
       this.isDirty = true;
-      this.render(false);
+      this.renderPreservingScroll(event.currentTarget);
     });
 
     html.find(".holosuite-vending-entry-editor").on("dragstart", (event) => {
@@ -529,7 +592,7 @@ export class MachineEditApp extends BaseApplication {
       const [entry] = this.draft.inventory.splice(sourceIndex, 1);
       this.draft.inventory.splice(targetIndex, 0, entry);
       this.isDirty = true;
-      this.render(false);
+      this.renderPreservingScroll(event.currentTarget);
     });
 
     html.find(".holosuite-vending-drop-zone").on("dragover", (event) => event.preventDefault());
@@ -546,12 +609,15 @@ export class MachineEditApp extends BaseApplication {
         if (!entry) return;
         this.draft.inventory.push(entry);
         this.isDirty = true;
-        this.render(false);
+        this.renderAtEntry(entry.id);
       } catch (error) {
         console.warn(`${MODULE_ID} | Item drop failed`, error);
         ui.notifications.warn("Could not add that item to the vending machine.");
       }
     });
+
+    this.restorePendingEditorScroll(html);
+    this.restorePendingEntryScroll(html);
   }
 
   async save(form) {

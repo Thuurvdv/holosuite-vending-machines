@@ -8,25 +8,148 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: npm install
-      - run: npm test
-      - run: npm run build
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build module
+        run: npm run build
+
+      - name: Test module
+        run: npm test
+
+      - name: Validate release tag and manifest version
+        id: meta
+        shell: bash
+        run: |
+          TAG="$GITHUB_REF_NAME"
+          if [[ ! "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
+            echo "::error::Release tag must be a semantic version such as v1.3.0"
+            exit 1
+          fi
+
+          VERSION="${TAG#v}"
+          MODULE_ID=$(jq -r '.id' module.json)
+          MODULE_TITLE=$(jq -r '.title' module.json)
+          JSON_VERSION=$(jq -r '.version' module.json)
+
+          if [ "$VERSION" != "$JSON_VERSION" ]; then
+            echo "::error::Tag version ($VERSION) does not match module.json version ($JSON_VERSION)"
+            exit 1
+          fi
+
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "module_id=$MODULE_ID" >> "$GITHUB_OUTPUT"
+          echo "module_title=$MODULE_TITLE" >> "$GITHUB_OUTPUT"
+          echo "zip_name=$MODULE_ID-$TAG.zip" >> "$GITHUB_OUTPUT"
+
       - name: Package module
         shell: bash
         run: |
-          mkdir -p release/holosuite-vending-machines
-          cp -r assets dist lang styles templates module.json README.md release/holosuite-vending-machines/
+          TAG="${{ steps.meta.outputs.tag }}"
+          MODULE_ID="${{ steps.meta.outputs.module_id }}"
+          ZIP_NAME="${{ steps.meta.outputs.zip_name }}"
+          REPO="${{ github.repository }}"
+          STAGING="release/$MODULE_ID"
+
+          mkdir -p "$STAGING"
+
+          MANIFEST_URL="https://github.com/$REPO/releases/latest/download/module.json"
+          DOWNLOAD_URL="https://github.com/$REPO/releases/download/$TAG/$ZIP_NAME"
+
+          jq \
+            --arg manifest "$MANIFEST_URL" \
+            --arg download "$DOWNLOAD_URL" \
+            '.manifest = $manifest | .download = $download' \
+            module.json > "$STAGING/module.json"
+
+          for dir in assets dist lang languages styles templates audio data packs samples; do
+            [ -d "$dir" ] && cp -r "$dir" "$STAGING/$dir"
+          done
+
+          for file in README.md CHANGELOG.md LICENSE; do
+            [ -f "$file" ] && cp "$file" "$STAGING/$file"
+          done
+
           cd release
-          zip -r "holosuite-vending-machines-${GITHUB_REF_NAME}.zip" holosuite-vending-machines
+          zip -r "$ZIP_NAME" "$MODULE_ID"
+
+      - name: Verify packaged files and metadata
+        shell: bash
+        run: |
+          TAG="${{ steps.meta.outputs.tag }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          MODULE_ID="${{ steps.meta.outputs.module_id }}"
+          ZIP_NAME="${{ steps.meta.outputs.zip_name }}"
+          ZIP_PATH="release/$ZIP_NAME"
+          STAGED_MANIFEST="release/$MODULE_ID/module.json"
+          ZIP_LIST=$(mktemp)
+
+          unzip -Z1 "$ZIP_PATH" > "$ZIP_LIST"
+
+          MISSING=0
+          for dir in assets dist lang languages styles templates audio data packs samples; do
+            [ -d "$dir" ] || continue
+            while IFS= read -r -d '' FILE; do
+              EXPECTED="$MODULE_ID/$FILE"
+              if ! grep -Fxq "$EXPECTED" "$ZIP_LIST"; then
+                echo "::error::Missing from release ZIP: $EXPECTED"
+                MISSING=1
+              fi
+            done < <(find "$dir" -type f -print0)
+          done
+
+          for required in \
+            "$MODULE_ID/module.json" \
+            "$MODULE_ID/dist/main.js" \
+            "$MODULE_ID/README.md" \
+            "$MODULE_ID/CHANGELOG.md"; do
+            if ! grep -Fxq "$required" "$ZIP_LIST"; then
+              echo "::error::Required package file missing: $required"
+              MISSING=1
+            fi
+          done
+
+          if grep -Eq "^$MODULE_ID/(src|test|node_modules|package(-lock)?\.json)/" "$ZIP_LIST"; then
+            echo "::error::Development-only files were included in the release ZIP"
+            MISSING=1
+          fi
+
+          EXPECTED_MANIFEST="https://github.com/${{ github.repository }}/releases/latest/download/module.json"
+          EXPECTED_DOWNLOAD="https://github.com/${{ github.repository }}/releases/download/$TAG/$ZIP_NAME"
+
+          [ "$(jq -r '.version' "$STAGED_MANIFEST")" = "$VERSION" ] || MISSING=1
+          [ "$(jq -r '.manifest' "$STAGED_MANIFEST")" = "$EXPECTED_MANIFEST" ] || MISSING=1
+          [ "$(jq -r '.download' "$STAGED_MANIFEST")" = "$EXPECTED_DOWNLOAD" ] || MISSING=1
+
+          if [ "$MISSING" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Create GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release create "$GITHUB_REF_NAME" "release/holosuite-vending-machines-${GITHUB_REF_NAME}.zip" module.json --generate-notes
+        run: |
+          gh release create "${{ steps.meta.outputs.tag }}" \
+            "release/${{ steps.meta.outputs.zip_name }}" \
+            "release/${{ steps.meta.outputs.module_id }}/module.json" \
+            --title "${{ steps.meta.outputs.module_title }} v${{ steps.meta.outputs.version }}" \
+            --generate-notes
