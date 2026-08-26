@@ -121,7 +121,8 @@ jobs:
             "$MODULE_ID/module.json" \
             "$MODULE_ID/dist/main.js" \
             "$MODULE_ID/README.md" \
-            "$MODULE_ID/CHANGELOG.md"; do
+            "$MODULE_ID/CHANGELOG.md" \
+            "$MODULE_ID/LICENSE"; do
             if ! grep -Fxq "$required" "$ZIP_LIST"; then
               echo "::error::Required package file missing: $required"
               MISSING=1

@@ -29,6 +29,10 @@ The player window is presented as a physical vending machine: a fixed compartmen
 
 See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
+## License
+
+HoloSuite Vending Machines is released under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
+
 ## Public API
 
 ```js

@@ -64,6 +64,19 @@ test("all manifest runtime files exist in the release tree", async () => {
   await Promise.all(runtimeFiles.map((path) => access(new URL(path, projectUrl))));
 });
 
+test("ships the GPL license declared by the module manifest", async () => {
+  const [moduleData, license, workflow] = await Promise.all([
+    readProjectFile("module.json").then(JSON.parse),
+    readProjectFile("LICENSE"),
+    readProjectFile(".github/workflows/release.yml")
+  ]);
+
+  assert.equal(moduleData.license, "GPL-3.0-or-later");
+  assert.match(license, /GNU GENERAL PUBLIC LICENSE/);
+  assert.match(license, /Version 3, 29 June 2007/);
+  assert.match(workflow, /"\$MODULE_ID\/LICENSE"/);
+});
+
 test("shipped interface text contains no en or em dashes", async () => {
   const roots = ["src", "templates", "lang", "styles"];
   const files = (await Promise.all(roots.map(collectFiles))).flat();
