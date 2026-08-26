@@ -26,8 +26,8 @@ function getHoloSuiteApi(): any {
     ?? null;
 }
 
-function registerWithHoloSuite(): boolean {
-  if (registeredWithHoloSuite) return true;
+function registerWithHoloSuite(force = false): boolean {
+  if (registeredWithHoloSuite && !force) return true;
   const api = getHoloSuiteApi();
   if (!api?.registerApp) return false;
 
@@ -36,7 +36,7 @@ function registerWithHoloSuite(): boolean {
     title: "Vending Machines",
     icon: "fa-solid fa-store",
     premium: false,
-    playerVisible: true,
+    playerVisible: MachineStore.getPlayerHoloSuiteAccess(),
     description: "Create, stock, and link HoloSuite vending machines to Regions.",
     open: () => game.user?.isGM
       ? game.holosuiteVending?.openManager?.()
@@ -81,6 +81,7 @@ Hooks.once("ready", () => {
   // Ready-time wiring depends on initialized users, sockets, canvas hooks, and public game APIs.
   registerApi();
   registerWithHoloSuiteWhenReady();
+  Hooks.on(`${MODULE_ID}.playerHoloSuiteAccessChanged`, () => registerWithHoloSuite(true));
   PurchaseService.registerSocket();
   PurchaseService.resumePendingDispenses();
   registerRegionIntegration();

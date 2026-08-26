@@ -11,6 +11,7 @@ A free HoloSuite module for Foundry VTT v12-v14. GMs can configure vending machi
 - Persistent success/failure transaction ledger with JSON export.
 - Terminal-style linked Regions that prompt a player when their token enters.
 - Linked-Region presence enforcement, enabled by default for new machines.
+- Player HoloSuite launcher access is disabled by default and can be enabled by a GM in module settings.
 - Online, offline, and automatically derived sold-out states.
 - Per-machine manufacturer branding and four machine styles (Alien Market, Neon, Executive Terminal, or Corporate Kiosk).
 - Draft-safe machine editing with six physical product slots, slot reordering, and live style previews.

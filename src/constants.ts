@@ -34,6 +34,7 @@ export const SETTINGS = {
   currencyPath: "currencyActorPath",
   currencyName: "currencyItemName",
   creditTransformer: "creditTransformer",
+  playerHoloSuiteAccess: "playerHoloSuiteAccess",
   audioEnabled: "audioEnabled",
   audioVolume: "audioVolume",
   audioSelect: "audioSelect",

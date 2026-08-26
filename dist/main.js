@@ -26,6 +26,7 @@ var e = "holosuite-vending-machines", t = `module.${e}`, n = "industrial", r = [
 	currencyPath: "currencyActorPath",
 	currencyName: "currencyItemName",
 	creditTransformer: "creditTransformer",
+	playerHoloSuiteAccess: "playerHoloSuiteAccess",
 	audioEnabled: "audioEnabled",
 	audioVolume: "audioVolume",
 	audioSelect: "audioSelect",
@@ -299,6 +300,15 @@ var D = class {
 			default: !1,
 			restricted: !0,
 			onChange: () => Hooks.callAll(`${e}.currencyChanged`)
+		}), game.settings.register(e, i.playerHoloSuiteAccess, {
+			name: game.i18n.localize("HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Name"),
+			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Hint"),
+			scope: "world",
+			config: !0,
+			type: Boolean,
+			default: !1,
+			restricted: !0,
+			onChange: () => Hooks.callAll(`${e}.playerHoloSuiteAccessChanged`)
 		}), game.settings.register(e, i.audioEnabled, {
 			name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Name"),
 			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Hint"),
@@ -423,6 +433,9 @@ var D = class {
 	}
 	static getCreditTransformer() {
 		return game.settings.get(e, i.creditTransformer) === !0;
+	}
+	static getPlayerHoloSuiteAccess() {
+		return game.settings.get(e, i.playerHoloSuiteAccess) === !0;
 	}
 	static async setCreditTransformer(t) {
 		if (!game.user?.isGM) throw Error("Only a GM can change the credit transformer.");
@@ -2642,20 +2655,20 @@ function Et() {
 	let e = game.modules.get("holosuite-core");
 	return (e?.active ? e.api : null) ?? game.holosuite ?? globalThis.HoloSuiteCoreApi ?? null;
 }
-function $() {
-	if (Q) return !0;
-	let t = Et();
-	if (!t?.registerApp) return !1;
-	let n = {
+function $(t = !1) {
+	if (Q && !t) return !0;
+	let n = Et();
+	if (!n?.registerApp) return !1;
+	let r = {
 		id: e,
 		title: "Vending Machines",
 		icon: "fa-solid fa-store",
 		premium: !1,
-		playerVisible: !0,
+		playerVisible: D.getPlayerHoloSuiteAccess(),
 		description: "Create, stock, and link HoloSuite vending machines to Regions.",
 		open: () => game.user?.isGM ? game.holosuiteVending?.openManager?.() : game.holosuiteVending?.openSceneMachines?.()
 	};
-	return t.registerApp(n), Q = !0, !0;
+	return n.registerApp(r), Q = !0, !0;
 }
 function Dt() {
 	if ($()) return;
@@ -2674,7 +2687,7 @@ Hooks.once("init", () => {
 		restricted: !0
 	});
 }), Hooks.once("ready", () => {
-	Tt(), Dt(), B.registerSocket(), B.resumePendingDispenses(), St(), Hooks.on(`${e}.machinesChanged`, (e) => {
+	Tt(), Dt(), Hooks.on(`${e}.playerHoloSuiteAccessChanged`, () => $(!0)), B.registerSocket(), B.resumePendingDispenses(), St(), Hooks.on(`${e}.machinesChanged`, (e) => {
 		let t = e?.changedMachineIds;
 		Array.isArray(t) ? U.refreshMachines(t) : U.refreshAll();
 	}), Hooks.on(`${e}.currencyChanged`, () => U.refreshAll()), Hooks.on(`${e}.purchaseResult`, (e) => U.handlePurchaseResult(e)), Hooks.on(`${e}.collectionResult`, (e) => U.handleCollectionResult(e)), Hooks.on("updateUser", () => B.resumePendingDispenses()), console.log(`${e} | Ready`);

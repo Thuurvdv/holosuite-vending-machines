@@ -22,6 +22,7 @@
 - Reduced redundant machine-state cloning, targeted open-window refreshes, and batched player Region-presence checks.
 - Made linked-Region synchronization responsible-GM-only, debounced, and limited to structural machine changes.
 - Reduced pending-dispense payloads for UUID-backed products and moved repeated formatting work into reusable caches.
+- Hid Vending Machines from the player HoloSuite by default and added a GM world setting to enable them.
 
 ### Removed
 

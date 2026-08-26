@@ -247,6 +247,17 @@ export class MachineStore {
       onChange: () => Hooks.callAll(`${MODULE_ID}.currencyChanged`)
     });
 
+    game.settings.register(MODULE_ID, SETTINGS.playerHoloSuiteAccess, {
+      name: game.i18n.localize("HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Name"),
+      hint: game.i18n.localize("HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Hint"),
+      scope: "world",
+      config: true,
+      type: Boolean,
+      default: false,
+      restricted: true,
+      onChange: () => Hooks.callAll(`${MODULE_ID}.playerHoloSuiteAccessChanged`)
+    });
+
     game.settings.register(MODULE_ID, SETTINGS.audioEnabled, {
       name: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Name"),
       hint: game.i18n.localize("HOLOSUITEVENDING.Settings.AudioEnabled.Hint"),
@@ -370,6 +381,10 @@ export class MachineStore {
 
   static getCreditTransformer() {
     return game.settings.get(MODULE_ID, SETTINGS.creditTransformer) === true;
+  }
+
+  static getPlayerHoloSuiteAccess() {
+    return game.settings.get(MODULE_ID, SETTINGS.playerHoloSuiteAccess) === true;
   }
 
   static async setCreditTransformer(enabled) {

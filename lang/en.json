@@ -11,6 +11,8 @@
   "HOLOSUITEVENDING.Settings.CreditTransformer.Name": "Credit Transformer",
   "HOLOSUITEVENDING.Settings.CreditTransformer.Hint": "Present detected system money as Credits world-wide. One Credit equals one base currency unit; deductions still use each actor's system currency.",
   "HOLOSUITEVENDING.Settings.CreditTransformer.ExperimentalHint": "Experimental: This is expected to work broadly, but compatibility may vary and it has not yet been tested with every game system.",
+  "HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Name": "Show Vending Machines in Player HoloSuite",
+  "HOLOSUITEVENDING.Settings.PlayerHoloSuiteAccess.Hint": "Allow players to open the vending machine browser from their HoloSuite. Linked Region presence restrictions still apply.",
   "HOLOSUITEVENDING.Settings.AudioEnabled.Name": "Vending Machine Audio",
   "HOLOSUITEVENDING.Settings.AudioEnabled.Hint": "Play local interface and dispensing sounds for vending-machine interactions.",
   "HOLOSUITEVENDING.Settings.AudioVolume.Name": "Vending Audio Volume",
