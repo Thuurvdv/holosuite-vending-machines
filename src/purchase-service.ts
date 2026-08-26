@@ -156,6 +156,20 @@ async function resolvePurchaseItem(entry) {
   };
 }
 
+async function resolveReservedPurchaseItem(item, machineId) {
+  if (item.itemData) return foundry.utils.deepClone(item.itemData);
+  if (item.itemUuid) {
+    const document = await fromUuid(item.itemUuid);
+    if (document) return document.toObject ? document.toObject() : foundry.utils.deepClone(document);
+  }
+
+  const machine = MachineStore.getMachine(machineId);
+  const entry = [...(machine?.inventory ?? []), ...(machine?.overflowInventory ?? [])]
+    .find((candidate) => candidate.id === item.entryId);
+  if (entry) return resolvePurchaseItem(entry);
+  return resolvePurchaseItem({ displayName: item.displayName, image: item.image });
+}
+
 async function deductCurrency(source, totalPrice) {
   if (!source || totalPrice <= 0) return null;
   if (source.kind === "actor") {
@@ -279,6 +293,7 @@ export class PurchaseService {
   static transactionQueue: Promise<any> = Promise.resolve();
   static processedRequests = new Set<string>();
   static dispenseTimers = new Map<string, number>();
+  static resolvedReservationItems = new Map<string, Map<string, any>>();
 
   static registerSocket() {
     game.socket.on(SOCKET_NAME, async (payload) => {
@@ -310,8 +325,8 @@ export class PurchaseService {
     return gm?.id === game.user.id;
   }
 
-  static checkAccess({ machineId, actor, user = game.user, context = {} }) {
-    return checkMachineAccess({ machine: MachineStore.getMachine(machineId), actor, user, context });
+  static checkAccess({ machineId, machine = null, actor, user = game.user, context = {} }) {
+    return checkMachineAccess({ machine: machine ?? MachineStore.getMachine(machineId), actor, user, context });
   }
 
   static getCurrencyBalance(actor) {
@@ -519,7 +534,6 @@ export class PurchaseService {
       if (!canUserOwnActor(user, actor)) {
         throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
       }
-      machine = MachineStore.getMachine(machineId);
       const access = checkMachineAccess({ machine, actor, user, context });
       if (!access.allowed) throw new Error(access.reason);
 
@@ -535,10 +549,10 @@ export class PurchaseService {
         throw new Error(game.i18n.format("HOLOSUITEVENDING.Notifications.NoCurrency", { currency: currencyName }));
       }
 
-      const resolvedItems = [];
-      for (const line of cart.lines) {
-        resolvedItems.push({ line, itemData: await resolvePurchaseItem(line.entry) });
-      }
+      const resolvedItems = await Promise.all(cart.lines.map(async (line) => ({
+        line,
+        itemData: await resolvePurchaseItem(line.entry)
+      })));
 
       let currencyChange = null;
       const previousStocks = Object.fromEntries(cart.lines.map((line) => [line.entryId, line.entry.stock]));
@@ -565,7 +579,10 @@ export class PurchaseService {
           itemCount: cart.itemCount,
           totalPrice: cart.totalPrice,
           items: resolvedItems.map((resolved) => ({
-            itemData: resolved.itemData,
+            entryId: resolved.line.entry.id,
+            itemUuid: resolved.line.entry.itemUuid,
+            // UUID-backed products can be resolved again; only manual products need a persisted fallback.
+            ...(resolved.line.entry.itemUuid ? {} : { itemData: resolved.itemData }),
             quantity: resolved.line.quantity,
             displayName: resolved.line.entry.displayName,
             image: resolved.line.entry.image
@@ -575,6 +592,9 @@ export class PurchaseService {
           expiresAt: Date.now() + 10_850,
           status: "pending"
         });
+        this.resolvedReservationItems.set(requestId, new Map(
+          resolvedItems.map((resolved) => [resolved.line.entry.id, resolved.itemData])
+        ));
       } catch (error) {
         if (stockReserved) {
           try {
@@ -606,7 +626,10 @@ export class PurchaseService {
   static async finalizeDispense({ requestId, user = null, automatic = false, notifyResult = true }) {
     const reservation = MachineStore.getPendingDispense(requestId);
     const decision = getCollectionDecision(reservation, user);
-    if (decision === "missing") return { duplicate: true, automatic };
+    if (decision === "missing") {
+      this.resolvedReservationItems.delete(requestId);
+      return { duplicate: true, automatic };
+    }
     if (decision === "forbidden") {
       throw new Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
     }
@@ -621,10 +644,13 @@ export class PurchaseService {
     await MachineStore.updatePendingDispense(requestId, { status: "delivering" });
     const itemChanges = [];
     try {
+      const cachedItems = this.resolvedReservationItems.get(requestId);
       for (const item of reservation.items) {
-        itemChanges.push(await addItemToActor(actor, item.itemData, item.quantity));
+        const itemData = cachedItems?.get(item.entryId) ?? await resolveReservedPurchaseItem(item, reservation.machineId);
+        itemChanges.push(await addItemToActor(actor, itemData, item.quantity));
       }
       await MachineStore.removePendingDispense(requestId);
+      this.resolvedReservationItems.delete(requestId);
     } catch (error) {
       try {
         await rollbackAddedItems(itemChanges);

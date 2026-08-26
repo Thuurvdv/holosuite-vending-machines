@@ -19,8 +19,7 @@ function normalizeDescription(value) {
   return String(container.textContent ?? "").replace(/\s+/g, " ").trim();
 }
 
-function previewDescription(value, limit = 180) {
-  const text = normalizeDescription(value);
+function previewDescription(text, limit = 180) {
   if (text.length <= limit) return text;
   const candidate = text.slice(0, Math.max(1, limit - 1));
   const wordBoundary = candidate.lastIndexOf(" ");
@@ -79,7 +78,10 @@ export class VendingApp extends BaseApplication {
   pendingFocusSelector: string;
   dispenseTimers: Set<number>;
   audioHandles: Map<string, any>;
+  audioRequestVersions: Map<string, number>;
+  isClosing: boolean;
   viewportResizeHandler: () => void;
+  viewportResizeFrame: number | null;
 
   constructor(machineId: string, options: any = {}) {
     super({ ...options, id: `holosuite-vending-machine-${machineId}` });
@@ -96,7 +98,16 @@ export class VendingApp extends BaseApplication {
     this.pendingFocusSelector = "";
     this.dispenseTimers = new Set();
     this.audioHandles = new Map();
-    this.viewportResizeHandler = () => this.applyViewportScale();
+    this.audioRequestVersions = new Map();
+    this.isClosing = false;
+    this.viewportResizeFrame = null;
+    this.viewportResizeHandler = () => {
+      if (this.viewportResizeFrame !== null) return;
+      this.viewportResizeFrame = window.requestAnimationFrame(() => {
+        this.viewportResizeFrame = null;
+        this.applyViewportScale();
+      });
+    };
     window.addEventListener("resize", this.viewportResizeHandler);
     openApps.add(this);
   }
@@ -119,7 +130,10 @@ export class VendingApp extends BaseApplication {
   }
 
   async close(options: any = {}) {
+    this.isClosing = true;
     this.clearDispenseTimers();
+    if (this.viewportResizeFrame !== null) window.cancelAnimationFrame(this.viewportResizeFrame);
+    this.viewportResizeFrame = null;
     for (const handle of this.audioHandles.values()) stopAudio(handle);
     this.audioHandles.clear();
     window.removeEventListener("resize", this.viewportResizeHandler);
@@ -136,8 +150,16 @@ export class VendingApp extends BaseApplication {
     const path = config[cue];
     if (!config.enabled || !path || config.volume <= 0) return;
     stopAudio(this.audioHandles.get(cue));
+    this.audioHandles.delete(cue);
+    const requestVersion = (this.audioRequestVersions.get(cue) ?? 0) + 1;
+    this.audioRequestVersions.set(cue, requestVersion);
     playLocalAudio(path, config.volume).then((handle) => {
-      if (handle) this.audioHandles.set(cue, handle);
+      if (!handle) return;
+      if (this.isClosing || this.audioRequestVersions.get(cue) !== requestVersion) {
+        stopAudio(handle);
+        return;
+      }
+      this.audioHandles.set(cue, handle);
     });
   }
 
@@ -320,7 +342,7 @@ export class VendingApp extends BaseApplication {
       });
     const cartCount = cartLines.reduce((total, line) => total + line.quantity, 0);
     const cartTotal = cartLines.reduce((total, line) => total + line.lineTotal, 0);
-    const access = PurchaseService.checkAccess({ machineId: this.machineId, actor: this.actor, context: this.context });
+    const access = PurchaseService.checkAccess({ machineId: this.machineId, machine, actor: this.actor, context: this.context });
     const machineState = MachineStore.getMachineState(machine);
     const viewEntries = entries.map((entry, index) => {
       const stockRatio = entry.maxStock > 0 ? entry.stock / entry.maxStock : 0;
@@ -336,7 +358,7 @@ export class VendingApp extends BaseApplication {
         affordable: entry.price <= currencyBalance,
         priceDisplay: formatCurrencyAmount(entry.price),
         cartQuantity: this.cart.get(entry.id) ?? 0,
-        descriptionPreview: previewDescription(entry.description) || "No product profile supplied.",
+        descriptionPreview: previewDescription(normalizedDescription) || "No product profile supplied.",
         descriptionCanOpen: Boolean(entry.itemUuid || normalizedDescription),
         stockSegments: Array.from({ length: 10 }, (_, segment) => ({ active: segment < activeSegments }))
       };
@@ -459,15 +481,32 @@ export class VendingApp extends BaseApplication {
       const bounds = applicationElement.getBoundingClientRect();
       const startX = event.clientX;
       const startY = event.clientY;
+      let dragFrame: number | null = null;
+      let pendingPosition: { left: number; top: number } | null = null;
+
+      applicationElement.classList?.add("hsv-is-dragging");
+
+      const applyPendingPosition = () => {
+        dragFrame = null;
+        if (!pendingPosition) return;
+        (this as any).setPosition?.(pendingPosition);
+        pendingPosition = null;
+      };
 
       const move = (moveEvent: PointerEvent) => {
         const unclampedLeft = bounds.left + moveEvent.clientX - startX;
         const unclampedTop = bounds.top + moveEvent.clientY - startY;
         const left = Math.min(window.innerWidth - 80, Math.max(80 - bounds.width, unclampedLeft));
         const top = Math.min(window.innerHeight - 40, Math.max(0, unclampedTop));
-        (this as any).setPosition?.({ left: Math.round(left), top: Math.round(top) });
+        pendingPosition = { left: Math.round(left), top: Math.round(top) };
+        if (dragFrame === null) dragFrame = window.requestAnimationFrame(applyPendingPosition);
       };
       const stop = () => {
+        if (dragFrame !== null) {
+          window.cancelAnimationFrame(dragFrame);
+          applyPendingPosition();
+        }
+        applicationElement.classList?.remove("hsv-is-dragging");
         document.removeEventListener("pointermove", move);
         document.removeEventListener("pointerup", stop);
         document.removeEventListener("pointercancel", stop);
@@ -576,6 +615,13 @@ export class VendingApp extends BaseApplication {
   static refreshMachine(machineId) {
     for (const app of openApps) {
       if (app.machineId === machineId) app.render(false);
+    }
+  }
+
+  static refreshMachines(machineIds) {
+    const changed = new Set(machineIds.map(String));
+    for (const app of openApps) {
+      if (changed.has(String(app.machineId))) app.render(false);
     }
   }
 

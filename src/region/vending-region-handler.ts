@@ -3,6 +3,9 @@ import { MachineStore } from "../machine-store.js";
 
 const REGION_BEHAVIOR_TYPE = "executeScript";
 const LEGACY_REGION_BEHAVIOR_TYPES = new Set(["holosuiteVending", `${MODULE_ID}.openMachine`]);
+let regionSyncTimer: number | null = null;
+let regionSyncInFlight: Promise<void> | null = null;
+let regionSyncRequested = false;
 
 function getSceneRegions(): any[] {
   return Array.from((canvas?.scene?.regions as any)?.contents ?? canvas?.scene?.regions ?? []) as any[];
@@ -19,12 +22,6 @@ function getMachineBehaviors(region: any): any[] {
   return Array.from(region?.behaviors ?? []).filter((behavior: any) => (
     behavior?.flags?.[MODULE_ID]?.machineId || LEGACY_REGION_BEHAVIOR_TYPES.has(behavior?.type)
   ));
-}
-
-function getMachineIdsForRegion(regionId: string): string[] {
-  return MachineStore.getMachines()
-    .filter((machine) => machine.regionIds.includes(regionId))
-    .map((machine) => machine.id);
 }
 
 function getBehaviorName(machine): string {
@@ -60,6 +57,30 @@ function resolveRegionActor(message: any): any | null {
   return token?.actor ?? null;
 }
 
+function isResponsibleGM(): boolean {
+  const gm = game.users?.find?.((user: any) => user.active && user.isGM);
+  return Boolean(gm && gm.id === game.user?.id);
+}
+
+function behaviorNeedsUpdate(existing: any, behaviorData: any): boolean {
+  const events = Array.from(existing?.system?.events ?? []).map(String);
+  return existing?.name !== behaviorData.name
+    || existing?.disabled !== false
+    || events.length !== 1
+    || events[0] !== "tokenEnter"
+    || existing?.system?.source !== behaviorData["system.source"]
+    || String(existing?.flags?.[MODULE_ID]?.machineId ?? "") !== behaviorData[`flags.${MODULE_ID}.machineId`];
+}
+
+function scheduleRegionSync(delay = 75): void {
+  if (!isResponsibleGM()) return;
+  if (regionSyncTimer !== null) window.clearTimeout(regionSyncTimer);
+  regionSyncTimer = window.setTimeout(() => {
+    regionSyncTimer = null;
+    syncRegionVendingBehaviors();
+  }, delay);
+}
+
 function registerRegionSocket(): void {
   game.socket?.on?.(SOCKET_NAME, async (message: any) => {
     if (message?.action !== "openVendingFromRegion") return;
@@ -77,13 +98,22 @@ function registerRegionSocket(): void {
   });
 }
 
-export async function syncRegionVendingBehaviors(): Promise<void> {
-  if (!game.user?.isGM || !canvas?.scene || !CONFIG.RegionBehavior?.dataModels?.[REGION_BEHAVIOR_TYPE]) return;
-
+async function performRegionVendingBehaviorSync(): Promise<void> {
   const machines = MachineStore.getMachines();
+  const machinesByRegion = new Map<string, any[]>();
+  for (const machine of machines) {
+    for (const linkedRegionId of machine.regionIds) {
+      const regionId = String(linkedRegionId);
+      const linkedMachines = machinesByRegion.get(regionId) ?? [];
+      linkedMachines.push(machine);
+      machinesByRegion.set(regionId, linkedMachines);
+    }
+  }
+
   for (const region of getSceneRegions()) {
     const regionId = String(region.id ?? "");
-    const expectedMachineIds = new Set(getMachineIdsForRegion(regionId));
+    const expectedMachines = machinesByRegion.get(regionId) ?? [];
+    const expectedMachineIds = new Set(expectedMachines.map((machine) => machine.id));
     const staleBehaviorIds = getMachineBehaviors(region)
       .filter((behavior) => !expectedMachineIds.has(String(behavior.flags?.[MODULE_ID]?.machineId ?? "")))
       .map((behavior) => behavior.id);
@@ -91,9 +121,8 @@ export async function syncRegionVendingBehaviors(): Promise<void> {
 
     const creates: any[] = [];
     const updates: any[] = [];
-    for (const machineId of expectedMachineIds) {
-      const machine = machines.find((candidate) => candidate.id === machineId);
-      if (!machine) continue;
+    for (const machine of expectedMachines) {
+      const machineId = machine.id;
       const existing = getMachineBehavior(region, machineId);
       const behaviorData = {
         name: getBehaviorName(machine),
@@ -102,8 +131,9 @@ export async function syncRegionVendingBehaviors(): Promise<void> {
         "system.source": getBehaviorSource(machineId),
         [`flags.${MODULE_ID}.machineId`]: machineId
       };
-      if (existing) updates.push({ _id: existing.id, ...behaviorData });
-      else {
+      if (existing && behaviorNeedsUpdate(existing, behaviorData)) {
+        updates.push({ _id: existing.id, ...behaviorData });
+      } else if (!existing) {
         creates.push({
           name: getBehaviorName(machine),
           type: REGION_BEHAVIOR_TYPE,
@@ -119,13 +149,36 @@ export async function syncRegionVendingBehaviors(): Promise<void> {
   }
 }
 
+export async function syncRegionVendingBehaviors(): Promise<void> {
+  if (!isResponsibleGM() || !canvas?.scene || !CONFIG.RegionBehavior?.dataModels?.[REGION_BEHAVIOR_TYPE]) return;
+  if (regionSyncInFlight) {
+    regionSyncRequested = true;
+    return regionSyncInFlight;
+  }
+
+  const task = (async () => {
+    do {
+      regionSyncRequested = false;
+      await performRegionVendingBehaviorSync();
+    } while (regionSyncRequested);
+  })();
+  regionSyncInFlight = task;
+  try {
+    await task;
+  } finally {
+    if (regionSyncInFlight === task) regionSyncInFlight = null;
+  }
+}
+
 export function registerRegionBehaviorType(): void {}
 
 export function registerRegionIntegration(): void {
   registerRegionSocket();
-  window.setTimeout(() => syncRegionVendingBehaviors(), 250);
-  Hooks.on("canvasReady", () => syncRegionVendingBehaviors());
-  Hooks.on(`${MODULE_ID}.machinesChanged`, () => syncRegionVendingBehaviors());
-  Hooks.on("createRegion", () => syncRegionVendingBehaviors());
-  Hooks.on("deleteRegion", () => syncRegionVendingBehaviors());
+  scheduleRegionSync(250);
+  Hooks.on("canvasReady", () => scheduleRegionSync());
+  Hooks.on(`${MODULE_ID}.machinesChanged`, (changes) => {
+    if (changes?.regionStructureChanged !== false) scheduleRegionSync();
+  });
+  Hooks.on("createRegion", () => scheduleRegionSync());
+  Hooks.on("deleteRegion", () => scheduleRegionSync());
 }

@@ -17,7 +17,11 @@ function readForm(form: HTMLFormElement): any {
     const field = String(name);
     const stringValue = String(value ?? "");
     if (field.startsWith("machine.")) {
-      data.machine[field.slice("machine.".length)] = stringValue;
+      const key = field.slice("machine.".length);
+      const current = data.machine[key];
+      data.machine[key] = current === undefined
+        ? stringValue
+        : Array.isArray(current) ? [...current, stringValue] : [current, stringValue];
       continue;
     }
 
@@ -133,19 +137,20 @@ export class MachineManagerApp extends SettingsMenuApplication {
       failed: entry.status === "failed"
     }));
     return {
-      machines: MachineStore.getMachines().map((machine) => ({
-        ...machine,
-        state: MachineStore.getMachineState(machine),
-        stateLabel: MachineStore.getMachineState(machine) === "sold-out"
-          ? "Sold Out"
-          : MachineStore.getMachineState(machine) === "offline" ? "Offline" : "Online",
-        online: machine.status !== "offline",
-        toggleLabel: machine.status === "offline" ? "Bring Online" : "Take Offline",
-        styleLabel: MACHINE_STYLES.find((style) => style.id === machine.styleId)?.label ?? "Alien Market",
-        regionCount: machine.regionIds.length,
-        totalStock: machine.inventory.reduce((total, entry) => total + entry.stock, 0),
-        totalCapacity: machine.inventory.reduce((total, entry) => total + entry.maxStock, 0)
-      })),
+      machines: MachineStore.getMachines().map((machine) => {
+        const state = MachineStore.getMachineState(machine);
+        return {
+          ...machine,
+          state,
+          stateLabel: state === "sold-out" ? "Sold Out" : state === "offline" ? "Offline" : "Online",
+          online: machine.status !== "offline",
+          toggleLabel: machine.status === "offline" ? "Bring Online" : "Take Offline",
+          styleLabel: MACHINE_STYLES.find((style) => style.id === machine.styleId)?.label ?? "Alien Market",
+          regionCount: machine.regionIds.length,
+          totalStock: machine.inventory.reduce((total, entry) => total + entry.stock, 0),
+          totalCapacity: machine.inventory.reduce((total, entry) => total + entry.maxStock, 0)
+        };
+      }),
       currencyName: MachineStore.getCurrencyName(),
       currencySourceLabel: MachineStore.getCurrencySourceLabel(),
       creditTransformer: MachineStore.getCreditTransformer(),
@@ -192,22 +197,21 @@ export class MachineManagerApp extends SettingsMenuApplication {
       delete duplicate.id;
       duplicate.name = `${source.name} Copy`;
       const machine = await MachineStore.upsertMachine(MachineStore.createMachine(duplicate));
-      this.render(false);
       new MachineEditApp(machine.id).render(true);
     });
 
     html.find("[data-action='toggle-machine']").on("click", async (event) => {
       const machine = MachineStore.getMachine(event.currentTarget.dataset.machineId);
       if (!machine) return;
-      machine.status = machine.status === "offline" ? "online" : "offline";
-      await MachineStore.upsertMachine(machine);
-      this.render(false);
+      await MachineStore.upsertMachine({
+        ...machine,
+        status: machine.status === "offline" ? "online" : "offline"
+      });
     });
 
     html.find("[data-action='restock-machine']").on("click", async (event) => {
       await MachineStore.restockMachine(event.currentTarget.dataset.machineId);
       ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Restocked"));
-      this.render(false);
     });
 
     html.find("[data-action='restock-all']").on("click", async () => {
@@ -218,7 +222,6 @@ export class MachineManagerApp extends SettingsMenuApplication {
       if (!confirmed) return;
       await MachineStore.restockAll();
       ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.RestockedAll"));
-      this.render(false);
     });
 
     html.find("[data-action='export-machines']").on("click", () => {
@@ -231,7 +234,6 @@ export class MachineManagerApp extends SettingsMenuApplication {
         if (!payload) return;
         const count = await MachineStore.importData(payload);
         ui.notifications.info(game.i18n.format("HOLOSUITEVENDING.Notifications.Imported", { count }));
-        this.render(false);
       } catch (error) {
         console.error(`${MODULE_ID} | Import failed`, error);
         ui.notifications.error(error?.message || game.i18n.localize("HOLOSUITEVENDING.Notifications.ImportFailed"));
@@ -263,7 +265,6 @@ export class MachineManagerApp extends SettingsMenuApplication {
         content: "<p>Delete this vending machine? Linked Regions will no longer open it.</p>"
       });
       if (confirmed) await MachineStore.deleteMachine(machineId);
-      this.render(false);
     });
   }
 }
@@ -313,6 +314,7 @@ export class MachineEditApp extends BaseApplication {
 
   async getData() {
     const machine = this.draft;
+    const regionOptions = getSceneRegionOptions(machine?.regionIds ?? []);
     return {
       machine,
       entries: machine.inventory.map((entry, index) => ({
@@ -332,8 +334,8 @@ export class MachineEditApp extends BaseApplication {
         selected: machine?.styleId === style.id
       })),
       machineOffline: machine?.status === "offline",
-      regionOptions: getSceneRegionOptions(machine?.regionIds ?? []),
-      hasSceneRegions: getSceneRegionOptions().length > 0,
+      regionOptions,
+      hasSceneRegions: regionOptions.length > 0,
       sceneName: canvas?.scene?.name ?? "Current Scene",
       currencyName: MachineStore.getCurrencyName()
     };
@@ -411,7 +413,10 @@ export class MachineEditApp extends BaseApplication {
     const formData = readForm(form);
     const source = this.draft;
     const currentSceneRegionIds = new Set(getSceneRegionOptions().map((region) => region.id));
-    const selectedRegionIds = new FormData(form).getAll("machine.regionIds").map((value) => String(value)).filter(Boolean);
+    const selectedRegionValue = formData.machine?.regionIds;
+    const selectedRegionIds = (Array.isArray(selectedRegionValue) ? selectedRegionValue : [selectedRegionValue])
+      .map((value) => String(value ?? ""))
+      .filter(Boolean);
     const regionIds = [
       ...(source.regionIds ?? []).filter((regionId) => !currentSceneRegionIds.has(regionId)),
       ...selectedRegionIds
@@ -430,7 +435,7 @@ export class MachineEditApp extends BaseApplication {
       },
       inventory: source.inventory.map((entry) => {
         const updates = formData.entries?.[entry.id] ?? {};
-        return MachineStore.createEntry({
+        return {
           ...entry,
           displayName: updates.displayName || entry.displayName,
           image: updates.image || entry.image,
@@ -439,7 +444,7 @@ export class MachineEditApp extends BaseApplication {
           stock: asNumber(updates.stock, entry.stock),
           maxStock: asNumber(updates.maxStock, entry.maxStock),
           description: updates.description ?? entry.description
-        });
+        };
       })
     };
     this.draft.id = this.machineId;

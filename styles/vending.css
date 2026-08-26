@@ -971,6 +971,15 @@ body.holosuite-vending-placement-active {
   font-family: var(--hs-font-ui);
 }
 
+.hsv-is-dragging .hsv-machine,
+.hsv-is-dragging .hsv-machine *,
+.hsv-is-dragging .hsv-machine::before,
+.hsv-is-dragging .hsv-machine::after,
+.hsv-is-dragging .hsv-machine *::before,
+.hsv-is-dragging .hsv-machine *::after {
+  animation-play-state: paused !important;
+}
+
 .hsv-machine::after {
   position: absolute;
   z-index: 4;
@@ -3163,12 +3172,12 @@ button.hsv-product-slot:hover .hsv-slot-viewport > img {
   z-index: 4;
   top: -20%;
   bottom: -20%;
-  left: -65%;
+  left: 0;
   width: 34%;
   pointer-events: none;
   content: "";
   background: linear-gradient(90deg, transparent, rgba(160, 244, 255, 0.18), transparent);
-  transform: skewX(-14deg);
+  transform: translateX(-195%) skewX(-14deg);
   animation: hsv-slot-selection-sweep 2.8s ease-in-out infinite;
 }
 
@@ -3330,10 +3339,10 @@ button.hsv-product-slot:hover .hsv-slot-viewport > img {
 }
 
 @keyframes hsv-slot-selection-sweep {
-  0%, 24% { left: -65%; opacity: 0; }
+  0%, 24% { transform: translateX(-195%) skewX(-14deg); opacity: 0; }
   36% { opacity: 1; }
-  62% { left: 130%; opacity: 0; }
-  100% { left: 130%; opacity: 0; }
+  62% { transform: translateX(385%) skewX(-14deg); opacity: 0; }
+  100% { transform: translateX(385%) skewX(-14deg); opacity: 0; }
 }
 
 @keyframes hsv-stock-segment-fill {
@@ -3342,8 +3351,8 @@ button.hsv-product-slot:hover .hsv-slot-viewport > img {
 }
 
 @keyframes hsv-purchase-ready-pulse {
-  0%, 100% { filter: brightness(0.94); }
-  50% { filter: brightness(1.08); box-shadow: 0 0 15px rgba(255, 91, 55, 0.3); }
+  0%, 100% { opacity: 0.94; }
+  50% { opacity: 1; }
 }
 
 @keyframes hsv-authorization-text {
@@ -3374,8 +3383,8 @@ button.hsv-product-slot:hover .hsv-slot-viewport > img {
 }
 
 @keyframes hsv-tray-ready-pulse {
-  0%, 100% { box-shadow: inset 0 13px 24px rgba(0, 0, 0, 0.92), inset 0 0 0 1px rgba(105, 232, 255, 0.25), 0 0 0 2px #020405; }
-  50% { box-shadow: inset 0 13px 24px rgba(0, 0, 0, 0.92), inset 0 0 12px color-mix(in srgb, var(--hs-color-success) 24%, transparent), 0 0 10px color-mix(in srgb, var(--hs-color-success) 22%, transparent); }
+  0%, 100% { opacity: 0.94; }
+  50% { opacity: 1; }
 }
 
 @keyframes hsv-item-collected {

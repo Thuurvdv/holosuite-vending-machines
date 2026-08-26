@@ -50,26 +50,30 @@ var e = "holosuite-vending-machines", t = `module.${e}`, n = "industrial", r = [
 	ONLINE: "online",
 	OFFLINE: "offline",
 	SOLD_OUT: "sold-out"
-});
-function c(e, t) {
-	let n = Number(e) || 0;
-	return new Intl.NumberFormat(t, {
+}), c = /* @__PURE__ */ new Map();
+function l(e) {
+	let t = e || "__default__", n = c.get(t);
+	return n || (n = new Intl.NumberFormat(e, {
 		minimumFractionDigits: 0,
 		maximumFractionDigits: 2
-	}).format(Math.round((n + 2 ** -52) * 100) / 100);
+	}), c.set(t, n)), n;
 }
-function l(e = [], t = 0) {
+function u(e, t) {
+	let n = Number(e) || 0;
+	return l(t).format(Math.round((n + 2 ** -52) * 100) / 100);
+}
+function d(e = [], t = 0) {
 	let n = Array.isArray(e) ? e : [];
 	return n.find((e) => Number(e?.stock ?? 0) > 0 && Number(e?.price ?? 0) <= Number(t))?.id ?? n.find((e) => Number(e?.stock ?? 0) > 0)?.id ?? n[0]?.id ?? null;
 }
-function u(e = [], t = 6, n = []) {
+function f(e = [], t = 6, n = []) {
 	let r = Array.isArray(e) ? e : [], i = Array.isArray(n) ? n : [], a = Math.max(0, Math.floor(Number(t) || 0));
 	return {
 		active: r.slice(0, a),
 		overflow: [...r.slice(a), ...i]
 	};
 }
-function d(e = []) {
+function p(e = []) {
 	let t = /* @__PURE__ */ new Map();
 	for (let n of Array.isArray(e) ? e : []) {
 		let e = String(n?.entryId ?? "").trim(), r = Math.min(99, Math.max(0, Math.floor(Number(n?.quantity ?? 0))));
@@ -80,8 +84,8 @@ function d(e = []) {
 		quantity: t
 	}));
 }
-function f(e, t = []) {
-	let n = d(t), r = Array.isArray(e?.inventory) ? e.inventory : [], i = n.map((e) => {
+function m(e, t = []) {
+	let n = p(t), r = Array.isArray(e?.inventory) ? e.inventory : [], i = n.map((e) => {
 		let t = r.find((t) => t?.id === e.entryId);
 		if (!t) throw Error("Inventory entry not found.");
 		let n = Math.max(0, Number(t.stock ?? 0));
@@ -101,30 +105,30 @@ function f(e, t = []) {
 		totalPrice: i.reduce((e, t) => e + t.totalPrice, 0)
 	};
 }
-function p(e) {
+function h(e) {
 	if (e?.status === s.OFFLINE) return s.OFFLINE;
 	let t = Array.isArray(e?.inventory) ? e.inventory : [];
 	return t.length > 0 && t.every((e) => Number(e?.stock ?? 0) <= 0) ? s.SOLD_OUT : s.ONLINE;
 }
-function m(e) {
+function g(e) {
 	return e?.image || "icons/environment/settlement/stall.webp";
 }
 //#endregion
 //#region src/machine-store.ts
-function h(e = "machine") {
+function _(e = "machine") {
 	return `${e}-${foundry?.utils?.randomID?.() ?? Math.random().toString(36).slice(2, 10)}`;
 }
-function g(e) {
+function v(e) {
 	return foundry.utils.deepClone(e ?? {});
 }
-function _(e, t = !1) {
+function y(e, t = !1) {
 	return e == null || e === "" ? t : typeof e == "string" ? e === "true" || e === "on" || e === "1" : !!e;
 }
-function v(e, t = 0) {
+function b(e, t = 0) {
 	let n = Number(e);
 	return Number.isFinite(n) ? Math.max(0, Math.floor(n)) : t;
 }
-function y(e) {
+function x(e) {
 	let t = Array.isArray(e) ? e : String(e ?? "").split(/[\s,]+/);
 	return Array.from(new Set(t.map((e) => String(e).trim()).filter(Boolean)));
 }
@@ -132,53 +136,83 @@ function ee(e) {
 	let t = String(e ?? "").trim();
 	return r.some((e) => e.id === t) ? t : n;
 }
-function b(e) {
+function te(e) {
 	return (String(e ?? "").trim() || "HoloSuite").slice(0, 48);
 }
-function x(e = {}) {
+function S(e = {}) {
 	return {
-		id: e.id || h("entry"),
+		id: e.id || _("entry"),
 		itemUuid: e.itemUuid || "",
-		embeddedData: e.embeddedData ? g(e.embeddedData) : null,
+		embeddedData: e.embeddedData ? v(e.embeddedData) : null,
 		displayName: e.displayName || e.name || e.embeddedData?.name || "New Item",
 		image: e.image || e.img || e.embeddedData?.img || "icons/svg/item-bag.svg",
 		price: Math.max(0, Number.isFinite(Number(e.price)) ? Number(e.price) : 0),
-		stock: v(e.stock ?? e.maxStock, 1),
-		maxStock: v(e.maxStock ?? e.stock, 1),
+		stock: b(e.stock ?? e.maxStock, 1),
+		maxStock: b(e.maxStock ?? e.stock, 1),
 		description: e.description || e.embeddedData?.system?.description?.value || ""
 	};
 }
-function S(e = {}) {
-	let t = u(Array.isArray(e.inventory) ? e.inventory.map(x) : [], 6, Array.isArray(e.overflowInventory) ? e.overflowInventory.map(x) : []), n = e.status === s.OFFLINE ? s.OFFLINE : s.ONLINE;
+function C(e = {}) {
+	let t = f(Array.isArray(e.inventory) ? e.inventory.map(S) : [], 6, Array.isArray(e.overflowInventory) ? e.overflowInventory.map(S) : []), n = e.status === s.OFFLINE ? s.OFFLINE : s.ONLINE;
 	return {
-		id: e.id || h("machine"),
+		id: e.id || _("machine"),
 		name: e.name || "New Vending Machine",
-		manufacturerName: b(e.manufacturerName),
+		manufacturerName: te(e.manufacturerName),
 		styleId: ee(e.styleId),
 		description: e.description || "",
 		image: e.image || e.icon || "icons/environment/settlement/stall.webp",
 		status: n,
-		regionIds: y(e.regionIds),
-		access: { requireProximity: _(e.access?.requireProximity ?? e.requireProximity, !0) },
+		regionIds: x(e.regionIds),
+		access: { requireProximity: y(e.access?.requireProximity ?? e.requireProximity, !0) },
 		inventory: t.active,
 		overflowInventory: t.overflow
 	};
 }
-function C(e = {}) {
+function w(e = {}) {
 	return {
 		version: 3,
-		machines: Array.isArray(e.machines) ? e.machines.map(S) : []
+		machines: Array.isArray(e.machines) ? e.machines.map(C) : []
 	};
 }
-function te(e = {}) {
+function ne(e = [], t = []) {
+	return e.length === t.length && e.every((e, n) => String(e) === String(t[n]));
+}
+function re(e, t) {
+	return e?.id === t?.id && e?.itemUuid === t?.itemUuid && e?.displayName === t?.displayName && e?.image === t?.image && e?.price === t?.price && e?.stock === t?.stock && e?.maxStock === t?.maxStock && e?.description === t?.description;
+}
+function ie(e, t) {
+	return !e || !t || [
+		"name",
+		"manufacturerName",
+		"styleId",
+		"description",
+		"image",
+		"status"
+	].some((n) => e[n] !== t[n]) || !!e.access?.requireProximity != !!t.access?.requireProximity || !ne(e.regionIds, t.regionIds) || e.inventory.length !== t.inventory.length ? !1 : e.inventory.every((e, n) => re(e, t.inventory[n]));
+}
+function ae(e, t) {
+	return !!(e && t) && e.name === t.name && ne(e.regionIds, t.regionIds);
+}
+function T(e, t) {
+	let n = e?.machines ?? [], r = t?.machines ?? [], i = new Map(n.map((e) => [e.id, e])), a = new Map(r.map((e) => [e.id, e])), o = /* @__PURE__ */ new Set([...i.keys(), ...a.keys()]), s = [], c = !e;
+	for (let e of o) {
+		let t = i.get(e), n = a.get(e);
+		ie(t, n) || s.push(String(e)), ae(t, n) || (c = !0);
+	}
+	return {
+		changedMachineIds: s,
+		regionStructureChanged: c
+	};
+}
+function oe(e = {}) {
 	return {
 		version: 1,
 		entries: (Array.isArray(e.entries) ? e.entries : []).slice(-250)
 	};
 }
-function w(e = {}) {
+function E(e = {}) {
 	return {
-		id: String(e.id || e.requestId || h("dispense")),
+		id: String(e.id || e.requestId || _("dispense")),
 		requestId: String(e.requestId || e.id || ""),
 		machineId: String(e.machineId || ""),
 		machineName: String(e.machineName || "Unknown machine"),
@@ -189,22 +223,30 @@ function w(e = {}) {
 		userName: String(e.userName || "Unknown user"),
 		currencyName: String(e.currencyName || "Currency"),
 		itemSummary: String(e.itemSummary || ""),
-		itemCount: v(e.itemCount, 0),
+		itemCount: b(e.itemCount, 0),
 		totalPrice: Math.max(0, Number(e.totalPrice) || 0),
-		items: Array.isArray(e.items) ? g(e.items) : [],
+		items: Array.isArray(e.items) ? e.items.map((e) => ({
+			entryId: String(e.entryId || ""),
+			itemUuid: String(e.itemUuid || ""),
+			quantity: Math.max(1, b(e.quantity, 1)),
+			displayName: String(e.displayName || e.itemData?.name || "Vended Item"),
+			image: String(e.image || e.itemData?.img || "icons/svg/item-bag.svg"),
+			...e.itemData ? { itemData: v(e.itemData) } : {}
+		})) : [],
 		image: String(e.image || ""),
 		createdAt: Number(e.createdAt) || Date.now(),
 		expiresAt: Number(e.expiresAt) || Date.now() + 11e3,
 		status: e.status === "delivering" ? "delivering" : "pending"
 	};
 }
-function ne(e = {}) {
+function se(e = {}) {
 	return {
 		version: 1,
-		entries: Array.isArray(e.entries) ? e.entries.map(w) : []
+		entries: Array.isArray(e.entries) ? e.entries.map(E) : []
 	};
 }
-var T = class {
+var D = class {
+	static machineStateCache = null;
 	static registerSettings() {
 		game.settings.register(e, i.machines, {
 			name: "HoloSuite Vending Machine Data",
@@ -215,7 +257,10 @@ var T = class {
 				version: 3,
 				machines: []
 			},
-			onChange: () => Hooks.callAll(`${e}.machinesChanged`)
+			onChange: (t) => {
+				let n = this.machineStateCache, r = w(t);
+				this.machineStateCache = r, Hooks.callAll(`${e}.machinesChanged`, T(n, r));
+			}
 		}), game.settings.register(e, i.currencyName, {
 			name: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Name"),
 			hint: game.i18n.localize("HOLOSUITEVENDING.Settings.CurrencyName.Hint"),
@@ -334,23 +379,29 @@ var T = class {
 		});
 	}
 	static getState() {
-		return C(game.settings.get(e, i.machines));
+		return v(this.getCachedState());
+	}
+	static getCachedState() {
+		return this.machineStateCache ||= w(game.settings.get(e, i.machines)), this.machineStateCache;
 	}
 	static async setState(t) {
 		if (!game.user.isGM) throw Error("Only a GM can update vending machine data.");
-		await game.settings.set(e, i.machines, C(t));
+		let n = w(t);
+		await game.settings.set(e, i.machines, n);
+		let r = T(this.machineStateCache, n);
+		this.machineStateCache = n, (r.changedMachineIds.length || r.regionStructureChanged) && Hooks.callAll(`${e}.machinesChanged`, r);
 	}
 	static getMachines() {
-		return this.getState().machines;
+		return this.getCachedState().machines;
 	}
 	static getMachine(e) {
 		return this.getMachines().find((t) => t.id === e) ?? null;
 	}
 	static getMachineState(e) {
-		return p(typeof e == "string" ? this.getMachine(e) : e);
+		return h(typeof e == "string" ? this.getMachine(e) : e);
 	}
 	static getMachineDisplayImage(e) {
-		return m(typeof e == "string" ? this.getMachine(e) : e);
+		return g(typeof e == "string" ? this.getMachine(e) : e);
 	}
 	static getCurrencyName() {
 		return game.settings.get("holosuite-vending-machines", i.currencyName) || "Credits";
@@ -390,7 +441,7 @@ var T = class {
 	}
 	static async upsertMachine(e) {
 		if (Array.isArray(e?.inventory) && e.inventory.length > 6) throw Error("A vending machine can contain no more than 6 products.");
-		let t = this.getState(), n = S(e), r = t.machines.findIndex((e) => e.id === n.id);
+		let t = this.getState(), n = C(e), r = t.machines.findIndex((e) => e.id === n.id);
 		return r >= 0 ? t.machines[r] = n : t.machines.push(n), await this.setState(t), n;
 	}
 	static async deleteMachine(e) {
@@ -401,7 +452,7 @@ var T = class {
 		let n = this.getState(), r = n.machines.find((t) => t.id === e);
 		if (!r) throw Error("Vending machine not found.");
 		for (let e of r.inventory) Object.prototype.hasOwnProperty.call(t, e.id) && (e.stock = Math.max(0, Math.floor(Number(t[e.id]) || 0)));
-		return await this.setState(n), S(r);
+		return await this.setState(n), C(r);
 	}
 	static async updateEntryStock(e, t, n) {
 		return this.updateEntryStocks(e, { [t]: n });
@@ -418,10 +469,10 @@ var T = class {
 		return await this.setState(e), e.machines;
 	}
 	static getLedger() {
-		return te(game.settings.get(e, i.ledger));
+		return oe(game.settings.get(e, i.ledger));
 	}
 	static getDispenseState() {
-		return ne(game.settings.get(e, i.dispenses));
+		return se(game.settings.get(e, i.dispenses));
 	}
 	static getPendingDispenses() {
 		return this.getDispenseState().entries;
@@ -431,13 +482,13 @@ var T = class {
 	}
 	static async addPendingDispense(t) {
 		if (!game.user?.isGM) throw Error("Only a GM can authorize vending-machine delivery.");
-		let n = this.getDispenseState(), r = w(t), a = n.entries.findIndex((e) => e.requestId === r.requestId);
+		let n = this.getDispenseState(), r = E(t), a = n.entries.findIndex((e) => e.requestId === r.requestId);
 		return a >= 0 ? n.entries[a] = r : n.entries.push(r), await game.settings.set(e, i.dispenses, n), r;
 	}
 	static async updatePendingDispense(t, n) {
 		if (!game.user?.isGM) throw Error("Only a GM can update vending-machine delivery.");
 		let r = this.getDispenseState(), a = r.entries.findIndex((e) => e.requestId === t);
-		return a < 0 ? null : (r.entries[a] = w({
+		return a < 0 ? null : (r.entries[a] = E({
 			...r.entries[a],
 			...n
 		}), await game.settings.set(e, i.dispenses, r), r.entries[a]);
@@ -450,7 +501,7 @@ var T = class {
 	static async appendLedger(t) {
 		if (!game.user.isGM) return null;
 		let n = this.getLedger(), r = {
-			id: t.id || h("transaction"),
+			id: t.id || _("transaction"),
 			requestId: t.requestId || "",
 			timestamp: t.timestamp || Date.now(),
 			status: t.status === "failed" ? "failed" : "success",
@@ -484,7 +535,7 @@ var T = class {
 			version: 3,
 			exportedAt: (/* @__PURE__ */ new Date()).toISOString(),
 			currencyName: this.getCurrencyName(),
-			machines: g(this.getMachines())
+			machines: v(this.getMachines())
 		};
 	}
 	static async importData(e) {
@@ -495,7 +546,7 @@ var T = class {
 		if (n) throw Error(`Cannot import ${n.name || "a vending machine"}: it contains ${n.inventory.length} products, but the maximum is 6.`);
 		let r = this.getState(), i = [];
 		for (let e of t) {
-			let t = S(e);
+			let t = C(e);
 			i.push(t);
 			let n = r.machines.findIndex((e) => e.id === t.id);
 			n >= 0 ? r.machines[n] = t : r.machines.push(t);
@@ -503,34 +554,34 @@ var T = class {
 		return await this.setState(r), i.length;
 	}
 	static createMachine(e = {}) {
-		return S({
-			id: h("machine"),
+		return C({
+			id: _("machine"),
 			...e
 		});
 	}
 	static createEntry(e = {}) {
-		return x({
-			id: h("entry"),
+		return S({
+			id: _("entry"),
 			...e
 		});
 	}
 };
 //#endregion
 //#region src/application-base.ts
-function E() {
+function ce() {
 	return globalThis.foundry?.applications?.api ?? foundry?.applications?.api ?? null;
 }
-function D() {
+function le() {
 	return globalThis.foundry?.appv1?.api ?? foundry?.appv1?.api ?? null;
 }
-function re(e = {}, t = {}) {
+function ue(e = {}, t = {}) {
 	let n = globalThis.foundry?.utils?.mergeObject ?? foundry?.utils?.mergeObject;
 	return typeof n == "function" ? n(e, t, { inplace: !1 }) : {
 		...e,
 		...t
 	};
 }
-function O(e = {}) {
+function de(e = {}) {
 	return {
 		id: String(e.id ?? `legacy-application-${Math.random().toString(36).slice(2, 10)}`),
 		tag: e.tag ?? "section",
@@ -546,18 +597,18 @@ function O(e = {}) {
 		}
 	};
 }
-function ie(e) {
+function fe(e) {
 	return class extends e {
 		static get defaultOptions() {
 			return {};
 		}
 		static get DEFAULT_OPTIONS() {
-			return O(this.defaultOptions ?? {});
+			return de(this.defaultOptions ?? {});
 		}
 		_v1Options;
 		constructor(e = {}) {
-			let t = re(new.target.defaultOptions ?? {}, e);
-			super(O(t)), this._v1Options = t;
+			let t = ue(new.target.defaultOptions ?? {}, e);
+			super(de(t)), this._v1Options = t;
 		}
 		render(e = {}, t = {}) {
 			return typeof e == "boolean" ? super.render({
@@ -591,21 +642,21 @@ function ie(e) {
 		}
 	};
 }
-function k() {
-	let e = E(), t = D(), n = globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
+function O() {
+	let e = ce(), t = le(), n = globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
 	if (n) return n;
 	let r = e?.ApplicationV2;
-	return r ? ie(r) : null;
+	return r ? fe(r) : null;
 }
-function ae() {
-	let e = E(), t = D(), n = globalThis.FormApplication ?? t?.FormApplication ?? e?.FormApplication ?? globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
+function pe() {
+	let e = ce(), t = le(), n = globalThis.FormApplication ?? t?.FormApplication ?? e?.FormApplication ?? globalThis.Application ?? t?.Application ?? e?.ApplicationV1;
 	if (n) return n;
 	let r = e?.ApplicationV2;
-	return r ? ie(r) : k();
+	return r ? fe(r) : O();
 }
 //#endregion
 //#region src/region-access.mjs
-function A(e) {
+function k(e) {
 	if (!e) return [];
 	if (Array.isArray(e)) return e;
 	if (Array.isArray(e.contents)) return e.contents;
@@ -616,33 +667,36 @@ function A(e) {
 		return [];
 	}
 }
-function oe(e, t) {
+function me(e, t) {
 	let n = String(t ?? "");
-	return !e || !n ? null : e.get?.(n) ?? A(e).find((e) => String(e?.id ?? e?._id ?? "") === n) ?? null;
+	return !e || !n ? null : e.get?.(n) ?? k(e).find((e) => String(e?.id ?? e?._id ?? "") === n) ?? null;
 }
-function se(e, t) {
+function he(e, t) {
 	let n = String(t ?? "");
-	return !e || !n ? !1 : e.has?.(n) || e.get?.(n) ? !0 : A(e).some((e) => {
+	return !e || !n ? !1 : e.has?.(n) || e.get?.(n) ? !0 : k(e).some((e) => {
 		let t = Array.isArray(e) ? e[1] : e;
 		return String(t?.id ?? t?._id ?? t ?? "") === n;
 	});
 }
-function ce(e) {
+function ge(e) {
 	return !!e && (Array.isArray(e) || Array.isArray(e.contents) || typeof e.has == "function" || typeof e.values == "function" || typeof e[Symbol.iterator] == "function");
 }
-function le(e, t) {
+function _e(e, t) {
 	if (!e || !t) return !1;
 	let n = String(t.id ?? t._id ?? "");
 	return !!n && String(e.actorId ?? e.actor?.id ?? e.document?.actorId ?? "") === n;
 }
-function ue(e, t, n = "") {
+function ve(e, t, n = "") {
 	if (!e || !t) return [];
-	let r = A(e.tokens), i = oe(e.tokens, n), a = [];
-	le(i, t) && a.push(i);
-	for (let e of r) le(e, t) && !a.some((t) => t.id === e.id) && a.push(e);
+	let r = k(e.tokens), i = me(e.tokens, n), a = [], o = /* @__PURE__ */ new Set();
+	_e(i, t) && (a.push(i), o.add(String(i.id)));
+	for (let e of r) {
+		let n = String(e?.id ?? "");
+		_e(e, t) && !o.has(n) && (a.push(e), o.add(n));
+	}
 	return a;
 }
-function de(e, t) {
+function ye(e, t) {
 	let n = t?.document ?? t, r = Number(e?.grid?.size ?? e?.dimensions?.size ?? globalThis.canvas?.grid?.size ?? 100) || 100, i = Number(n?.x), a = Number(n?.y);
 	return !Number.isFinite(i) || !Number.isFinite(a) ? null : {
 		x: i + Number(n?.width ?? 1) * r / 2,
@@ -650,7 +704,7 @@ function de(e, t) {
 		elevation: Number(n?.elevation ?? 0)
 	};
 }
-function fe(e, t) {
+function be(e, t) {
 	let n = [
 		e?.regions,
 		e?._regions,
@@ -658,39 +712,39 @@ function fe(e, t) {
 		e?.document?._regions,
 		e?.object?.regions
 	];
-	for (let e of n) if (ce(e)) return {
+	for (let e of n) if (ge(e)) return {
 		known: !0,
-		present: se(e, t)
+		present: he(e, t)
 	};
 	return {
 		known: !1,
 		present: !1
 	};
 }
-function pe(e, t) {
+function xe(e, t) {
 	let n = [
 		e?.tokens,
 		e?._tokens,
 		e?.document?.tokens,
 		e?.object?.tokens
 	];
-	for (let e of n) if (ce(e)) return {
+	for (let e of n) if (ge(e)) return {
 		known: !0,
-		present: se(e, t)
+		present: he(e, t)
 	};
 	return {
 		known: !1,
 		present: !1
 	};
 }
-function me(e, t, n) {
+function A(e, t, n) {
 	let r = String(e?.id ?? e?._id ?? ""), i = String(t?.id ?? t?._id ?? t?.document?.id ?? "");
 	if (!r || !i) return !1;
-	let a = fe(t, r);
+	let a = be(t, r);
 	if (a.known) return a.present;
-	let o = pe(e, i);
+	let o = xe(e, i);
 	if (o.known) return o.present;
-	let s = de(n, t);
+	let s = ye(n, t);
 	if (!s) return !1;
 	for (let t of [e, e?.object]) if (t) {
 		if (typeof t.testPoint == "function") {
@@ -704,54 +758,73 @@ function me(e, t, n) {
 	}
 	return !1;
 }
-function he({ scene: e, machine: t, actor: n, tokenId: r = "" }) {
+function Se({ scene: e, machine: t, actor: n, tokenId: r = "" }) {
 	if (!e || !t || !n) return null;
 	let i = new Set((t.regionIds ?? []).map((e) => String(e)));
 	if (!i.size) return null;
-	let a = A(e.regions).filter((e) => i.has(String(e?.id ?? e?._id ?? "")));
-	for (let t of ue(e, n, r)) for (let n of a) if (me(n, t, e)) return {
+	let a = k(e.regions).filter((e) => i.has(String(e?.id ?? e?._id ?? "")));
+	for (let t of ve(e, n, r)) for (let n of a) if (A(n, t, e)) return {
 		region: n,
 		token: t.document ?? t
 	};
 	return null;
 }
+function Ce({ scene: e, machines: t = [], actor: n, tokenId: r = "" }) {
+	let i = /* @__PURE__ */ new Map();
+	if (!e || !n || !Array.isArray(t) || !t.length) return i;
+	let a = new Set(t.flatMap((e) => (e.regionIds ?? []).map((e) => String(e)))), o = k(e.regions).filter((e) => a.has(String(e?.id ?? e?._id ?? ""))), s = /* @__PURE__ */ new Map();
+	for (let t of ve(e, n, r)) for (let n of o) {
+		let r = String(n?.id ?? n?._id ?? "");
+		!s.has(r) && A(n, t, e) && s.set(r, {
+			region: n,
+			token: t.document ?? t
+		});
+	}
+	for (let e of t) {
+		let t = (e.regionIds ?? []).map((e) => s.get(String(e))).find(Boolean);
+		t && i.set(e.id, t);
+	}
+	return i;
+}
 //#endregion
 //#region src/machine-browser-app.ts
-var ge = k();
+var we = O();
 function j() {
 	return canvas?.tokens?.controlled?.[0]?.actor ?? game.user.character ?? null;
 }
-function _e(e) {
-	let t = [], n = canvas?.scene, r = Array.from(n?.regions?.contents ?? n?.regions ?? []);
-	for (let i of T.getMachines()) {
-		let a = r.find((e) => i.regionIds?.includes?.(String(e.id)));
-		if (!a) continue;
-		let o = i.access?.requireProximity && !game.user?.isGM, s = o ? he({
-			scene: n,
-			machine: i,
-			actor: e,
-			tokenId: canvas?.tokens?.controlled?.[0]?.document?.id ?? ""
-		}) : null;
-		if (o && !s) continue;
-		let c = s?.region ?? a, l = s?.token?.id ?? canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
-		c && t.push({
+function Te(e) {
+	let t = [], n = canvas?.scene, r = D.getMachines(), i = Array.from(n?.regions?.contents ?? n?.regions ?? []), a = new Map(i.map((e) => [String(e.id), e])), o = canvas?.tokens?.controlled?.[0]?.document?.id ?? "", s = Ce({
+		scene: n,
+		machines: game.user?.isGM ? [] : r.filter((e) => e.access?.requireProximity),
+		actor: e,
+		tokenId: o
+	});
+	for (let e of r) {
+		let n = e.regionIds?.map?.((e) => a.get(String(e))).find(Boolean);
+		if (!n) continue;
+		let r = e.access?.requireProximity && !game.user?.isGM, i = r ? s.get(e.id) : null;
+		if (r && !i) continue;
+		let c = i?.region ?? n, l = i?.token?.id ?? o;
+		if (!c) continue;
+		let u = D.getMachineState(e);
+		t.push({
 			regionId: c.id,
 			tokenId: l,
-			machineId: i.id,
-			name: i.name,
-			description: i.description,
-			image: T.getMachineDisplayImage(i),
-			inventoryCount: i.inventory?.length ?? 0,
-			availableProducts: i.inventory?.filter((e) => e.stock > 0).length ?? 0,
-			totalStock: i.inventory?.reduce((e, t) => e + t.stock, 0) ?? 0,
-			state: T.getMachineState(i),
-			offline: T.getMachineState(i) === "offline",
+			machineId: e.id,
+			name: e.name,
+			description: e.description,
+			image: D.getMachineDisplayImage(e),
+			inventoryCount: e.inventory?.length ?? 0,
+			availableProducts: e.inventory?.filter((e) => e.stock > 0).length ?? 0,
+			totalStock: e.inventory?.reduce((e, t) => e + t.stock, 0) ?? 0,
+			state: u,
+			offline: u === "offline",
 			linkLabel: `Region: ${c.name || c.id}`
 		});
 	}
 	return t;
 }
-var ve = class extends ge {
+var Ee = class extends we {
 	static get defaultOptions() {
 		return foundry.utils.mergeObject(super.defaultOptions, {
 			id: "holosuite-vending-browser",
@@ -766,7 +839,7 @@ var ve = class extends ge {
 	async getData() {
 		let e = j();
 		return {
-			machines: _e(e),
+			machines: Te(e),
 			actorName: e?.name ?? "",
 			sceneName: canvas?.scene?.name ?? "Current Scene"
 		};
@@ -798,7 +871,7 @@ function P(e, t = M) {
 function F(e = [], t = M) {
 	return N((Array.isArray(e) ? e : []).reduce((e, n) => e + (Number(n?.amount) || 0) * P(n?.key, t), 0));
 }
-function ye(e = [], t = 0, n = M) {
+function De(e = [], t = 0, n = M) {
 	let r = Array.isArray(e) ? e : [], i = F(r, n), a = N(Math.max(0, i - Math.max(0, Number(t) || 0))), o = [...r].sort((e, t) => P(t?.key, n) - P(e?.key, n)), s = {};
 	return o.forEach((e, t) => {
 		let r = P(e?.key, n), i = t === o.length - 1 ? N(a / r) : Math.floor(N(a / r));
@@ -812,28 +885,28 @@ function ye(e = [], t = 0, n = M) {
 		})), n)
 	};
 }
-function be(e, t = null) {
+function Oe(e, t = null) {
 	return e ? t && !t.isGM && e.userId !== t.id ? "forbidden" : e.status === "delivering" ? "busy" : "deliver" : "missing";
 }
-function xe(e, t = Date.now()) {
+function ke(e, t = Date.now()) {
 	return Math.max(0, Number(e) - Number(t));
 }
 //#endregion
 //#region src/purchase-service.ts
-var Se = [
+var Ae = [
 	"system.quantity",
 	"system.qty",
 	"system.amount",
 	"system.count",
 	"system.stack",
 	"system.uses.value"
-], I = [
+], je = [
 	"system.currency",
 	"system.currencies",
 	"system.money",
 	"system.wealth",
 	"system.resources.currency"
-], Ce = M, we = {
+], Me = M, Ne = {
 	cp: "CP",
 	sp: "SP",
 	ep: "EP",
@@ -846,8 +919,8 @@ var Se = [
 	funds: "Funds",
 	wealth: "Wealth"
 };
-function L(e) {
-	for (let t of Se) {
+function I(e) {
+	for (let t of Ae) {
 		let n = foundry.utils.getProperty(e, t);
 		if (Number.isFinite(Number(n))) return {
 			path: t,
@@ -859,14 +932,14 @@ function L(e) {
 		value: 1
 	};
 }
-function R(e) {
+function Pe(e) {
 	return Array.from(e?.items ?? []);
 }
-function Te(e, t) {
+function Fe(e, t) {
 	let n = String(t).trim().toLocaleLowerCase();
-	return R(e).find((e) => String(e.name).trim().toLocaleLowerCase() === n);
+	return Pe(e).find((e) => String(e.name).trim().toLocaleLowerCase() === n);
 }
-function Ee(e, t) {
+function Ie(e, t) {
 	return e == null || e === "" ? [] : Number.isFinite(Number(e)) ? [{
 		key: t.split(".").at(-1) || "currency",
 		path: t,
@@ -877,63 +950,63 @@ function Ee(e, t) {
 		amount: Number(n)
 	}));
 }
-function De(e) {
+function Le(e) {
 	if (!e) return [];
-	let t = T.getCurrencyPath(), n = t ? [t, ...I] : I, r = /* @__PURE__ */ new Set();
+	let t = D.getCurrencyPath(), n = t ? [t, ...je] : je, r = /* @__PURE__ */ new Set();
 	for (let t of n) {
 		if (!t || r.has(t)) continue;
 		r.add(t);
-		let n = Ee(foundry.utils.getProperty(e, t), t);
+		let n = Ie(foundry.utils.getProperty(e, t), t);
 		if (n.length) return n;
 	}
 	return [];
 }
-function Oe(e) {
+function Re(e) {
 	return F(e);
 }
-function ke(e) {
+function ze(e) {
 	let t = e.map((e) => String(e.key).toLocaleLowerCase());
-	return t.some((e) => Object.hasOwn(Ce, e)) ? "GP" : t.length === 1 ? we[t[0]] ?? String(e[0].key).toLocaleUpperCase() : T.getCurrencyName();
+	return t.some((e) => Object.hasOwn(Me, e)) ? "GP" : t.length === 1 ? Ne[t[0]] ?? String(e[0].key).toLocaleUpperCase() : D.getCurrencyName();
 }
-function z(e) {
-	let t = T.getCurrencyMode(), n = De(e);
+function L(e) {
+	let t = D.getCurrencyMode(), n = Le(e);
 	if ((t === "auto" || t === "actor") && n.length) return {
 		kind: "actor",
 		actor: e,
 		entries: n,
-		value: Oe(n),
-		label: T.getCreditTransformer() ? "Credits" : ke(n)
+		value: Re(n),
+		label: D.getCreditTransformer() ? "Credits" : ze(n)
 	};
 	if (t === "actor") return {
 		kind: "invalid",
 		actor: e,
 		value: 0,
-		label: T.getCurrencyName()
+		label: D.getCurrencyName()
 	};
-	let r = Te(e, T.getCurrencyName());
+	let r = Fe(e, D.getCurrencyName());
 	return r ? {
 		kind: "item",
 		item: r,
-		value: L(r).value,
-		label: r.name || T.getCurrencyName()
+		value: I(r).value,
+		label: r.name || D.getCurrencyName()
 	} : {
 		kind: "missing",
 		value: 0,
-		label: T.getCurrencyName()
+		label: D.getCurrencyName()
 	};
 }
-function Ae(e, t) {
+function Be(e, t) {
 	return !t || !e ? !1 : e.isGM ? !0 : t.testUserPermission?.(e, "OWNER") ?? !1;
 }
-function je({ machine: e, actor: t, user: n, context: r = {} }) {
-	return e ? T.getMachineState(e) === s.OFFLINE ? {
+function Ve({ machine: e, actor: t, user: n, context: r = {} }) {
+	return e ? D.getMachineState(e) === s.OFFLINE ? {
 		allowed: !1,
 		reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.Offline")
 	} : n?.isGM ? {
 		allowed: !0,
 		reason: ""
-	} : e.access?.requireProximity && !he({
-		scene: oe(game.scenes, r.sceneId) ?? canvas?.scene,
+	} : e.access?.requireProximity && !Se({
+		scene: me(game.scenes, r.sceneId) ?? canvas?.scene,
 		machine: e,
 		actor: t,
 		tokenId: r.tokenId
@@ -948,7 +1021,7 @@ function je({ machine: e, actor: t, user: n, context: r = {} }) {
 		reason: game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")
 	};
 }
-async function Me(e) {
+async function He(e) {
 	if (e.itemUuid) {
 		let t = await fromUuid(e.itemUuid);
 		if (t) return t.toObject ? t.toObject() : foundry.utils.deepClone(t);
@@ -962,10 +1035,22 @@ async function Me(e) {
 		system: {}
 	};
 }
-async function Ne(e, t) {
+async function Ue(e, t) {
+	if (e.itemData) return foundry.utils.deepClone(e.itemData);
+	if (e.itemUuid) {
+		let t = await fromUuid(e.itemUuid);
+		if (t) return t.toObject ? t.toObject() : foundry.utils.deepClone(t);
+	}
+	let n = D.getMachine(t);
+	return He([...n?.inventory ?? [], ...n?.overflowInventory ?? []].find((t) => t.id === e.entryId) || {
+		displayName: e.displayName,
+		image: e.image
+	});
+}
+async function We(e, t) {
 	if (!e || t <= 0) return null;
 	if (e.kind === "actor") {
-		let n = Object.fromEntries(e.entries.map((e) => [e.path, e.amount])), { updates: r } = ye(e.entries, t);
+		let n = Object.fromEntries(e.entries.map((e) => [e.path, e.amount])), { updates: r } = De(e.entries, t);
 		return await e.actor.update(r), {
 			type: "actor",
 			actor: e.actor,
@@ -973,7 +1058,7 @@ async function Ne(e, t) {
 		};
 	}
 	if (e.kind !== "item") return null;
-	let n = e.item, r = L(n), i = n.toObject ? n.toObject() : foundry.utils.deepClone(n), a = r.value - t;
+	let n = e.item, r = I(n), i = n.toObject ? n.toObject() : foundry.utils.deepClone(n), a = r.value - t;
 	return a <= 0 ? (await n.delete(), {
 		type: "deleted",
 		actor: n.parent,
@@ -985,7 +1070,7 @@ async function Ne(e, t) {
 		previous: r.value
 	});
 }
-async function Pe(e) {
+async function Ge(e) {
 	if (!e) return;
 	if (e.type === "actor") {
 		await e.actor.update(e.previous);
@@ -998,12 +1083,12 @@ async function Pe(e) {
 	let t = foundry.utils.deepClone(e.snapshot);
 	delete t._id, await e.actor.createEmbeddedDocuments("Item", [t]);
 }
-async function Fe(e, t, n) {
+async function Ke(e, t, n) {
 	let r = foundry.utils.deepClone(t);
 	delete r._id, r.name = r.name || "Vended Item", r.img = r.img || "icons/svg/item-bag.svg";
-	let i = L(r), a = R(e).find((e) => e.name === r.name && e.type === r.type);
+	let i = I(r), a = Pe(e).find((e) => e.name === r.name && e.type === r.type);
 	if (a) {
-		let e = L(a);
+		let e = I(a);
 		if (e.path) {
 			let t = Math.max(1, i.value) * n;
 			return await a.update({ [e.path]: e.value + t }), {
@@ -1026,10 +1111,10 @@ async function Fe(e, t, n) {
 		ids: (await e.createEmbeddedDocuments("Item", o)).map((e) => e.id)
 	};
 }
-async function Ie(e) {
+async function qe(e) {
 	for (let t of [...e].reverse()) t.type === "updated" ? await t.item.update({ [t.path]: t.previous }) : t.ids?.length && await t.actor.deleteEmbeddedDocuments("Item", t.ids);
 }
-async function B(n, r, i) {
+async function R(n, r, i) {
 	if (game.user.id === n) {
 		ui.notifications[r]?.(i);
 		return;
@@ -1042,7 +1127,7 @@ async function B(n, r, i) {
 		message: i
 	});
 }
-function Le(n, r) {
+function Je(n, r) {
 	let i = {
 		type: "purchase-result",
 		moduleId: e,
@@ -1055,7 +1140,7 @@ function Le(n, r) {
 	}
 	game.socket.emit(t, i);
 }
-function V(n, r) {
+function z(n, r) {
 	let i = {
 		type: "collection-result",
 		moduleId: e,
@@ -1068,28 +1153,29 @@ function V(n, r) {
 	}
 	game.socket.emit(t, i);
 }
-async function Re({ actor: e, itemSummary: t, totalPrice: n, currencyName: r }) {
+async function Ye({ actor: e, itemSummary: t, totalPrice: n, currencyName: r }) {
 	await ChatMessage.create({
 		speaker: ChatMessage.getSpeaker({ actor: e }),
 		content: game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
 			actor: e.name,
 			item: t,
-			price: c(n),
+			price: u(n),
 			currency: r
 		})
 	});
 }
-async function ze(t) {
+async function Xe(t) {
 	try {
-		return await T.appendLedger(t);
+		return await D.appendLedger(t);
 	} catch (t) {
 		return console.warn(`${e} | Could not update transaction ledger`, t), null;
 	}
 }
-var H = class {
+var B = class {
 	static transactionQueue = Promise.resolve();
 	static processedRequests = /* @__PURE__ */ new Set();
 	static dispenseTimers = /* @__PURE__ */ new Map();
+	static resolvedReservationItems = /* @__PURE__ */ new Map();
 	static registerSocket() {
 		game.socket.on(t, async (t) => {
 			if (!(!t || t.moduleId && t.moduleId !== "holosuite-vending-machines")) {
@@ -1116,19 +1202,19 @@ var H = class {
 	static isResponsibleGM() {
 		return game.users.find((e) => e.active && e.isGM)?.id === game.user.id;
 	}
-	static checkAccess({ machineId: e, actor: t, user: n = game.user, context: r = {} }) {
-		return je({
-			machine: T.getMachine(e),
-			actor: t,
-			user: n,
-			context: r
+	static checkAccess({ machineId: e, machine: t = null, actor: n, user: r = game.user, context: i = {} }) {
+		return Ve({
+			machine: t ?? D.getMachine(e),
+			actor: n,
+			user: r,
+			context: i
 		});
 	}
 	static getCurrencyBalance(e) {
-		return z(e).value;
+		return L(e).value;
 	}
 	static getCurrencyProfile(e) {
-		let t = z(e);
+		let t = L(e);
 		return {
 			balance: t.value,
 			label: t.label,
@@ -1148,7 +1234,7 @@ var H = class {
 		if (!n || !game.user?.isGM || !this.isResponsibleGM()) return;
 		let r = this.dispenseTimers.get(n);
 		r && window.clearTimeout(r);
-		let i = xe(t.expiresAt), a = window.setTimeout(async () => {
+		let i = ke(t.expiresAt), a = window.setTimeout(async () => {
 			this.dispenseTimers.delete(n);
 			try {
 				await this.enqueueCollection({
@@ -1162,10 +1248,10 @@ var H = class {
 		this.dispenseTimers.set(n, a);
 	}
 	static resumePendingDispenses() {
-		if (!(!game.user?.isGM || !this.isResponsibleGM())) for (let e of T.getPendingDispenses()) this.scheduleDispense(e);
+		if (!(!game.user?.isGM || !this.isResponsibleGM())) for (let e of D.getPendingDispenses()) this.scheduleDispense(e);
 	}
 	static async requestPurchase({ machineId: n, entryId: r = "", lines: i = [], actor: a, context: o = {} }) {
-		let s = d(i.length ? i : [{
+		let s = p(i.length ? i : [{
 			entryId: r,
 			quantity: 1
 		}]);
@@ -1195,7 +1281,7 @@ var H = class {
 		} catch (e) {
 			return ui.notifications.warn(e.message), !1;
 		}
-		return Ae(game.user, a) ? game.users.find((e) => e.active && e.isGM) ? (game.socket.emit(t, {
+		return Be(game.user, a) ? game.users.find((e) => e.active && e.isGM) ? (game.socket.emit(t, {
 			type: "purchase",
 			moduleId: e,
 			requestId: l,
@@ -1221,7 +1307,7 @@ var H = class {
 				user: n,
 				context: t.context ?? {}
 			});
-			Le(t.userId, {
+			Je(t.userId, {
 				status: "success",
 				requestId: t.requestId,
 				machineId: t.machineId,
@@ -1230,7 +1316,7 @@ var H = class {
 				image: e?.reservation?.image ?? ""
 			});
 		} catch (n) {
-			console.warn(`${e} | Purchase failed`, n), await B(t.userId, "warn", n.message), Le(t.userId, {
+			console.warn(`${e} | Purchase failed`, n), await R(t.userId, "warn", n.message), Je(t.userId, {
 				status: "failed",
 				requestId: t.requestId,
 				machineId: t.machineId,
@@ -1272,14 +1358,14 @@ var H = class {
 				automatic: t.automatic === !0,
 				notifyResult: !1
 			});
-			V(t.userId, {
+			z(t.userId, {
 				status: "success",
 				requestId: t.requestId,
 				machineId: n?.reservation?.machineId ?? "",
 				automatic: n?.automatic === !0
 			});
 		} catch (n) {
-			console.warn(`${e} | Collection failed`, n), await B(t.userId, "warn", n.message), V(t.userId, {
+			console.warn(`${e} | Collection failed`, n), await R(t.userId, "warn", n.message), z(t.userId, {
 				status: "failed",
 				requestId: t.requestId,
 				message: n.message
@@ -1287,7 +1373,7 @@ var H = class {
 		}
 	}
 	static async processPurchase({ requestId: t, machineId: n, lines: r, actor: i, user: a, context: o = {} }) {
-		let s = T.getPendingDispense(t);
+		let s = D.getPendingDispense(t);
 		if (s) return {
 			duplicate: !0,
 			reservation: s,
@@ -1297,8 +1383,8 @@ var H = class {
 				lines: []
 			}
 		};
-		if (this.processedRequests.has(t) || T.hasProcessedRequest(t)) return { duplicate: !0 };
-		let c = z(i), l = c.label, u = T.getMachine(n), d = {
+		if (this.processedRequests.has(t) || D.hasProcessedRequest(t)) return { duplicate: !0 };
+		let c = L(i), l = c.label, u = D.getMachine(n), d = {
 			requestId: t,
 			machineId: n,
 			machineName: u?.name ?? "Unknown machine",
@@ -1309,31 +1395,28 @@ var H = class {
 			currencyName: l
 		};
 		try {
-			if (!Ae(a, i)) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-			u = T.getMachine(n);
-			let s = je({
+			if (!Be(a, i)) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
+			let s = Ve({
 				machine: u,
 				actor: i,
 				user: a,
 				context: o
 			});
 			if (!s.allowed) throw Error(s.reason);
-			let d = f(u, r);
+			let d = m(u, r);
 			if (!d.lines.length) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.EmptyCart"));
-			if (d.totalPrice > 0 && c.kind === "invalid") throw Error(game.i18n.format("HOLOSUITEVENDING.Notifications.CurrencyPathInvalid", { path: T.getCurrencyPath() || "automatic detection" }));
+			if (d.totalPrice > 0 && c.kind === "invalid") throw Error(game.i18n.format("HOLOSUITEVENDING.Notifications.CurrencyPathInvalid", { path: D.getCurrencyPath() || "automatic detection" }));
 			if (d.totalPrice > 0 && c.value < d.totalPrice) throw Error(game.i18n.format("HOLOSUITEVENDING.Notifications.NoCurrency", { currency: l }));
-			let p = [];
-			for (let e of d.lines) p.push({
+			let f = await Promise.all(d.lines.map(async (e) => ({
 				line: e,
-				itemData: await Me(e.entry)
-			});
-			let m = null, h = Object.fromEntries(d.lines.map((e) => [e.entryId, e.entry.stock])), g = !1, _ = null;
+				itemData: await He(e.entry)
+			}))), p = null, h = Object.fromEntries(d.lines.map((e) => [e.entryId, e.entry.stock])), g = !1, _ = null;
 			try {
-				m = await Ne(c, d.totalPrice);
+				p = await We(c, d.totalPrice);
 				let e = Object.fromEntries(d.lines.map((e) => [e.entryId, e.entry.stock - e.quantity]));
-				await T.updateEntryStocks(n, e), g = !0;
+				await D.updateEntryStocks(n, e), g = !0;
 				let r = d.lines.map((e) => `${e.quantity}× ${e.entry.displayName}`).join(", ");
-				_ = await T.addPendingDispense({
+				_ = await D.addPendingDispense({
 					id: t,
 					requestId: t,
 					machineId: n,
@@ -1347,25 +1430,27 @@ var H = class {
 					itemSummary: r,
 					itemCount: d.itemCount,
 					totalPrice: d.totalPrice,
-					items: p.map((e) => ({
-						itemData: e.itemData,
+					items: f.map((e) => ({
+						entryId: e.line.entry.id,
+						itemUuid: e.line.entry.itemUuid,
+						...e.line.entry.itemUuid ? {} : { itemData: e.itemData },
 						quantity: e.line.quantity,
 						displayName: e.line.entry.displayName,
 						image: e.line.entry.image
 					})),
-					image: d.itemCount > 1 ? "icons/svg/item-bag.svg" : p[0]?.line?.entry?.image ?? "",
+					image: d.itemCount > 1 ? "icons/svg/item-bag.svg" : f[0]?.line?.entry?.image ?? "",
 					createdAt: Date.now(),
 					expiresAt: Date.now() + 10850,
 					status: "pending"
-				});
+				}), this.resolvedReservationItems.set(t, new Map(f.map((e) => [e.line.entry.id, e.itemData])));
 			} catch (t) {
 				if (g) try {
-					await T.updateEntryStocks(n, h);
+					await D.updateEntryStocks(n, h);
 				} catch (t) {
 					console.error(`${e} | Reserved-stock rollback failed`, t);
 				}
 				try {
-					await Pe(m);
+					await Ge(p);
 				} catch (t) {
 					console.error(`${e} | Currency rollback failed`, t);
 				}
@@ -1376,7 +1461,7 @@ var H = class {
 				reservation: _
 			};
 		} catch (e) {
-			throw await ze({
+			throw await Xe({
 				...d,
 				status: "failed",
 				error: e.message
@@ -1384,8 +1469,8 @@ var H = class {
 		}
 	}
 	static async finalizeDispense({ requestId: t, user: n = null, automatic: r = !1, notifyResult: i = !0 }) {
-		let a = T.getPendingDispense(t), o = be(a, n);
-		if (o === "missing") return {
+		let a = D.getPendingDispense(t), o = Oe(a, n);
+		if (o === "missing") return this.resolvedReservationItems.delete(t), {
 			duplicate: !0,
 			automatic: r
 		};
@@ -1393,24 +1478,28 @@ var H = class {
 		if (o === "busy") throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.CollectionBusy"));
 		let s = await fromUuid(a.actorUuid);
 		if (!s) throw Error(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoActor"));
-		await T.updatePendingDispense(t, { status: "delivering" });
-		let l = [];
+		await D.updatePendingDispense(t, { status: "delivering" });
+		let c = [];
 		try {
-			for (let e of a.items) l.push(await Fe(s, e.itemData, e.quantity));
-			await T.removePendingDispense(t);
+			let e = this.resolvedReservationItems.get(t);
+			for (let t of a.items) {
+				let n = e?.get(t.entryId) ?? await Ue(t, a.machineId);
+				c.push(await Ke(s, n, t.quantity));
+			}
+			await D.removePendingDispense(t), this.resolvedReservationItems.delete(t);
 		} catch (n) {
 			try {
-				await Ie(l);
+				await qe(c);
 			} catch (t) {
 				console.error(`${e} | Collected-item rollback failed`, t);
 			}
-			throw await T.updatePendingDispense(t, { status: "pending" }), this.scheduleDispense({
+			throw await D.updatePendingDispense(t, { status: "pending" }), this.scheduleDispense({
 				...a,
 				expiresAt: Date.now() + 5e3
 			}), n;
 		}
-		let u = this.dispenseTimers.get(t);
-		u && window.clearTimeout(u), this.dispenseTimers.delete(t), await ze({
+		let l = this.dispenseTimers.get(t);
+		l && window.clearTimeout(l), this.dispenseTimers.delete(t), await Xe({
 			requestId: t,
 			machineId: a.machineId,
 			machineName: a.machineName,
@@ -1425,7 +1514,7 @@ var H = class {
 			totalPrice: a.totalPrice
 		});
 		try {
-			await Re({
+			await Ye({
 				actor: s,
 				itemSummary: a.itemSummary,
 				totalPrice: a.totalPrice,
@@ -1434,12 +1523,12 @@ var H = class {
 		} catch (t) {
 			console.warn(`${e} | Could not create purchase chat message`, t);
 		}
-		return await B(a.userId, "info", game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
+		return await R(a.userId, "info", game.i18n.format("HOLOSUITEVENDING.Notifications.Purchased", {
 			actor: a.actorName,
 			item: a.itemSummary,
-			price: c(a.totalPrice),
+			price: u(a.totalPrice),
 			currency: a.currencyName
-		})), r && i && V(a.userId, {
+		})), r && i && z(a.userId, {
 			status: "success",
 			requestId: t,
 			machineId: a.machineId,
@@ -1462,25 +1551,24 @@ var H = class {
 			context: i
 		});
 	}
-}, Be = k(), U = /* @__PURE__ */ new Set();
-function Ve(e) {
+}, Ze = O(), V = /* @__PURE__ */ new Set();
+function Qe(e) {
 	return e || (canvas?.tokens?.controlled?.[0]?.actor ? canvas.tokens.controlled[0].actor : game.user.character ?? null);
 }
-function W(e) {
+function $e(e) {
 	let t = document.createElement("div");
 	return t.innerHTML = String(e ?? ""), String(t.textContent ?? "").replace(/\s+/g, " ").trim();
 }
-function He(e, t = 180) {
-	let n = W(e);
-	if (n.length <= t) return n;
-	let r = n.slice(0, Math.max(1, t - 1)), i = r.lastIndexOf(" "), a = i >= Math.floor(t * .65) ? i : r.length;
-	return `${r.slice(0, a).trimEnd()}…`;
+function et(e, t = 180) {
+	if (e.length <= t) return e;
+	let n = e.slice(0, Math.max(1, t - 1)), r = n.lastIndexOf(" "), i = r >= Math.floor(t * .65) ? r : n.length;
+	return `${n.slice(0, i).trimEnd()}…`;
 }
-function Ue(e) {
+function tt(e) {
 	let t = document.createElement("div");
 	return t.textContent = String(e ?? ""), t.innerHTML;
 }
-async function We(t, n) {
+async function nt(t, n) {
 	if (!t) return null;
 	let r = globalThis.AudioHelper ?? globalThis.foundry?.audio?.AudioHelper;
 	if (r?.play) try {
@@ -1499,14 +1587,14 @@ async function We(t, n) {
 		return console.warn(`${e} | Browser audio playback failed`, t), null;
 	}
 }
-function Ge(t) {
+function H(t) {
 	try {
 		typeof t?.stop == "function" ? t.stop() : typeof t?.pause == "function" && t.pause();
 	} catch (t) {
 		console.warn(`${e} | Could not stop vending audio`, t);
 	}
 }
-var G = class extends Be {
+var U = class extends Ze {
 	machineId;
 	actor;
 	selectedEntryId;
@@ -1520,12 +1608,19 @@ var G = class extends Be {
 	pendingFocusSelector;
 	dispenseTimers;
 	audioHandles;
+	audioRequestVersions;
+	isClosing;
 	viewportResizeHandler;
+	viewportResizeFrame;
 	constructor(e, t = {}) {
 		super({
 			...t,
 			id: `holosuite-vending-machine-${e}`
-		}), this.machineId = e, this.actor = Ve(t.actor), this.selectedEntryId = t.selectedEntryId ?? null, this.context = t.context ?? {}, this.cart = /* @__PURE__ */ new Map(), this.lastDispense = null, this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = null, this.checkoutPending = !1, this.pendingFocusSelector = "", this.dispenseTimers = /* @__PURE__ */ new Set(), this.audioHandles = /* @__PURE__ */ new Map(), this.viewportResizeHandler = () => this.applyViewportScale(), window.addEventListener("resize", this.viewportResizeHandler), U.add(this);
+		}), this.machineId = e, this.actor = Qe(t.actor), this.selectedEntryId = t.selectedEntryId ?? null, this.context = t.context ?? {}, this.cart = /* @__PURE__ */ new Map(), this.lastDispense = null, this.pendingRequestId = null, this.pendingDispense = null, this.activeReservationId = null, this.checkoutPending = !1, this.pendingFocusSelector = "", this.dispenseTimers = /* @__PURE__ */ new Set(), this.audioHandles = /* @__PURE__ */ new Map(), this.audioRequestVersions = /* @__PURE__ */ new Map(), this.isClosing = !1, this.viewportResizeFrame = null, this.viewportResizeHandler = () => {
+			this.viewportResizeFrame === null && (this.viewportResizeFrame = window.requestAnimationFrame(() => {
+				this.viewportResizeFrame = null, this.applyViewportScale();
+			}));
+		}, window.addEventListener("resize", this.viewportResizeHandler), V.add(this);
 	}
 	static get defaultOptions() {
 		return foundry.utils.mergeObject(super.defaultOptions, {
@@ -1540,21 +1635,30 @@ var G = class extends Be {
 		});
 	}
 	get title() {
-		return T.getMachine(this.machineId)?.name ?? "HoloSuite Vending Machine";
+		return D.getMachine(this.machineId)?.name ?? "HoloSuite Vending Machine";
 	}
 	async close(e = {}) {
-		this.clearDispenseTimers();
-		for (let e of this.audioHandles.values()) Ge(e);
-		return this.audioHandles.clear(), window.removeEventListener("resize", this.viewportResizeHandler), U.delete(this), super.close(e);
+		this.isClosing = !0, this.clearDispenseTimers(), this.viewportResizeFrame !== null && window.cancelAnimationFrame(this.viewportResizeFrame), this.viewportResizeFrame = null;
+		for (let e of this.audioHandles.values()) H(e);
+		return this.audioHandles.clear(), window.removeEventListener("resize", this.viewportResizeHandler), V.delete(this), super.close(e);
 	}
 	get machine() {
-		return T.getMachine(this.machineId);
+		return D.getMachine(this.machineId);
 	}
 	playAudio(e) {
-		let t = T.getAudioConfig(), n = t[e];
-		!t.enabled || !n || t.volume <= 0 || (Ge(this.audioHandles.get(e)), We(n, t.volume).then((t) => {
-			t && this.audioHandles.set(e, t);
-		}));
+		let t = D.getAudioConfig(), n = t[e];
+		if (!t.enabled || !n || t.volume <= 0) return;
+		H(this.audioHandles.get(e)), this.audioHandles.delete(e);
+		let r = (this.audioRequestVersions.get(e) ?? 0) + 1;
+		this.audioRequestVersions.set(e, r), nt(n, t.volume).then((t) => {
+			if (t) {
+				if (this.isClosing || this.audioRequestVersions.get(e) !== r) {
+					H(t);
+					return;
+				}
+				this.audioHandles.set(e, t);
+			}
+		});
 	}
 	async openProductDetails(t) {
 		let n = this.machine?.inventory?.find((e) => e.id === t);
@@ -1568,10 +1672,10 @@ var G = class extends Be {
 		} catch (t) {
 			console.warn(`${e} | Could not open source item ${n.itemUuid}`, t);
 		}
-		let r = W(n.description);
+		let r = $e(n.description);
 		new Dialog({
 			title: n.displayName || "Product Details",
-			content: `<div class="hsv-product-dialog"><p>${Ue(r || "No product description supplied.")}</p></div>`,
+			content: `<div class="hsv-product-dialog"><p>${tt(r || "No product description supplied.")}</p></div>`,
 			buttons: { close: { label: "Close" } },
 			default: "close"
 		}).render(!0);
@@ -1607,7 +1711,7 @@ var G = class extends Be {
 			message: e ? "AUTOMATIC TRANSFER" : "SECURING ITEM",
 			image: t
 		}, this.render(!1);
-		let n = await H.requestCollection({
+		let n = await B.requestCollection({
 			requestId: this.activeReservationId,
 			automatic: e
 		});
@@ -1685,8 +1789,8 @@ var G = class extends Be {
 	async getData() {
 		let e = this.machine, t = e?.inventory ?? [];
 		this.pruneCart(t);
-		let n = H.getCurrencyProfile(this.actor), r = n.balance;
-		!this.selectedEntryId && t.length && (this.selectedEntryId = l(t, r));
+		let n = B.getCurrencyProfile(this.actor), r = n.balance;
+		!this.selectedEntryId && t.length && (this.selectedEntryId = d(t, r));
 		let i = t.find((e) => e.id === this.selectedEntryId) ?? t[0] ?? null;
 		this.selectedEntryId = i?.id ?? null;
 		let a = t.filter((e) => this.cart.has(e.id)).map((e) => {
@@ -1695,14 +1799,15 @@ var G = class extends Be {
 				...e,
 				quantity: t,
 				lineTotal: n,
-				lineTotalDisplay: c(n)
+				lineTotalDisplay: u(n)
 			};
-		}), o = a.reduce((e, t) => e + t.quantity, 0), s = a.reduce((e, t) => e + t.lineTotal, 0), u = H.checkAccess({
+		}), o = a.reduce((e, t) => e + t.quantity, 0), s = a.reduce((e, t) => e + t.lineTotal, 0), c = B.checkAccess({
 			machineId: this.machineId,
+			machine: e,
 			actor: this.actor,
 			context: this.context
-		}), d = T.getMachineState(e), f = t.map((e, t) => {
-			let n = e.maxStock > 0 ? e.stock / e.maxStock : 0, a = e.stock > 0 ? Math.max(1, Math.ceil(n * 10)) : 0, o = e.stock > 0 && e.stock <= Math.max(1, Math.ceil(e.maxStock * .25)), s = W(e.description);
+		}), l = D.getMachineState(e), f = t.map((e, t) => {
+			let n = e.maxStock > 0 ? e.stock / e.maxStock : 0, a = e.stock > 0 ? Math.max(1, Math.ceil(n * 10)) : 0, o = e.stock > 0 && e.stock <= Math.max(1, Math.ceil(e.maxStock * .25)), s = $e(e.description);
 			return {
 				...e,
 				slotCode: `${String.fromCharCode(65 + Math.floor(t / 3))}${String(t % 3 + 1).padStart(2, "0")}`,
@@ -1710,9 +1815,9 @@ var G = class extends Be {
 				soldOut: e.stock <= 0,
 				lowStock: o,
 				affordable: e.price <= r,
-				priceDisplay: c(e.price),
+				priceDisplay: u(e.price),
 				cartQuantity: this.cart.get(e.id) ?? 0,
-				descriptionPreview: He(e.description) || "No product profile supplied.",
+				descriptionPreview: et(s) || "No product profile supplied.",
 				descriptionCanOpen: !!(e.itemUuid || s),
 				stockSegments: Array.from({ length: 10 }, (e, t) => ({ active: t < a }))
 			};
@@ -1750,9 +1855,9 @@ var G = class extends Be {
 			};
 		}), g = f.find((e) => e.id === i?.id) ?? null, _ = s > r, v = String(e?.id ?? this.machineId).replace(/[^a-z0-9]/gi, "").toUpperCase(), y = this.lastDispense ?? {
 			state: "standby",
-			message: d === "offline" ? "OUTPUT BAY LOCKED" : "AWAITING PURCHASE"
-		}, ee = {
-			standby: d === "offline" ? "LOCKED" : "READY",
+			message: l === "offline" ? "OUTPUT BAY LOCKED" : "AWAITING PURCHASE"
+		}, b = {
+			standby: l === "offline" ? "LOCKED" : "READY",
 			authorizing: "AUTHORIZING",
 			dispensing: "DISPENSING",
 			ready: "COLLECT ITEM",
@@ -1760,31 +1865,31 @@ var G = class extends Be {
 			collected: "ITEM COLLECTED",
 			automatic: "AUTO DISPENSED",
 			failure: "TRANSACTION FAILED"
-		}, b = e?.styleId ?? "industrial", x = b === "corporate-kiosk-white" ? "corporate-kiosk" : b === "neon" ? "industrial" : b;
+		}, x = e?.styleId ?? "industrial", ee = x === "corporate-kiosk-white" ? "corporate-kiosk" : x === "neon" ? "industrial" : x;
 		return {
 			machine: e,
 			manufacturerName: e?.manufacturerName ?? "HoloSuite",
-			machineStyleId: b,
-			machineStyleBaseId: x,
-			machineDisplayImage: T.getMachineDisplayImage(e),
-			machineState: d,
-			machineOffline: d === "offline",
-			machineSoldOut: d === "sold-out",
+			machineStyleId: x,
+			machineStyleBaseId: ee,
+			machineDisplayImage: D.getMachineDisplayImage(e),
+			machineState: l,
+			machineOffline: l === "offline",
+			machineSoldOut: l === "sold-out",
 			displaySlots: h,
 			selected: g,
 			selectedSoldOut: !g || g.stock <= 0,
 			actorName: this.actor?.name ?? "",
 			currencyName: n.label,
 			currencyBalance: r,
-			currencyBalanceDisplay: c(r),
-			accessAllowed: u.allowed,
-			accessReason: u.reason,
+			currencyBalanceDisplay: u(r),
+			accessAllowed: c.allowed,
+			accessReason: c.reason,
 			cartLines: a,
 			cartCount: o,
 			cartTotal: s,
-			cartTotalDisplay: c(s),
+			cartTotalDisplay: u(s),
 			insufficientBalance: _,
-			canCheckout: u.allowed && o > 0 && !_ && !this.checkoutPending && ![
+			canCheckout: c.allowed && o > 0 && !_ && !this.checkoutPending && ![
 				"authorizing",
 				"dispensing",
 				"ready",
@@ -1792,13 +1897,13 @@ var G = class extends Be {
 			].includes(this.lastDispense?.state ?? ""),
 			checkoutPending: this.checkoutPending,
 			unitNumber: `HSV-${v.slice(-6).padStart(6, "0")}`,
-			systemStatus: d === "online" ? "NOMINAL" : d === "sold-out" ? "DEPLETED" : "OFFLINE",
-			telemetryTemperature: d === "offline" ? "--" : "04 C",
-			telemetryBus: d === "offline" ? "0 V" : "48 V",
-			connectionStatus: d === "offline" ? "DOWN" : "LINK",
+			systemStatus: l === "online" ? "NOMINAL" : l === "sold-out" ? "DEPLETED" : "OFFLINE",
+			telemetryTemperature: l === "offline" ? "--" : "04 C",
+			telemetryBus: l === "offline" ? "0 V" : "48 V",
+			connectionStatus: l === "offline" ? "DOWN" : "LINK",
 			retrievalState: y.state,
 			retrievalMessage: y.message,
-			retrievalLabel: ee[y.state] ?? "READY",
+			retrievalLabel: b[y.state] ?? "READY",
 			retrievalImage: y.image ?? "",
 			retrievalCanCollect: y.state === "ready"
 		};
@@ -1816,16 +1921,20 @@ var G = class extends Be {
 			let r = this.element?.[0] ?? this.element ?? t.closest?.(".window-app, .application, .app");
 			if (!r?.getBoundingClientRect) return;
 			e.preventDefault();
-			let i = r.getBoundingClientRect(), a = e.clientX, o = e.clientY, s = (e) => {
-				let t = i.left + e.clientX - a, n = i.top + e.clientY - o, r = Math.min(window.innerWidth - 80, Math.max(80 - i.width, t)), s = Math.min(window.innerHeight - 40, Math.max(0, n));
-				this.setPosition?.({
+			let i = r.getBoundingClientRect(), a = e.clientX, o = e.clientY, s = null, c = null;
+			r.classList?.add("hsv-is-dragging");
+			let l = () => {
+				s = null, c &&= (this.setPosition?.(c), null);
+			}, u = (e) => {
+				let t = i.left + e.clientX - a, n = i.top + e.clientY - o, r = Math.min(window.innerWidth - 80, Math.max(80 - i.width, t)), u = Math.min(window.innerHeight - 40, Math.max(0, n));
+				c = {
 					left: Math.round(r),
-					top: Math.round(s)
-				});
-			}, c = () => {
-				document.removeEventListener("pointermove", s), document.removeEventListener("pointerup", c), document.removeEventListener("pointercancel", c);
+					top: Math.round(u)
+				}, s === null && (s = window.requestAnimationFrame(l));
+			}, d = () => {
+				s !== null && (window.cancelAnimationFrame(s), l()), r.classList?.remove("hsv-is-dragging"), document.removeEventListener("pointermove", u), document.removeEventListener("pointerup", d), document.removeEventListener("pointercancel", d);
 			};
-			document.addEventListener("pointermove", s), document.addEventListener("pointerup", c), document.addEventListener("pointercancel", c);
+			document.addEventListener("pointermove", u), document.addEventListener("pointerup", d), document.addEventListener("pointercancel", d);
 		}), e.find("[data-action='select-entry']").on("click", (e) => {
 			this.selectedEntryId !== e.currentTarget.dataset.entryId && this.playAudio("select"), this.selectedEntryId = e.currentTarget.dataset.entryId;
 			let t = globalThis.CSS?.escape?.(this.selectedEntryId) ?? this.selectedEntryId;
@@ -1859,15 +1968,15 @@ var G = class extends Be {
 				title: game.i18n.localize("HOLOSUITEVENDING.Cart.Checkout"),
 				content: `<p>${game.i18n.format("HOLOSUITEVENDING.Cart.Confirm", {
 					count: t,
-					total: c(n),
-					currency: H.getCurrencyProfile(this.actor).label
+					total: u(n),
+					currency: B.getCurrencyProfile(this.actor).label
 				})}</p>`
 			})) return;
 			this.checkoutPending = !0, this.lastDispense = {
 				state: "authorizing",
 				message: "PROCESSING PAYMENT"
 			}, this.render(!1), this.playAudio("purchase");
-			let i = await H.requestPurchase({
+			let i = await B.requestPurchase({
 				machineId: this.machineId,
 				lines: e,
 				actor: this.actor,
@@ -1891,19 +2000,23 @@ var G = class extends Be {
 		});
 	}
 	static refreshMachine(e) {
-		for (let t of U) t.machineId === e && t.render(!1);
+		for (let t of V) t.machineId === e && t.render(!1);
+	}
+	static refreshMachines(e) {
+		let t = new Set(e.map(String));
+		for (let e of V) t.has(String(e.machineId)) && e.render(!1);
 	}
 	static refreshAll() {
-		for (let e of U) e.render(!1);
+		for (let e of V) e.render(!1);
 	}
 	static handlePurchaseResult(e) {
-		for (let t of U) t.handlePurchaseResult(e);
+		for (let t of V) t.handlePurchaseResult(e);
 	}
 	static handleCollectionResult(e) {
-		for (let t of U) t.handleCollectionResult(e);
+		for (let t of V) t.handleCollectionResult(e);
 	}
-}, Ke = k(), qe = ae();
-function Je(e) {
+}, rt = O(), it = pe();
+function at(e) {
 	let t = {
 		machine: {},
 		entries: {}
@@ -1911,7 +2024,8 @@ function Je(e) {
 	for (let [n, r] of new FormData(e).entries()) {
 		let e = String(n), i = String(r ?? "");
 		if (e.startsWith("machine.")) {
-			t.machine[e.slice(8)] = i;
+			let n = e.slice(8), r = t.machine[n];
+			t.machine[n] = r === void 0 ? i : Array.isArray(r) ? [...r, i] : [r, i];
 			continue;
 		}
 		let a = e.match(/^entries\.([^.]+)\.([^.]+)$/);
@@ -1921,11 +2035,11 @@ function Je(e) {
 	}
 	return t;
 }
-function K(e, t = 0) {
+function W(e, t = 0) {
 	let n = Number(e);
 	return Number.isFinite(n) ? n : t;
 }
-function Ye(e, t) {
+function ot(e, t) {
 	let n = JSON.stringify(e, null, 2), r = globalThis.saveDataToFile;
 	if (typeof r == "function") {
 		r(n, "application/json", t);
@@ -1934,7 +2048,7 @@ function Ye(e, t) {
 	let i = URL.createObjectURL(new Blob([n], { type: "application/json" })), a = document.createElement("a");
 	a.href = i, a.download = t, a.click(), URL.revokeObjectURL(i);
 }
-async function Xe() {
+async function st() {
 	return new Promise((e, t) => {
 		let n = document.createElement("input");
 		n.type = "file", n.accept = ".json,application/json", n.addEventListener("change", async () => {
@@ -1948,7 +2062,7 @@ async function Xe() {
 		}, { once: !0 }), n.click();
 	});
 }
-function q(e = []) {
+function ct(e = []) {
 	let t = new Set(e);
 	return Array.from(canvas?.scene?.regions?.contents ?? canvas?.scene?.regions ?? []).map((e) => ({
 		id: String(e.id ?? ""),
@@ -1956,13 +2070,13 @@ function q(e = []) {
 		selected: t.has(String(e.id ?? ""))
 	})).filter((e) => e.id);
 }
-async function Ze(e) {
+async function lt(e) {
 	let t = e.dataTransfer?.getData("text/plain");
 	if (!t) return null;
 	let n = JSON.parse(t), r = await Item.fromDropData(n);
 	if (!r) return null;
 	let i = r.toObject();
-	return T.createEntry({
+	return D.createEntry({
 		itemUuid: r.uuid ?? n.uuid ?? "",
 		embeddedData: i,
 		displayName: r.name,
@@ -1973,7 +2087,7 @@ async function Ze(e) {
 		maxStock: 1
 	});
 }
-var Qe = class extends qe {
+var ut = class extends it {
 	machineChangeHook;
 	constructor(t = {}) {
 		super(t), this.machineChangeHook = Hooks.on(`${e}.machinesChanged`, () => this.render(!1));
@@ -1993,41 +2107,44 @@ var Qe = class extends qe {
 		});
 	}
 	async getData() {
-		let e = T.getLedger().entries.slice(-25).reverse().map((e) => ({
+		let e = D.getLedger().entries.slice(-25).reverse().map((e) => ({
 			...e,
-			totalPriceDisplay: c(e.totalPrice),
+			totalPriceDisplay: u(e.totalPrice),
 			timeLabel: new Date(e.timestamp).toLocaleString(),
 			failed: e.status === "failed"
 		}));
 		return {
-			machines: T.getMachines().map((e) => ({
-				...e,
-				state: T.getMachineState(e),
-				stateLabel: T.getMachineState(e) === "sold-out" ? "Sold Out" : T.getMachineState(e) === "offline" ? "Offline" : "Online",
-				online: e.status !== "offline",
-				toggleLabel: e.status === "offline" ? "Bring Online" : "Take Offline",
-				styleLabel: r.find((t) => t.id === e.styleId)?.label ?? "Alien Market",
-				regionCount: e.regionIds.length,
-				totalStock: e.inventory.reduce((e, t) => e + t.stock, 0),
-				totalCapacity: e.inventory.reduce((e, t) => e + t.maxStock, 0)
-			})),
-			currencyName: T.getCurrencyName(),
-			currencySourceLabel: T.getCurrencySourceLabel(),
-			creditTransformer: T.getCreditTransformer(),
+			machines: D.getMachines().map((e) => {
+				let t = D.getMachineState(e);
+				return {
+					...e,
+					state: t,
+					stateLabel: t === "sold-out" ? "Sold Out" : t === "offline" ? "Offline" : "Online",
+					online: e.status !== "offline",
+					toggleLabel: e.status === "offline" ? "Bring Online" : "Take Offline",
+					styleLabel: r.find((t) => t.id === e.styleId)?.label ?? "Alien Market",
+					regionCount: e.regionIds.length,
+					totalStock: e.inventory.reduce((e, t) => e + t.stock, 0),
+					totalCapacity: e.inventory.reduce((e, t) => e + t.maxStock, 0)
+				};
+			}),
+			currencyName: D.getCurrencyName(),
+			currencySourceLabel: D.getCurrencySourceLabel(),
+			creditTransformer: D.getCreditTransformer(),
 			ledger: e,
 			hasLedger: e.length > 0
 		};
 	}
 	activateListeners(t) {
 		super.activateListeners(t), t.find("[name='creditTransformer']").on("change", async (e) => {
-			await T.setCreditTransformer(e.currentTarget.checked), this.render(!1);
+			await D.setCreditTransformer(e.currentTarget.checked), this.render(!1);
 		}), t.find("[data-action='open-machine']").on("click", (e) => {
 			let t = e.currentTarget.dataset.machineId, n = canvas?.tokens?.controlled?.[0] ?? null, r = n?.actor ?? game.user?.character ?? null;
 			if (!r) {
 				ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
 				return;
 			}
-			new G(t, {
+			new U(t, {
 				actor: r,
 				context: {
 					source: "gm-test",
@@ -2036,57 +2153,58 @@ var Qe = class extends qe {
 				}
 			}).render(!0);
 		}), t.find("[data-action='create-machine']").on("click", () => {
-			let e = T.createMachine();
-			new J(e.id, {
+			let e = D.createMachine();
+			new G(e.id, {
 				draft: e,
 				isNew: !0
 			}).render(!0);
 		}), t.find("[data-action='duplicate-machine']").on("click", async (e) => {
-			let t = T.getMachine(e.currentTarget.dataset.machineId);
+			let t = D.getMachine(e.currentTarget.dataset.machineId);
 			if (!t) return;
 			let n = foundry.utils.deepClone(t);
-			delete n.id, n.name = `${t.name} Copy`;
-			let r = await T.upsertMachine(T.createMachine(n));
-			this.render(!1), new J(r.id).render(!0);
+			delete n.id, n.name = `${t.name} Copy`, new G((await D.upsertMachine(D.createMachine(n))).id).render(!0);
 		}), t.find("[data-action='toggle-machine']").on("click", async (e) => {
-			let t = T.getMachine(e.currentTarget.dataset.machineId);
-			t && (t.status = t.status === "offline" ? "online" : "offline", await T.upsertMachine(t), this.render(!1));
+			let t = D.getMachine(e.currentTarget.dataset.machineId);
+			t && await D.upsertMachine({
+				...t,
+				status: t.status === "offline" ? "online" : "offline"
+			});
 		}), t.find("[data-action='restock-machine']").on("click", async (e) => {
-			await T.restockMachine(e.currentTarget.dataset.machineId), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Restocked")), this.render(!1);
+			await D.restockMachine(e.currentTarget.dataset.machineId), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.Restocked"));
 		}), t.find("[data-action='restock-all']").on("click", async () => {
 			await Dialog.confirm({
 				title: game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllTitle"),
 				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Manager.RestockAllConfirm")}</p>`
-			}) && (await T.restockAll(), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.RestockedAll")), this.render(!1));
+			}) && (await D.restockAll(), ui.notifications.info(game.i18n.localize("HOLOSUITEVENDING.Notifications.RestockedAll")));
 		}), t.find("[data-action='export-machines']").on("click", () => {
-			Ye(T.exportData(), "holosuite-vending-machines.json");
+			ot(D.exportData(), "holosuite-vending-machines.json");
 		}), t.find("[data-action='import-machines']").on("click", async () => {
 			try {
-				let e = await Xe();
+				let e = await st();
 				if (!e) return;
-				let t = await T.importData(e);
-				ui.notifications.info(game.i18n.format("HOLOSUITEVENDING.Notifications.Imported", { count: t })), this.render(!1);
+				let t = await D.importData(e);
+				ui.notifications.info(game.i18n.format("HOLOSUITEVENDING.Notifications.Imported", { count: t }));
 			} catch (t) {
 				console.error(`${e} | Import failed`, t), ui.notifications.error(t?.message || game.i18n.localize("HOLOSUITEVENDING.Notifications.ImportFailed"));
 			}
 		}), t.find("[data-action='export-ledger']").on("click", () => {
-			Ye(T.getLedger(), "holosuite-vending-ledger.json");
+			ot(D.getLedger(), "holosuite-vending-ledger.json");
 		}), t.find("[data-action='clear-ledger']").on("click", async () => {
 			await Dialog.confirm({
 				title: game.i18n.localize("HOLOSUITEVENDING.Ledger.Clear"),
 				content: `<p>${game.i18n.localize("HOLOSUITEVENDING.Ledger.ClearConfirm")}</p>`
-			}) && (await T.clearLedger(), this.render(!1));
+			}) && (await D.clearLedger(), this.render(!1));
 		}), t.find("[data-action='edit-machine']").on("click", (e) => {
-			new J(e.currentTarget.dataset.machineId).render(!0);
+			new G(e.currentTarget.dataset.machineId).render(!0);
 		}), t.find("[data-action='delete-machine']").on("click", async (e) => {
 			let t = e.currentTarget.dataset.machineId;
 			await Dialog.confirm({
 				title: "Delete Vending Machine",
 				content: "<p>Delete this vending machine? Linked Regions will no longer open it.</p>"
-			}) && await T.deleteMachine(t), this.render(!1);
+			}) && await D.deleteMachine(t);
 		});
 	}
-}, J = class extends Ke {
+}, G = class extends rt {
 	machineId;
 	draft;
 	isDirty;
@@ -2096,7 +2214,7 @@ var Qe = class extends qe {
 		super({
 			...t,
 			id: `holosuite-vending-editor-${e}`
-		}), this.machineId = e, this.draft = foundry.utils.deepClone(t.draft ?? T.getMachine(e) ?? T.createMachine({ id: e })), this.isDirty = t.isNew === !0, this.pendingScrollEntryId = null, this.pendingEditorScroll = null;
+		}), this.machineId = e, this.draft = foundry.utils.deepClone(t.draft ?? D.getMachine(e) ?? D.createMachine({ id: e })), this.isDirty = t.isNew === !0, this.pendingScrollEntryId = null, this.pendingEditorScroll = null;
 	}
 	static get defaultOptions() {
 		return foundry.utils.mergeObject(super.defaultOptions, {
@@ -2119,7 +2237,7 @@ var Qe = class extends qe {
 		}) ? this : super.close(e);
 	}
 	async getData() {
-		let e = this.draft;
+		let e = this.draft, t = ct(e?.regionIds ?? []);
 		return {
 			machine: e,
 			entries: e.inventory.map((t, n) => ({
@@ -2139,10 +2257,10 @@ var Qe = class extends qe {
 				selected: e?.styleId === t.id
 			})),
 			machineOffline: e?.status === "offline",
-			regionOptions: q(e?.regionIds ?? []),
-			hasSceneRegions: q().length > 0,
+			regionOptions: t,
+			hasSceneRegions: t.length > 0,
 			sceneName: canvas?.scene?.name ?? "Current Scene",
-			currencyName: T.getCurrencyName()
+			currencyName: D.getCurrencyName()
 		};
 	}
 	markDirty(e) {
@@ -2185,7 +2303,7 @@ var Qe = class extends qe {
 	}
 	syncDraftFromForm(e) {
 		if (!e) return this.draft;
-		let t = Je(e), n = this.draft, r = new Set(q().map((e) => e.id)), i = new FormData(e).getAll("machine.regionIds").map((e) => String(e)).filter(Boolean), a = [...(n.regionIds ?? []).filter((e) => !r.has(e)), ...i];
+		let t = at(e), n = this.draft, r = new Set(ct().map((e) => e.id)), i = t.machine?.regionIds, a = (Array.isArray(i) ? i : [i]).map((e) => String(e ?? "")).filter(Boolean), o = [...(n.regionIds ?? []).filter((e) => !r.has(e)), ...a];
 		return this.draft = {
 			...n,
 			name: t.machine?.name || n.name,
@@ -2194,20 +2312,20 @@ var Qe = class extends qe {
 			description: t.machine?.description || "",
 			image: t.machine?.image || "",
 			status: t.machine?.status === "offline" ? "offline" : "online",
-			regionIds: a,
+			regionIds: o,
 			access: { requireProximity: !!e.querySelector("[name='machine.requireProximity']")?.checked },
 			inventory: n.inventory.map((e) => {
 				let n = t.entries?.[e.id] ?? {};
-				return T.createEntry({
+				return {
 					...e,
 					displayName: n.displayName || e.displayName,
 					image: n.image || e.image,
 					itemUuid: n.itemUuid || e.itemUuid,
-					price: K(n.price, e.price),
-					stock: K(n.stock, e.stock),
-					maxStock: K(n.maxStock, e.maxStock),
+					price: W(n.price, e.price),
+					stock: W(n.stock, e.stock),
+					maxStock: W(n.maxStock, e.maxStock),
 					description: n.description ?? e.description
-				});
+				};
 			})
 		}, this.draft.id = this.machineId, this.draft;
 	}
@@ -2227,7 +2345,7 @@ var Qe = class extends qe {
 						ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.SelectTestActor"));
 						return;
 					}
-					new G(this.machineId, {
+					new U(this.machineId, {
 						actor: t,
 						context: {
 							source: "gm-test",
@@ -2258,7 +2376,7 @@ var Qe = class extends qe {
 				ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: 6 }));
 				return;
 			}
-			let t = T.createEntry();
+			let t = D.createEntry();
 			this.draft.inventory.push(t), this.isDirty = !0, this.renderAtEntry(t.id);
 		}), t.find("[data-action='restore-archived']").on("click", (e) => {
 			if (this.syncDraftFromForm(e.currentTarget.closest("form")), this.draft.inventory.length >= 6 || !this.draft.overflowInventory?.length) return;
@@ -2303,7 +2421,7 @@ var Qe = class extends qe {
 					ui.notifications.warn(game.i18n.format("HOLOSUITEVENDING.Notifications.ProductLimit", { max: 6 }));
 					return;
 				}
-				let e = await Ze(t.originalEvent);
+				let e = await lt(t.originalEvent);
 				if (!e) return;
 				this.draft.inventory.push(e), this.isDirty = !0, this.renderAtEntry(e.id);
 			} catch (t) {
@@ -2312,25 +2430,22 @@ var Qe = class extends qe {
 		}), this.restorePendingEditorScroll(t), this.restorePendingEntryScroll(t);
 	}
 	async save(e) {
-		this.syncDraftFromForm(e), this.draft = foundry.utils.deepClone(await T.upsertMachine(this.draft)), this.isDirty = !1;
+		this.syncDraftFromForm(e), this.draft = foundry.utils.deepClone(await D.upsertMachine(this.draft)), this.isDirty = !1;
 	}
-}, Y = "executeScript", $e = /* @__PURE__ */ new Set(["holosuiteVending", `${e}.openMachine`]);
-function et() {
+}, K = "executeScript", dt = /* @__PURE__ */ new Set(["holosuiteVending", `${e}.openMachine`]), q = null, J = null, Y = !1;
+function ft() {
 	return Array.from(canvas?.scene?.regions?.contents ?? canvas?.scene?.regions ?? []);
 }
-function tt(e, t) {
-	return Array.from(e?.behaviors ?? []).find((e) => e?.type === Y && String(e?.flags?.["holosuite-vending-machines"]?.machineId ?? "") === t) ?? null;
+function pt(e, t) {
+	return Array.from(e?.behaviors ?? []).find((e) => e?.type === K && String(e?.flags?.["holosuite-vending-machines"]?.machineId ?? "") === t) ?? null;
 }
-function nt(e) {
-	return Array.from(e?.behaviors ?? []).filter((e) => e?.flags?.["holosuite-vending-machines"]?.machineId || $e.has(e?.type));
-}
-function rt(e) {
-	return T.getMachines().filter((t) => t.regionIds.includes(e)).map((e) => e.id);
-}
-function it(e) {
-	return `HoloSuite Vending Machines: ${e.name}`;
+function mt(e) {
+	return Array.from(e?.behaviors ?? []).filter((e) => e?.flags?.["holosuite-vending-machines"]?.machineId || dt.has(e?.type));
 }
 function X(e) {
+	return `HoloSuite Vending Machines: ${e.name}`;
+}
+function ht(e) {
 	return [
 		"const userId = event.user?.id;",
 		"if (!userId) return;",
@@ -2351,14 +2466,27 @@ function X(e) {
 		"}"
 	].join("\n");
 }
-function at(e) {
+function gt(e) {
 	let t = game.scenes?.get?.(e.sceneId) ?? canvas?.scene;
 	return (t?.tokens?.get?.(e.tokenId) ?? Array.from(t?.tokens?.contents ?? t?.tokens ?? []).find((t) => t?.id === e.tokenId))?.actor ?? null;
 }
-function ot() {
+function _t() {
+	let e = game.users?.find?.((e) => e.active && e.isGM);
+	return !!(e && e.id === game.user?.id);
+}
+function vt(e, t) {
+	let n = Array.from(e?.system?.events ?? []).map(String);
+	return e?.name !== t.name || e?.disabled !== !1 || n.length !== 1 || n[0] !== "tokenEnter" || e?.system?.source !== t["system.source"] || String(e?.flags?.["holosuite-vending-machines"]?.machineId ?? "") !== t["flags.holosuite-vending-machines.machineId"];
+}
+function Z(e = 75) {
+	_t() && (q !== null && window.clearTimeout(q), q = window.setTimeout(() => {
+		q = null, xt();
+	}, e));
+}
+function yt() {
 	game.socket?.on?.(t, async (e) => {
 		e?.action === "openVendingFromRegion" && (e.userId !== game.user?.id || game.user?.isGM || await game.holosuiteVending?.promptMachineAccess?.(String(e.machineId || ""), {
-			actor: at(e),
+			actor: gt(e),
 			context: {
 				source: "region-socket",
 				sceneId: e.sceneId,
@@ -2369,59 +2497,77 @@ function ot() {
 		}));
 	});
 }
-async function Z() {
-	if (!game.user?.isGM || !canvas?.scene || !CONFIG.RegionBehavior?.dataModels?.[Y]) return;
-	let t = T.getMachines();
-	for (let n of et()) {
-		let r = String(n.id ?? ""), i = new Set(rt(r)), a = nt(n).filter((e) => !i.has(String(e.flags?.["holosuite-vending-machines"]?.machineId ?? ""))).map((e) => e.id);
-		a.length && await n.deleteEmbeddedDocuments("RegionBehavior", a);
-		let o = [], s = [];
-		for (let r of i) {
-			let i = t.find((e) => e.id === r);
-			if (!i) continue;
-			let a = tt(n, r), c = {
-				name: it(i),
+async function bt() {
+	let t = D.getMachines(), n = /* @__PURE__ */ new Map();
+	for (let e of t) for (let t of e.regionIds) {
+		let r = String(t), i = n.get(r) ?? [];
+		i.push(e), n.set(r, i);
+	}
+	for (let t of ft()) {
+		let r = String(t.id ?? ""), i = n.get(r) ?? [], a = new Set(i.map((e) => e.id)), o = mt(t).filter((e) => !a.has(String(e.flags?.["holosuite-vending-machines"]?.machineId ?? ""))).map((e) => e.id);
+		o.length && await t.deleteEmbeddedDocuments("RegionBehavior", o);
+		let s = [], c = [];
+		for (let n of i) {
+			let r = n.id, i = pt(t, r), a = {
+				name: X(n),
 				disabled: !1,
 				"system.events": ["tokenEnter"],
-				"system.source": X(r),
+				"system.source": ht(r),
 				[`flags.${e}.machineId`]: r
 			};
-			a ? s.push({
-				_id: a.id,
-				...c
-			}) : o.push({
-				name: it(i),
-				type: Y,
+			i && vt(i, a) ? c.push({
+				_id: i.id,
+				...a
+			}) : i || s.push({
+				name: X(n),
+				type: K,
 				disabled: !1,
 				system: {
 					events: ["tokenEnter"],
-					source: X(r)
+					source: ht(r)
 				},
 				flags: { [e]: { machineId: r } }
 			});
 		}
-		s.length && await n.updateEmbeddedDocuments("RegionBehavior", s), o.length && await n.createEmbeddedDocuments("RegionBehavior", o);
+		c.length && await t.updateEmbeddedDocuments("RegionBehavior", c), s.length && await t.createEmbeddedDocuments("RegionBehavior", s);
 	}
 }
-function st() {
-	ot(), window.setTimeout(() => Z(), 250), Hooks.on("canvasReady", () => Z()), Hooks.on(`${e}.machinesChanged`, () => Z()), Hooks.on("createRegion", () => Z()), Hooks.on("deleteRegion", () => Z());
+async function xt() {
+	if (!_t() || !canvas?.scene || !CONFIG.RegionBehavior?.dataModels?.[K]) return;
+	if (J) return Y = !0, J;
+	let e = (async () => {
+		do
+			Y = !1, await bt();
+		while (Y);
+	})();
+	J = e;
+	try {
+		await e;
+	} finally {
+		J === e && (J = null);
+	}
+}
+function St() {
+	yt(), Z(250), Hooks.on("canvasReady", () => Z()), Hooks.on(`${e}.machinesChanged`, (e) => {
+		e?.regionStructureChanged !== !1 && Z();
+	}), Hooks.on("createRegion", () => Z()), Hooks.on("deleteRegion", () => Z());
 }
 //#endregion
 //#region src/api.ts
-function ct(e) {
+function Ct(e) {
 	if (foundry?.utils?.escapeHTML) return foundry.utils.escapeHTML(String(e ?? ""));
 	let t = document.createElement("div");
 	return t.textContent = String(e ?? ""), t.innerHTML;
 }
-async function lt(e, t = {}) {
-	let n = T.getMachine(e);
+async function wt(e, t = {}) {
+	let n = D.getMachine(e);
 	return n ? await Dialog.wait({
 		title: game.i18n.localize("HOLOSUITEVENDING.Region.PromptTitle"),
 		content: `
       <form class="holosuite-vending-region-prompt">
         <p class="holosuite-vending-kicker">${game.i18n.localize("HOLOSUITEVENDING.Region.Kicker")}</p>
         <h3>${game.i18n.localize("HOLOSUITEVENDING.Region.PromptQuestion")}</h3>
-        <strong>${ct(n.name)}</strong>
+        <strong>${Ct(n.name)}</strong>
       </form>
     `,
 		buttons: {
@@ -2443,46 +2589,46 @@ async function lt(e, t = {}) {
 		classes: ["holosuite-vending-window", "holosuite-vending-region-dialog"]
 	}) ? game.holosuiteVending.openMachine(e, t.actor ?? null, t.context ?? {}) : null : (ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null);
 }
-function ut() {
+function Tt() {
 	let t = {
-		promptMachineAccess: lt,
+		promptMachineAccess: wt,
 		openManager() {
 			if (!game.user.isGM) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.GMOnly")), null;
-			let e = new Qe();
+			let e = new ut();
 			return e.render(!0), e;
 		},
 		openSceneMachines() {
-			let e = new ve();
+			let e = new Ee();
 			return e.render(!0), e;
 		},
 		openMachine(e, t = null, n = {}) {
-			if (!T.getMachine(e)) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null;
-			let r = H.checkAccess({
+			if (!D.getMachine(e)) return ui.notifications.warn(game.i18n.localize("HOLOSUITEVENDING.Notifications.NoMachine")), null;
+			let r = B.checkAccess({
 				machineId: e,
 				actor: t,
 				context: n
 			});
 			if (!r.allowed && !game.user.isGM) return ui.notifications.warn(r.reason), null;
-			let i = new G(e, {
+			let i = new U(e, {
 				actor: t,
 				context: n
 			});
 			return i.render(!0), i;
 		},
 		getMachines() {
-			return foundry.utils.deepClone(T.getMachines());
+			return foundry.utils.deepClone(D.getMachines());
 		},
 		getLedger() {
-			return foundry.utils.deepClone(T.getLedger());
+			return foundry.utils.deepClone(D.getLedger());
 		},
 		restockMachine(e) {
-			return game.user.isGM ? T.restockMachine(e) : !1;
+			return game.user.isGM ? D.restockMachine(e) : !1;
 		},
 		exportMachines() {
-			return foundry.utils.deepClone(T.exportData());
+			return foundry.utils.deepClone(D.exportData());
 		},
 		async syncRegionLinks() {
-			return game.user.isGM ? (await Z(), !0) : !1;
+			return game.user.isGM ? (await xt(), !0) : !1;
 		}
 	};
 	game.holosuiteVending = t;
@@ -2492,13 +2638,13 @@ function ut() {
 //#endregion
 //#region src/main.ts
 var Q = !1;
-function dt() {
+function Et() {
 	let e = game.modules.get("holosuite-core");
 	return (e?.active ? e.api : null) ?? game.holosuite ?? globalThis.HoloSuiteCoreApi ?? null;
 }
 function $() {
 	if (Q) return !0;
-	let t = dt();
+	let t = Et();
 	if (!t?.registerApp) return !1;
 	let n = {
 		id: e,
@@ -2511,7 +2657,7 @@ function $() {
 	};
 	return t.registerApp(n), Q = !0, !0;
 }
-function ft() {
+function Dt() {
 	if ($()) return;
 	let e = 0, t = () => {
 		e += 1, !($() || e >= 20) && window.setTimeout(t, 250);
@@ -2519,15 +2665,18 @@ function ft() {
 	Hooks.once("holosuite-core.apiReady", () => $()), window.setTimeout(t, 250);
 }
 Hooks.once("init", () => {
-	T.registerSettings(), game.settings.registerMenu(e, "machineManager", {
+	D.registerSettings(), game.settings.registerMenu(e, "machineManager", {
 		name: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Name"),
 		label: game.i18n.localize("HOLOSUITEVENDING.Settings.Manager.Label"),
 		hint: "Create, configure, and link HoloSuite vending machines to scene Regions.",
 		icon: "fas fa-store",
-		type: Qe,
+		type: ut,
 		restricted: !0
 	});
 }), Hooks.once("ready", () => {
-	ut(), ft(), H.registerSocket(), H.resumePendingDispenses(), st(), Hooks.on(`${e}.machinesChanged`, () => G.refreshAll()), Hooks.on(`${e}.currencyChanged`, () => G.refreshAll()), Hooks.on(`${e}.purchaseResult`, (e) => G.handlePurchaseResult(e)), Hooks.on(`${e}.collectionResult`, (e) => G.handleCollectionResult(e)), Hooks.on("updateUser", () => H.resumePendingDispenses()), console.log(`${e} | Ready`);
+	Tt(), Dt(), B.registerSocket(), B.resumePendingDispenses(), St(), Hooks.on(`${e}.machinesChanged`, (e) => {
+		let t = e?.changedMachineIds;
+		Array.isArray(t) ? U.refreshMachines(t) : U.refreshAll();
+	}), Hooks.on(`${e}.currencyChanged`, () => U.refreshAll()), Hooks.on(`${e}.purchaseResult`, (e) => U.handlePurchaseResult(e)), Hooks.on(`${e}.collectionResult`, (e) => U.handleCollectionResult(e)), Hooks.on("updateUser", () => B.resumePendingDispenses()), console.log(`${e} | Ready`);
 });
 //#endregion

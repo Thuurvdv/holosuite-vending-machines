@@ -1,7 +1,7 @@
 import { TEMPLATES } from "./constants.js";
 import { MachineStore } from "./machine-store.js";
 import { getApplicationBase } from "./application-base.js";
-import { findMachineRegionPresence } from "./region-access.mjs";
+import { findMachineRegionPresences } from "./region-access.mjs";
 
 const BaseApplication = getApplicationBase();
 
@@ -12,21 +12,28 @@ function getActorForUser(): any {
 function getSceneMachineLinks(actor): any[] {
   const links: any[] = [];
   const scene = canvas?.scene;
+  const machines = MachineStore.getMachines();
   const regions = Array.from(scene?.regions?.contents ?? scene?.regions ?? []) as any[];
-  for (const machine of MachineStore.getMachines()) {
-    const linkedRegion = regions.find((candidate) => machine.regionIds?.includes?.(String(candidate.id)));
+  const regionById = new Map(regions.map((region) => [String(region.id), region]));
+  const tokenId = canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
+  const proximityMachines = game.user?.isGM
+    ? []
+    : machines.filter((machine) => machine.access?.requireProximity);
+  const presenceByMachine = findMachineRegionPresences({ scene, machines: proximityMachines, actor, tokenId });
+
+  for (const machine of machines) {
+    const linkedRegion = machine.regionIds?.map?.((regionId) => regionById.get(String(regionId))).find(Boolean);
     if (!linkedRegion) continue;
     const requiresLivePresence = machine.access?.requireProximity && !game.user?.isGM;
-    const presence = requiresLivePresence
-      ? findMachineRegionPresence({ scene, machine, actor, tokenId: canvas?.tokens?.controlled?.[0]?.document?.id ?? "" })
-      : null;
+    const presence = requiresLivePresence ? presenceByMachine.get(machine.id) : null;
     if (requiresLivePresence && !presence) continue;
     const region = presence?.region ?? linkedRegion;
-    const tokenId = presence?.token?.id ?? canvas?.tokens?.controlled?.[0]?.document?.id ?? "";
+    const presenceTokenId = presence?.token?.id ?? tokenId;
     if (!region) continue;
+    const state = MachineStore.getMachineState(machine);
     links.push({
       regionId: region.id,
-      tokenId,
+      tokenId: presenceTokenId,
       machineId: machine.id,
       name: machine.name,
       description: machine.description,
@@ -34,8 +41,8 @@ function getSceneMachineLinks(actor): any[] {
       inventoryCount: machine.inventory?.length ?? 0,
       availableProducts: machine.inventory?.filter((entry) => entry.stock > 0).length ?? 0,
       totalStock: machine.inventory?.reduce((total, entry) => total + entry.stock, 0) ?? 0,
-      state: MachineStore.getMachineState(machine),
-      offline: MachineStore.getMachineState(machine) === "offline",
+      state,
+      offline: state === "offline",
       linkLabel: `Region: ${region.name || region.id}`
     });
   }

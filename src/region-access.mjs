@@ -49,9 +49,17 @@ export function getActorTokens(scene, actor, requestedTokenId = "") {
   const tokens = collectionEntries(scene.tokens);
   const requested = getCollectionEntry(scene.tokens, requestedTokenId);
   const matches = [];
-  if (tokenMatchesActor(requested, actor)) matches.push(requested);
+  const matchedIds = new Set();
+  if (tokenMatchesActor(requested, actor)) {
+    matches.push(requested);
+    matchedIds.add(String(requested.id));
+  }
   for (const token of tokens) {
-    if (tokenMatchesActor(token, actor) && !matches.some((candidate) => candidate.id === token.id)) matches.push(token);
+    const tokenId = String(token?.id ?? "");
+    if (tokenMatchesActor(token, actor) && !matchedIds.has(tokenId)) {
+      matches.push(token);
+      matchedIds.add(tokenId);
+    }
   }
   return matches;
 }
@@ -122,4 +130,33 @@ export function findMachineRegionPresence({ scene, machine, actor, tokenId = "" 
     }
   }
   return null;
+}
+
+export function findMachineRegionPresences({ scene, machines = [], actor, tokenId = "" }) {
+  const presenceByMachine = new Map();
+  if (!scene || !actor || !Array.isArray(machines) || !machines.length) return presenceByMachine;
+
+  const linkedRegionIds = new Set(machines.flatMap((machine) => (
+    (machine.regionIds ?? []).map((id) => String(id))
+  )));
+  const regions = collectionEntries(scene.regions)
+    .filter((region) => linkedRegionIds.has(String(region?.id ?? region?._id ?? "")));
+  const presenceByRegion = new Map();
+
+  for (const token of getActorTokens(scene, actor, tokenId)) {
+    for (const region of regions) {
+      const regionId = String(region?.id ?? region?._id ?? "");
+      if (!presenceByRegion.has(regionId) && regionContainsToken(region, token, scene)) {
+        presenceByRegion.set(regionId, { region, token: token.document ?? token });
+      }
+    }
+  }
+
+  for (const machine of machines) {
+    const presence = (machine.regionIds ?? [])
+      .map((regionId) => presenceByRegion.get(String(regionId)))
+      .find(Boolean);
+    if (presence) presenceByMachine.set(machine.id, presence);
+  }
+  return presenceByMachine;
 }

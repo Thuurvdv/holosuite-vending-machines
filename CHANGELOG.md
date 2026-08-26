@@ -19,6 +19,9 @@
 - Filtered the player machine browser using live token Region membership and enforced the same check when opening or purchasing.
 - Replaced the header connection text with a compact status indicator.
 - Made the custom close control independent of icon-font differences across supported Foundry versions.
+- Reduced redundant machine-state cloning, targeted open-window refreshes, and batched player Region-presence checks.
+- Made linked-Region synchronization responsible-GM-only, debounced, and limited to structural machine changes.
+- Reduced pending-dispense payloads for UUID-backed products and moved repeated formatting work into reusable caches.
 
 ### Removed
 
@@ -35,3 +38,5 @@
 - Restricted machines remaining visible to players outside their linked Regions.
 - Decorative SVG layers failing to fill their intended frames.
 - Close control visibility and centering across Foundry v12, v13, and v14.
+- Unchanged Region behaviors being rewritten after stock updates and other unrelated machine changes.
+- Duplicate manager renders, unthrottled resize and window-drag updates, and stale asynchronous audio handles.

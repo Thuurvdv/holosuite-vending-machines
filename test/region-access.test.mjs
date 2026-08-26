@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { findMachineRegionPresence, regionContainsToken } from "../src/region-access.mjs";
+import { findMachineRegionPresence, findMachineRegionPresences, regionContainsToken } from "../src/region-access.mjs";
 
 const machine = { id: "machine-1", regionIds: ["region-1"], access: { requireProximity: true } };
 const actor = { id: "actor-1" };
@@ -34,6 +34,18 @@ test("falls back to Region point testing on Foundry versions without membership 
   assert.equal(regionContainsToken(region, token, scene), true);
 });
 
+test("resolves player presence once for multiple machines linked to the same Region", () => {
+  const region = { id: "region-1" };
+  const token = { id: "token-1", actorId: actor.id, regions: new Set([region]) };
+  const scene = { regions: [region], tokens: [token], grid: { size: 100 } };
+  const machines = [machine, { ...machine, id: "machine-2" }];
+
+  const presences = findMachineRegionPresences({ scene, machines, actor });
+
+  assert.equal(presences.get("machine-1")?.region, region);
+  assert.equal(presences.get("machine-2")?.token, token);
+});
+
 test("the player browser and open API both enforce live Region presence", async () => {
   const [browser, api, store, manager, editor, browserTemplate] = await Promise.all([
     readFile(new URL("../src/machine-browser-app.ts", import.meta.url), "utf8"),
@@ -44,7 +56,7 @@ test("the player browser and open API both enforce live Region presence", async 
     readFile(new URL("../templates/machine-browser.hbs", import.meta.url), "utf8")
   ]);
 
-  assert.match(browser, /requiresLivePresence = machine\.access\?\.requireProximity && !game\.user\?\.isGM;[\s\S]*findMachineRegionPresence[\s\S]*if \(requiresLivePresence && !presence\) continue;/);
+  assert.match(browser, /findMachineRegionPresences\(\{ scene, machines: proximityMachines, actor, tokenId \}\)[\s\S]*requiresLivePresence = machine\.access\?\.requireProximity && !game\.user\?\.isGM;[\s\S]*presenceByMachine\.get\(machine\.id\)[\s\S]*if \(requiresLivePresence && !presence\) continue;/);
   assert.match(api, /PurchaseService\.checkAccess\(\{ machineId, actor, context \}\)[\s\S]*if \(!access\.allowed && !game\.user\.isGM\)/);
   assert.match(store, /requireProximity:\s*asBoolean\([^,]+, true\)/);
   assert.doesNotMatch(store, /requiredItemName/);

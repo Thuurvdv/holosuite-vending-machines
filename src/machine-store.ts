@@ -88,6 +88,56 @@ function normalizeState(state: any = {}) {
   };
 }
 
+function sameStringList(left: any[] = [], right: any[] = []) {
+  return left.length === right.length && left.every((value, index) => String(value) === String(right[index]));
+}
+
+function sameVisibleEntry(left: any, right: any) {
+  return left?.id === right?.id
+    && left?.itemUuid === right?.itemUuid
+    && left?.displayName === right?.displayName
+    && left?.image === right?.image
+    && left?.price === right?.price
+    && left?.stock === right?.stock
+    && left?.maxStock === right?.maxStock
+    && left?.description === right?.description;
+}
+
+function sameVisibleMachine(left: any, right: any) {
+  if (!left || !right) return false;
+  const scalarKeys = ["name", "manufacturerName", "styleId", "description", "image", "status"];
+  if (scalarKeys.some((key) => left[key] !== right[key])) return false;
+  if (Boolean(left.access?.requireProximity) !== Boolean(right.access?.requireProximity)) return false;
+  if (!sameStringList(left.regionIds, right.regionIds)) return false;
+  if (left.inventory.length !== right.inventory.length) return false;
+  return left.inventory.every((entry, index) => sameVisibleEntry(entry, right.inventory[index]));
+}
+
+function sameRegionDefinition(left: any, right: any) {
+  return Boolean(left && right)
+    && left.name === right.name
+    && sameStringList(left.regionIds, right.regionIds);
+}
+
+function describeMachineChanges(previous: any, next: any) {
+  const previousMachines = previous?.machines ?? [];
+  const nextMachines = next?.machines ?? [];
+  const previousById = new Map(previousMachines.map((machine) => [machine.id, machine]));
+  const nextById = new Map(nextMachines.map((machine) => [machine.id, machine]));
+  const machineIds = new Set([...previousById.keys(), ...nextById.keys()]);
+  const changedMachineIds: string[] = [];
+  let regionStructureChanged = !previous;
+
+  for (const machineId of machineIds) {
+    const before = previousById.get(machineId);
+    const after = nextById.get(machineId);
+    if (!sameVisibleMachine(before, after)) changedMachineIds.push(String(machineId));
+    if (!sameRegionDefinition(before, after)) regionStructureChanged = true;
+  }
+
+  return { changedMachineIds, regionStructureChanged };
+}
+
 function normalizeLedger(ledger: any = {}) {
   return {
     version: 1,
@@ -110,7 +160,15 @@ function normalizeDispenseReservation(entry: any = {}) {
     itemSummary: String(entry.itemSummary || ""),
     itemCount: asNonNegativeInteger(entry.itemCount, 0),
     totalPrice: Math.max(0, Number(entry.totalPrice) || 0),
-    items: Array.isArray(entry.items) ? clone(entry.items) : [],
+    items: Array.isArray(entry.items) ? entry.items.map((item: any) => ({
+      entryId: String(item.entryId || ""),
+      itemUuid: String(item.itemUuid || ""),
+      quantity: Math.max(1, asNonNegativeInteger(item.quantity, 1)),
+      displayName: String(item.displayName || item.itemData?.name || "Vended Item"),
+      image: String(item.image || item.itemData?.img || "icons/svg/item-bag.svg"),
+      // Retain legacy snapshots so pending purchases made before this optimization can still complete.
+      ...(item.itemData ? { itemData: clone(item.itemData) } : {})
+    })) : [],
     image: String(entry.image || ""),
     createdAt: Number(entry.createdAt) || Date.now(),
     expiresAt: Number(entry.expiresAt) || Date.now() + 11_000,
@@ -126,6 +184,8 @@ function normalizeDispenseState(state: any = {}) {
 }
 
 export class MachineStore {
+  static machineStateCache: any = null;
+
   static registerSettings() {
     game.settings.register(MODULE_ID, SETTINGS.machines, {
       name: "HoloSuite Vending Machine Data",
@@ -133,7 +193,12 @@ export class MachineStore {
       config: false,
       type: Object,
       default: { version: 3, machines: [] },
-      onChange: () => Hooks.callAll(`${MODULE_ID}.machinesChanged`)
+      onChange: (value) => {
+        const previous = this.machineStateCache;
+        const next = normalizeState(value);
+        this.machineStateCache = next;
+        Hooks.callAll(`${MODULE_ID}.machinesChanged`, describeMachineChanges(previous, next));
+      }
     });
 
     game.settings.register(MODULE_ID, SETTINGS.currencyName, {
@@ -241,16 +306,30 @@ export class MachineStore {
   }
 
   static getState() {
-    return normalizeState(game.settings.get(MODULE_ID, SETTINGS.machines));
+    return clone(this.getCachedState());
+  }
+
+  static getCachedState() {
+    if (!this.machineStateCache) {
+      this.machineStateCache = normalizeState(game.settings.get(MODULE_ID, SETTINGS.machines));
+    }
+    return this.machineStateCache;
   }
 
   static async setState(state) {
     if (!game.user.isGM) throw new Error("Only a GM can update vending machine data.");
-    await game.settings.set(MODULE_ID, SETTINGS.machines, normalizeState(state));
+    const normalized = normalizeState(state);
+    await game.settings.set(MODULE_ID, SETTINGS.machines, normalized);
+    // Foundry normally invokes onChange after set. Keep the cache correct for adapters which do not.
+    const changes = describeMachineChanges(this.machineStateCache, normalized);
+    this.machineStateCache = normalized;
+    if (changes.changedMachineIds.length || changes.regionStructureChanged) {
+      Hooks.callAll(`${MODULE_ID}.machinesChanged`, changes);
+    }
   }
 
   static getMachines() {
-    return this.getState().machines;
+    return this.getCachedState().machines;
   }
 
   static getMachine(machineId) {

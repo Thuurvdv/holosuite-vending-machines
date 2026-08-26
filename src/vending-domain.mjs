@@ -4,9 +4,21 @@ export const MACHINE_STATES = Object.freeze({
   SOLD_OUT: "sold-out"
 });
 
+const currencyFormatters = new Map();
+
+function getCurrencyFormatter(locale) {
+  const key = locale || "__default__";
+  let formatter = currencyFormatters.get(key);
+  if (!formatter) {
+    formatter = new Intl.NumberFormat(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    currencyFormatters.set(key, formatter);
+  }
+  return formatter;
+}
+
 export function formatCurrencyAmount(value, locale) {
   const number = Number(value) || 0;
-  return new Intl.NumberFormat(locale, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+  return getCurrencyFormatter(locale)
     .format(Math.round((number + Number.EPSILON) * 100) / 100);
 }
 

@@ -84,7 +84,11 @@ Hooks.once("ready", () => {
   PurchaseService.registerSocket();
   PurchaseService.resumePendingDispenses();
   registerRegionIntegration();
-  Hooks.on(`${MODULE_ID}.machinesChanged`, () => VendingApp.refreshAll());
+  Hooks.on(`${MODULE_ID}.machinesChanged`, (changes) => {
+    const machineIds = changes?.changedMachineIds;
+    if (Array.isArray(machineIds)) VendingApp.refreshMachines(machineIds);
+    else VendingApp.refreshAll();
+  });
   Hooks.on(`${MODULE_ID}.currencyChanged`, () => VendingApp.refreshAll());
   Hooks.on(`${MODULE_ID}.purchaseResult`, (payload) => VendingApp.handlePurchaseResult(payload));
   Hooks.on(`${MODULE_ID}.collectionResult`, (payload) => VendingApp.handleCollectionResult(payload));
