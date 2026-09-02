@@ -25,7 +25,7 @@ test("keeps package and Foundry release metadata aligned", async () => {
   assert.equal(packageData.version, moduleData.version);
   assert.equal(lockData.version, moduleData.version);
   assert.equal(lockData.packages[""].version, moduleData.version);
-  assert.equal(moduleData.version, "1.5.0");
+  assert.equal(moduleData.version, "1.5.1");
   assert.equal(moduleData.compatibility.minimum, "12");
   assert.equal(moduleData.compatibility.verified, "14");
   assert.equal(
@@ -75,6 +75,23 @@ test("ships the GPL license declared by the module manifest", async () => {
   assert.match(license, /GNU GENERAL PUBLIC LICENSE/);
   assert.match(license, /Version 3, 29 June 2007/);
   assert.match(workflow, /"\$MODULE_ID\/LICENSE"/);
+});
+
+test("documents and packages the provenance of every shipped SVG and OGG asset", async () => {
+  const [attribution, workflow] = await Promise.all([
+    readProjectFile("ATTRIBUTION.md"),
+    readProjectFile(".github/workflows/release.yml")
+  ]);
+  const assetFiles = (await collectFiles("assets"))
+    .filter((path) => /\.(?:svg|ogg)$/i.test(path));
+
+  assert.match(attribution, /original works created by Mage Tower Studios/);
+  assert.match(attribution, /GPL-3\.0-or-later/);
+  for (const path of assetFiles) {
+    assert.match(attribution, new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+  assert.match(workflow, /README\.md CHANGELOG\.md LICENSE ATTRIBUTION\.md/);
+  assert.match(workflow, /"\$MODULE_ID\/ATTRIBUTION\.md"/);
 });
 
 test("shipped interface text contains no en or em dashes", async () => {

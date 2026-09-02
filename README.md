@@ -23,7 +23,7 @@ A free HoloSuite module for Foundry VTT v12-v14. GMs can configure vending machi
 
 GMs create Regions with Foundry's Region tools and select them in each machine's editor. When a player's token enters a linked Region, the module prompts that player to open the machine. The player can then add products to a cart and confirm checkout. A connected GM validates actor ownership, Region access, stock, and currency before applying the purchase.
 
-The player window is presented as a physical vending machine: a fixed compartment matrix, product control terminal, telemetry header, dispense queue, and retrieval bay. Active Alien Market and Neon decorative SVGs live in `assets/vendor/`; see `assets/vendor/README.md` for replacement sizes. Earlier art-source references remain in `assets/ui/`. Runtime labels and controls intentionally remain HTML/CSS.
+The player window is presented as a physical vending machine: a fixed compartment matrix, product control terminal, telemetry header, dispense queue, and retrieval bay. Active Alien Market and Neon decorative SVGs live in `assets/vendor/`; see `assets/vendor/README.md` for replacement sizes. Runtime labels and controls intentionally remain HTML/CSS.
 
 ## Release history
 
@@ -31,7 +31,7 @@ See [CHANGELOG.md](CHANGELOG.md) for release notes.
 
 ## License
 
-HoloSuite Vending Machines is released under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE).
+HoloSuite Vending Machines is released under the GNU General Public License v3.0 or later. See [LICENSE](LICENSE). Original SVG and OGG asset provenance is documented in [ATTRIBUTION.md](ATTRIBUTION.md).
 
 ## Public API
 

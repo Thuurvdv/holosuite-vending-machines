@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.5.1 - 2026-08-28
+
+### Added
+
+- Asset provenance and licensing documentation for the original SVG artwork and OGG sound effects.
+
 ## 1.5.0 - 2026-08-26
 
 ### Added
