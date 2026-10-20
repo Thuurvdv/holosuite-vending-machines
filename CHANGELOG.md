@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.6.0 - 2026-10-20
+
+### Added
+
+- Native SF2e inventory currency support for vending purchases and purchase rollback.
+- Tests for SF2e currency detection, debit, and refund behavior.
+
 ## 1.5.1 - 2026-08-28
 
 ### Added

@@ -9,6 +9,7 @@ import {
   getDispenseDelay
 } from "./purchase-domain.mjs";
 import { findMachineRegionPresence, getCollectionEntry } from "./region-access.mjs";
+import { addSf2eCredits, getSf2eCurrencyProfile, removeSf2eCredits } from "./sf2e-currency.mjs";
 
 const QUANTITY_PATHS = [
   "system.quantity",
@@ -98,6 +99,16 @@ function currencyLabelForEntries(entries) {
 
 function resolveCurrencySource(actor) {
   const mode = MachineStore.getCurrencyMode();
+  const sf2eCurrency = mode === "item" ? null : getSf2eCurrencyProfile(actor);
+  if (sf2eCurrency) {
+    return {
+      kind: "sf2e",
+      actor,
+      value: sf2eCurrency.value,
+      label: sf2eCurrency.label
+    };
+  }
+
   const entries = findActorCurrencyEntries(actor);
   if ((mode === "auto" || mode === "actor") && entries.length) {
     return {
@@ -172,6 +183,13 @@ async function resolveReservedPurchaseItem(item, machineId) {
 
 async function deductCurrency(source, totalPrice) {
   if (!source || totalPrice <= 0) return null;
+  if (source.kind === "sf2e") {
+    const removed = await removeSf2eCredits(source.actor, totalPrice);
+    if (!removed) {
+      throw new Error(game.i18n.format("HOLOSUITEVENDING.Notifications.NoCurrency", { currency: source.label }));
+    }
+    return { type: "sf2e", actor: source.actor, amount: totalPrice };
+  }
   if (source.kind === "actor") {
     const previous = Object.fromEntries(source.entries.map((entry) => [entry.path, entry.amount]));
     const { updates } = allocateCurrencyRemainder(source.entries, totalPrice);
@@ -194,6 +212,10 @@ async function deductCurrency(source, totalPrice) {
 
 async function rollbackCurrency(change) {
   if (!change) return;
+  if (change.type === "sf2e") {
+    await addSf2eCredits(change.actor, change.amount);
+    return;
+  }
   if (change.type === "actor") {
     await change.actor.update(change.previous);
     return;

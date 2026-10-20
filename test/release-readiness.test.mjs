@@ -25,7 +25,7 @@ test("keeps package and Foundry release metadata aligned", async () => {
   assert.equal(packageData.version, moduleData.version);
   assert.equal(lockData.version, moduleData.version);
   assert.equal(lockData.packages[""].version, moduleData.version);
-  assert.equal(moduleData.version, "1.5.1");
+  assert.equal(moduleData.version, "1.6.0");
   assert.equal(moduleData.compatibility.minimum, "12");
   assert.equal(moduleData.compatibility.verified, "14");
   assert.equal(
